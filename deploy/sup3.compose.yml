@@ -1,0 +1,10 @@
+# Additive override. Build this fork first: docker build -t sup3api:local .
+services:
+  sub2api:
+    image: sup3api:local
+    environment:
+      SUP3_ENABLED: "true"
+      SUP3_ALLOWED_USER_IDS: ${SUP3_ALLOWED_USER_IDS:?Set explicitly provisioned user IDs}
+      SUP3_TRIPO_API_KEY: ${SUP3_TRIPO_API_KEY:-}
+      SUP3_MESHY_API_KEY: ${SUP3_MESHY_API_KEY:-}
+      SUP3_DATA_DIR: /app/data/sup3-assets

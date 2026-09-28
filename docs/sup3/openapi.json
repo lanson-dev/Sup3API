@@ -1,0 +1,871 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Sup3API assets",
+    "version": "1.0.0",
+    "description": "Independent asynchronous 3D asset API. Billing uses provider-native credits at multiplier 1, not Sub2API USD wallet debits. Operator must allowlist users. Assets are isolated by owner AND API key. No third-party Studio OAuth or session credentials are used.\n\nProvider options (wrong-operation options are rejected):\nTripo generation: geometry_quality (standard/detailed), smart_low_poly, generate_parts, model_seed, auto_size; textured generation: texture_quality (standard/detailed/extreme; fast requires v3.5), texture_version (v3.5-20260815), texture_seed; text generation: image_seed, negative_prompt. Retexture: texture_quality (fast/standard/detailed/extreme). Rig: rig_type, spec (tripo/mixamo). Animate: animation_in_place.\nMeshy generation: geometry_resolution (standard/2k/4k; Ultra requires meshy-7.1), moderation. Text with texture: texture_prompt. Rig: height_meters.\n\nImage inputs are HTTPS URLs only. Tripo multiview order is [front,left,back,right] with front and at least one other view. Meshy uses 1–4 URLs. Cross-provider job references and inline uploads are not implemented.\n"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/v1/assets/capabilities": {
+      "get": {
+        "operationId": "listCapabilities",
+        "summary": "Discover configured providers",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "schema_version": {
+                      "type": "string"
+                    },
+                    "providers": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Capability"
+                      }
+                    },
+                    "billing": {
+                      "type": "string"
+                    },
+                    "multiplier": {
+                      "type": "number"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/assets/quotes": {
+      "post": {
+        "operationId": "quoteJob",
+        "summary": "Validate and estimate native credits",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "request": {
+                      "$ref": "#/components/schemas/Request"
+                    },
+                    "quote": {
+                      "$ref": "#/components/schemas/Price"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/assets/jobs": {
+      "post": {
+        "operationId": "createJob",
+        "summary": "Create durable job; repeat same key and normalized body to recover response",
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Existing idempotent job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ]
+      },
+      "get": {
+        "operationId": "listJobs",
+        "summary": "Latest 100 jobs for this owner and API key",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jobs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Job"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/assets/jobs/{id}": {
+      "get": {
+        "operationId": "getJob",
+        "summary": "Get task status and artifact manifest",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/assets/jobs/{id}/cancel": {
+      "post": {
+        "operationId": "cancel",
+        "summary": "Cancel queued job (provider limitations apply)",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/assets/jobs/{id}/retry-delivery": {
+      "post": {
+        "operationId": "retry_delivery",
+        "summary": "Retry failed delivery without another generation",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/assets/jobs/{id}/refresh-artifacts": {
+      "post": {
+        "operationId": "refresh_artifacts",
+        "summary": "Refresh existing result URLs and extract components again",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/assets/jobs/{id}/artifacts/{artifact_id}": {
+      "get": {
+        "operationId": "downloadArtifact",
+        "summary": "Download an owned artifact; supports HTTP range requests",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "artifact_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Original or derived asset bytes",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Partial content"
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Sub2API API key, not a provider API key"
+      }
+    },
+    "schemas": {
+      "Inputs": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Public HTTPS URL; Tripo multiview permits empty non-front slots."
+            },
+            "maxItems": 4
+          },
+          "model_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "job_id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Parameters": {
+        "type": "object",
+        "properties": {
+          "texture": {
+            "type": "boolean",
+            "default": true
+          },
+          "pbr": {
+            "type": "boolean",
+            "default": true
+          },
+          "texture_resolution": {
+            "type": "string",
+            "enum": [
+              "2k",
+              "4k",
+              "8k"
+            ],
+            "description": "Meshy only. Tripo uses provider_options.texture_quality."
+          },
+          "target_faces": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Meshy approximate target; not a bound."
+          },
+          "max_faces": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Tripo upper bound; not a target."
+          },
+          "topology": {
+            "type": "string",
+            "enum": [
+              "triangle",
+              "quad"
+            ]
+          },
+          "pose": {
+            "type": "string",
+            "enum": [
+              "a-pose",
+              "t-pose"
+            ],
+            "description": "Meshy generation only."
+          },
+          "animations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Provider-native preset name or decimal action ID."
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "Request": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "tripo",
+              "meshy"
+            ]
+          },
+          "model": {
+            "type": "string",
+            "description": "Version pinned by operation. Meshy rig/animate and Tripo animate omit model."
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "text_to_3d",
+              "image_to_3d",
+              "multi_image_to_3d",
+              "retexture",
+              "rig",
+              "animate"
+            ]
+          },
+          "inputs": {
+            "$ref": "#/components/schemas/Inputs"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/Parameters"
+          },
+          "provider_options": {
+            "type": "object",
+            "description": "Strict operation-specific allowlist; see ProviderOptions documentation below.",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "provider",
+          "operation",
+          "inputs"
+        ],
+        "additionalProperties": false
+      },
+      "Price": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "credits": {
+            "type": "number",
+            "minimum": 0
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "credits"
+            ]
+          },
+          "multiplier": {
+            "type": "number",
+            "const": 1
+          },
+          "usd": {
+            "type": "number",
+            "description": "Present for Tripo only; absent when a universal conversion is not verified."
+          },
+          "source": {
+            "type": "string",
+            "format": "uri"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "estimate",
+              "pending",
+              "reported",
+              "partially_reported"
+            ]
+          }
+        },
+        "required": [
+          "provider",
+          "credits",
+          "unit",
+          "multiplier",
+          "source",
+          "as_of",
+          "kind"
+        ],
+        "additionalProperties": false
+      },
+      "ErrorDetail": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "retryable"
+        ],
+        "additionalProperties": false
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      },
+      "Artifact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "description": "Open role namespace: model, geometry, materials, texture.*, skeleton, skin_weights, animations, animation, preview."
+          },
+          "format": {
+            "type": "string"
+          },
+          "media_type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "Relative authenticated gateway URL; no upstream signed URL."
+          },
+          "size": {
+            "type": "integer"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "derived_from": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "format",
+          "media_type"
+        ],
+        "additionalProperties": false
+      },
+      "Component": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "absent",
+              "unsupported",
+              "pending"
+            ]
+          },
+          "artifact_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "Step": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "upstream_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "credits": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "Job": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "schema_version": {
+            "type": "string",
+            "const": "sup3.asset.v1"
+          },
+          "request": {
+            "$ref": "#/components/schemas/Request"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "submitting",
+              "running",
+              "succeeded",
+              "failed",
+              "canceled",
+              "submission_unknown"
+            ]
+          },
+          "progress": {
+            "type": "integer"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Step"
+            }
+          },
+          "quote": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "delivery_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "ready",
+              "failed",
+              "unavailable"
+            ]
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Artifact"
+            }
+          },
+          "components": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Component"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "schema_version",
+          "request",
+          "status",
+          "progress",
+          "steps",
+          "quote",
+          "cost",
+          "delivery_status",
+          "artifacts",
+          "components",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false
+      },
+      "Capability": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "authentication": {
+            "type": "string",
+            "const": "api_key"
+          },
+          "input_schema": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "models_by_operation": {
+            "type": "object",
+            "description": "Supported model versions for each operation; empty array means omit model.",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "provider",
+          "models",
+          "operations",
+          "authentication",
+          "available"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

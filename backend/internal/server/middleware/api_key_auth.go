@@ -32,6 +32,16 @@ func NewAPIKeyAuthMiddleware(apiKeyService *service.APIKeyService, subscriptionS
 // usage 允许过期/配额耗尽的 Key 查询自身用量，billing 用于读取当前 Key 的倍率配置，
 // 异步生图查询允许已耗尽额度的 Key 拉取自身任务结果。
 func apiKeyAuthWithSubscription(apiKeyService *service.APIKeyService, subscriptionService *service.SubscriptionService, cfg *config.Config) gin.HandlerFunc {
+	return apiKeyAuthWithBillingPolicy(apiKeyService, subscriptionService, cfg, false)
+}
+
+// NewAPIKeyIdentityMiddleware reuses identity, revocation, group and IP checks
+// for APIs with a separate billing unit. Callers enforce their own spending policy.
+func NewAPIKeyIdentityMiddleware(apiKeyService *service.APIKeyService, cfg *config.Config) gin.HandlerFunc {
+	return apiKeyAuthWithBillingPolicy(apiKeyService, nil, cfg, true)
+}
+
+func apiKeyAuthWithBillingPolicy(apiKeyService *service.APIKeyService, subscriptionService *service.SubscriptionService, cfg *config.Config, identityOnly bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// ── 1. 提取 API Key ──────────────────────────────────────────
 		if rejectInvalidAuthAbuse(c, apiKeyService) {
@@ -169,7 +179,7 @@ func apiKeyAuthWithSubscription(apiKeyService *service.APIKeyService, subscripti
 		// Async image task polling only reads data that already belongs to the
 		// authenticated key and must remain available after the completed
 		// generation consumes the key's remaining balance.
-		skipBilling := c.Request.URL.Path == "/v1/usage" || billingInfoRequest || isAsyncImageTaskRead(c.Request.Method, c.Request.URL.Path)
+		skipBilling := identityOnly || c.Request.URL.Path == "/v1/usage" || billingInfoRequest || isAsyncImageTaskRead(c.Request.Method, c.Request.URL.Path)
 
 		// ── 4. SimpleMode → early return ─────────────────────────────
 

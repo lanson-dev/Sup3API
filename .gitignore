@@ -1,4 +1,9 @@
 # 本地杂项文档、测试数据和外部项目副本
+APIKeys.txt
+/.local/
+/sup3-data/
+__pycache__/
+*.pyc
 /docs-local/
 .codex
 
@@ -161,3 +166,7 @@ issues/
 .vite/
 # 本地闭源插件开发目录及构建产物不进入 Sub2API 仓库
 /plugins/
+
+# Sup3API extension documentation.
+!docs/sup3/
+!docs/sup3/**
