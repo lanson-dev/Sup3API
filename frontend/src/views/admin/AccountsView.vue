@@ -454,7 +454,7 @@
       </template>
       <template #pagination><Pagination v-if="pagination.total > 0" :page="pagination.page" :total="pagination.total" :page-size="pagination.page_size" @update:page="handlePageChange" @update:pageSize="handlePageSizeChange" /></template>
     </TablePageLayout>
-    <CreateAccountModal :show="showCreate" :proxies="proxies" :groups="groups" @close="showCreate = false" @created="reload" @asset="createAssetAccount" />
+    <CreateAccountModal :show="showCreate" :proxies="proxies" :groups="groups" @close="showCreate = false" @created="reload" />
     <AssetAccountModal :show="showAssetAccount" :provider="assetProvider" :account="assetAccount" @close="showAssetAccount = false" @saved="reload" />
     <EditAccountModal :show="showEdit" :account="edAcc" :proxies="proxies" :groups="groups" @close="showEdit = false" @updated="handleAccountUpdated" />
     <ReAuthAccountModal :show="showReAuth" :account="reAuthAcc" @close="closeReAuthModal" @reauthorized="handleAccountUpdated" />
@@ -1846,12 +1846,7 @@ const loadAccountDetails = async (account: Pick<AccountListItem, 'id'>): Promise
 const showAssetAccount = ref(false)
 const assetProvider = ref<'tripo' | 'meshy'>('tripo')
 const assetAccount = ref<Account | null>(null)
-const createAssetAccount = (provider: 'tripo' | 'meshy') => {
-  showCreate.value = false
-  assetProvider.value = provider
-  assetAccount.value = null
-  showAssetAccount.value = true
-}
+
 const handleEdit = async (a: AccountListItem) => {
   const account = await loadAccountDetails(a)
   if (!account) return

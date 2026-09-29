@@ -5,13 +5,6 @@
     width="wide"
     @close="handleClose"
   >
-    <div v-if="step === 1" class="mb-5 rounded-xl border border-gray-200 p-4 dark:border-dark-500">
-      <p class="mb-3 text-sm font-medium">三维资产供应商 · API Key 接入</p>
-      <div class="flex gap-3">
-        <button type="button" class="btn btn-secondary" @click="emit('asset', 'tripo')">Tripo</button>
-        <button type="button" class="btn btn-secondary" @click="emit('asset', 'meshy')">Meshy</button>
-      </div>
-    </div>
     <!-- Step Indicator for OAuth accounts -->
     <div v-if="isOAuthFlow" class="mb-6 flex items-center justify-center">
       <div class="flex items-center space-x-4">
@@ -74,170 +67,43 @@
         <p class="input-hint">{{ t('admin.accounts.notesHint') }}</p>
       </div>
 
-      <!-- Platform Selection - Segmented Control Style -->
+      <!-- All upstream providers share the same platform selector. -->
       <div>
         <label class="input-label">{{ t('admin.accounts.platform') }}</label>
-        <div class="mt-2 flex flex-wrap rounded-lg bg-gray-100 p-1 dark:bg-dark-700" data-tour="account-form-platform">
+        <div class="mt-2 grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1 sm:grid-cols-4 dark:bg-dark-700" data-tour="account-form-platform">
           <button
+            v-for="platform in ACCOUNT_PLATFORM_OPTIONS"
+            :key="platform.value"
             type="button"
-            @click="form.platform = 'anthropic'"
+            :aria-pressed="form.platform === platform.value"
+            @click="selectPlatform(platform.value)"
             :class="[
-              'flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all',
-              form.platform === 'anthropic'
-                ? 'bg-white text-orange-600 shadow-sm dark:bg-dark-600 dark:text-orange-400'
+              'relative flex min-w-0 items-center justify-center gap-2 rounded-md px-3 py-3 text-sm font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500',
+              form.platform === platform.value
+                ? 'bg-white text-primary-700 shadow-sm dark:bg-dark-600 dark:text-primary-300'
                 : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
             ]"
           >
-            <Icon name="sparkles" size="sm" />
-            Anthropic
-          </button>
-          <button
-            type="button"
-            @click="form.platform = 'openai'"
-            :class="[
-              'flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all',
-              form.platform === 'openai'
-                ? 'bg-white text-green-600 shadow-sm dark:bg-dark-600 dark:text-green-400'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-            ]"
-          >
-            <svg
-              class="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
-              />
-            </svg>
-            OpenAI
-          </button>
-          <button
-            type="button"
-            @click="form.platform = 'gemini'"
-            :class="[
-              'flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all',
-              form.platform === 'gemini'
-                ? 'bg-white text-blue-600 shadow-sm dark:bg-dark-600 dark:text-blue-400'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-            ]"
-          >
-            <svg
-              class="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 2l1.5 6.5L20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5L12 2z"
-              />
-            </svg>
-            Gemini
-          </button>
-          <button
-            type="button"
-            @click="form.platform = 'antigravity'"
-            :class="[
-              'flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all',
-              form.platform === 'antigravity'
-                ? 'bg-white text-purple-600 shadow-sm dark:bg-dark-600 dark:text-purple-400'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-            ]"
-          >
-            <Icon name="cloud" size="sm" />
-            Antigravity
-          </button>
-          <button
-            type="button"
-            @click="form.platform = 'grok'"
-            :class="[
-              'flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all',
-              form.platform === 'grok'
-                ? 'bg-white text-zinc-900 shadow-sm dark:bg-dark-600 dark:text-zinc-100'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-            ]"
-          >
-            <PlatformIcon platform="grok" size="sm" />
-            Grok
-          </button>
-        </div>
-        <!-- Multi-protocol API-key providers: Kimi / Zhipu GLM / DeepSeek / OpenCode -->
-        <div class="mt-2 flex flex-wrap rounded-lg bg-gray-100 p-1 dark:bg-dark-700">
-          <button
-            type="button"
-            @click="selectCNPlatform('kimi')"
-            :class="[
-              'flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-all',
-              form.platform === 'kimi'
-                ? 'bg-white text-pink-600 shadow-sm dark:bg-dark-600 dark:text-pink-400'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-            ]"
-          >
-            <PlatformIcon platform="kimi" size="sm" />
-            Kimi
-          </button>
-          <button
-            type="button"
-            @click="selectCNPlatform('zhipu')"
-            :class="[
-              'flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-all',
-              form.platform === 'zhipu'
-                ? 'bg-white text-indigo-600 shadow-sm dark:bg-dark-600 dark:text-indigo-400'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-            ]"
-          >
-            <PlatformIcon platform="zhipu" size="sm" />
-            Zhipu GLM
-          </button>
-          <button
-            type="button"
-            @click="selectCNPlatform('deepseek')"
-            :class="[
-              'flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-all',
-              form.platform === 'deepseek'
-                ? 'bg-white text-teal-600 shadow-sm dark:bg-dark-600 dark:text-teal-400'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-            ]"
-          >
-            <PlatformIcon platform="deepseek" size="sm" />
-            DeepSeek
-          </button>
-          <button
-            type="button"
-            @click="selectCNPlatform('minimax')"
-            :class="[
-              'flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-all',
-              form.platform === 'minimax'
-                ? 'bg-white text-rose-600 shadow-sm dark:bg-dark-600 dark:text-rose-400'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-            ]"
-          >
-            <PlatformIcon platform="minimax" size="sm" />
-            MiniMax
-          </button>
-          <button
-            type="button"
-            @click="selectOpenCodeGoPlatform()"
-            :class="[
-              'flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-all',
-              form.platform === 'opencode_go'
-                ? 'bg-white text-amber-700 shadow-sm dark:bg-dark-600 dark:text-amber-300'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-            ]"
-          >
-            <PlatformIcon platform="opencode_go" size="sm" />
-            OpenCode
+            <PlatformIcon :platform="platform.value" size="md" />
+            {{ platform.label }}
+            <span v-if="isAssetPlatform(platform.value)" class="absolute right-1 top-0.5 text-[9px] font-semibold leading-none text-primary-600 dark:text-primary-400">3D</span>
           </button>
         </div>
       </div>
 
+      <template v-if="isAssetAccount">
+        <label class="block">
+          <span class="input-label">上游 API Key</span>
+          <input v-model.trim="apiKeyValue" type="password" autocomplete="new-password" class="input" required :placeholder="`填写 ${form.platform === 'tripo' ? 'Tripo' : 'Meshy'} 开放平台的 API Key`" />
+          <span class="input-hint">使用供应商官方 API 额度，Studio 订阅不等同于 API 额度。</span>
+        </label>
+        <label class="block">
+          <span class="input-label">{{ t('admin.accounts.priority') }}</span>
+          <input v-model.number="form.priority" type="number" min="0" step="1" required class="input" data-tour="account-form-priority" />
+          <span class="input-hint">{{ t('admin.accounts.priorityHint') }}</span>
+        </label>
+      </template>
+      <template v-else>
       <!-- Account Type Selection (Anthropic) -->
       <div v-if="form.platform === 'anthropic'">
         <label class="input-label">{{ t('admin.accounts.accountType') }}</label>
@@ -3539,6 +3405,7 @@
         />
       </div>
 
+      </template>
     </form>
 
     <!-- Step 2: OAuth Authorization -->
@@ -3893,6 +3760,7 @@
 </template>
 
 <script setup lang="ts">
+import { ACCOUNT_PLATFORM_OPTIONS, isAssetPlatform } from '@/constants/platforms'
 import { ref, reactive, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
@@ -4087,7 +3955,6 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   close: []
   created: []
-  asset: [provider: 'tripo' | 'meshy']
 }>()
 
 const appStore = useAppStore()
@@ -4256,6 +4123,12 @@ const cnAccentIconClass = computed(() => {
       return 'bg-primary-500 text-white'
   }
 })
+function selectPlatform(platform: AccountPlatform) {
+  if (isCNProviderPlatform(platform)) selectCNPlatform(platform)
+  else if (platform === 'opencode_go') selectOpenCodeGoPlatform()
+  else form.platform = platform
+}
+
 // 切换国产供应商平台：强制 apikey 类型，deepseek 无 coding 套餐故锁定 payg，
 // 协议回落 adaptive，并把 base url 重置为该平台默认端点。
 function selectCNPlatform(platform: CnProviderPlatform) {
@@ -4739,8 +4612,11 @@ const form = reactive({
   expires_at: null as number | null
 })
 
+const isAssetAccount = computed(() => isAssetPlatform(form.platform))
+
 // Helper to check if current type needs OAuth flow
 const isOAuthFlow = computed(() => {
+  if (isAssetAccount.value) return false
   // Antigravity upstream 类型不需要 OAuth 流程
   if (form.platform === 'antigravity' && antigravityAccountType.value === 'upstream') {
     return false
@@ -4815,6 +4691,10 @@ watch(
 watch(
   [accountCategory, addMethod, antigravityAccountType, () => form.platform],
   ([category, method, agType]) => {
+    if (isAssetAccount.value) {
+      form.type = 'apikey'
+      return
+    }
     // Antigravity upstream 类型（实际创建为 apikey）
     if (form.platform === 'antigravity' && agType === 'upstream') {
       form.type = 'apikey'
@@ -4839,7 +4719,10 @@ watch(
 // Reset platform-specific settings when platform changes
 watch(
   () => form.platform,
-  (newPlatform) => {
+  (newPlatform, oldPlatform) => {
+    if (isAssetPlatform(newPlatform) || isAssetPlatform(oldPlatform)) {
+      apiKeyValue.value = ''
+    }
     // Reset base URL based on platform
     if (isCNProviderPlatform(newPlatform) || newPlatform === 'opencode_go') {
       const mode = newPlatform === 'opencode_go' ? openCodeAccountMode.value : accountMode.value
@@ -5627,6 +5510,23 @@ const handleVertexServiceAccountDrop = async (event: DragEvent) => {
 }
 
 const handleSubmit = async () => {
+  if (submitting.value) return
+  if (isAssetAccount.value) {
+    if (!form.name.trim()) {
+      appStore.showError(t('admin.accounts.pleaseEnterAccountName'))
+      return
+    }
+    if (!apiKeyValue.value.trim()) {
+      appStore.showError(t('admin.accounts.pleaseEnterApiKey'))
+      return
+    }
+    await submitCreateAccount({
+      name: form.name.trim(), notes: form.notes, platform: form.platform, type: 'apikey',
+      credentials: { api_key: apiKeyValue.value.trim() },
+      concurrency: 1, priority: form.priority, group_ids: []
+    })
+    return
+  }
   // For OAuth-based type, handle OAuth flow (goes to step 2)
   if (isOAuthFlow.value) {
     if (!isGrokSSOInputMethod.value && !form.name.trim()) {

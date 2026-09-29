@@ -214,6 +214,51 @@ describe('CreateAccountModal OpenAI long-context billing', () => {
 
   afterEach(() => vi.useRealTimers())
 
+  it.each(['tripo', 'meshy'])('creates %s in the existing modal without LLM settings', async (platform) => {
+    const wrapper = mountModal()
+    await selectButtonByText(wrapper, 'OpenAI')
+    await selectButtonByText(wrapper, 'API Key')
+    await wrapper.get('[data-testid="model-whitelist-selector"]').trigger('click')
+    await selectButtonByText(wrapper, platform === 'tripo' ? 'Tripo' : 'Meshy')
+    expect(wrapper.get('[aria-pressed="true"]').text()).toContain('3D')
+    expect(wrapper.findComponent(OAuthAuthorizationFlowStub).exists()).toBe(false)
+    expect(wrapper.find('[data-testid="model-whitelist-selector"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="upstream-billing-auto-probe"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="select-pricing-groups"]').exists()).toBe(false)
+    await wrapper.get('input[type="text"]').setValue('Asset provider')
+    await wrapper.get('input[type="password"]').setValue(' upstream-key ')
+    await wrapper.get('textarea').setValue('Provider notes')
+    await wrapper.get('input[type="number"]').setValue(3)
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(createAccountMock).toHaveBeenCalledWith({
+      name: 'Asset provider', notes: 'Provider notes', platform, type: 'apikey',
+      credentials: { api_key: 'upstream-key' }, concurrency: 1, priority: 3, group_ids: []
+    })
+    expect(probeUpstreamBillingMock).not.toHaveBeenCalled()
+    expect(syncUpstreamModelsMock).not.toHaveBeenCalled()
+    expect(wrapper.emitted('created')).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  it('clears provider secrets when switching platforms and restores the LLM form', async () => {
+    const wrapper = mountModal()
+    await selectButtonByText(wrapper, 'Tripo')
+    await wrapper.get('input[type="password"]').setValue('tripo-secret')
+    await selectButtonByText(wrapper, 'Meshy')
+    expect((wrapper.get('input[type="password"]').element as HTMLInputElement).value).toBe('')
+    await wrapper.get('input[type="password"]').setValue('meshy-secret')
+    await selectButtonByText(wrapper, 'Anthropic')
+    expect(wrapper.text()).toContain('admin.accounts.claudeConsole')
+    expect(wrapper.get('[data-tour="account-form-submit"]').text()).toBe('common.next')
+    await selectButtonByText(wrapper, 'Tripo')
+    expect((wrapper.get('input[type="password"]').element as HTMLInputElement).value).toBe('')
+    await wrapper.setProps({ show: false })
+    await wrapper.setProps({ show: true })
+    expect(wrapper.get('[aria-pressed="true"]').text()).toBe('Anthropic')
+    wrapper.unmount()
+  })
+
   it('sets month and year expiry presets without submitting the account form', async () => {
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2026-01-31T12:34:00'))
