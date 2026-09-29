@@ -117,6 +117,7 @@ func invalid(message string) error {
 }
 
 type Job struct {
+	ResolvedModel    string               `json:"resolved_model,omitempty"`
 	OutputValidation *OutputValidation    `json:"output_validation,omitempty"`
 	ID               string               `json:"id"`
 	SchemaVersion    string               `json:"schema_version"`

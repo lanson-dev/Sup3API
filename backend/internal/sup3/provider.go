@@ -18,6 +18,7 @@ import (
 type RemoteProvider struct {
 	ID, Key, BaseURL string
 	Client           *http.Client
+	ResolveModel     func(string) string
 }
 
 func NewProvider(name, key string) *RemoteProvider {
@@ -130,31 +131,38 @@ func (p *RemoteProvider) Balance(ctx context.Context) (map[string]any, error) {
 	return p.call(ctx, "GET", endpoint, nil)
 }
 
+func (p *RemoteProvider) DefaultModel(operation string) string {
+	if p.ID == "meshy" {
+		switch operation {
+		case "rig", "animate", "convert":
+			return ""
+		case "retexture":
+			return "meshy-7"
+		default:
+			return "meshy-7.1"
+		}
+	}
+	switch operation {
+	case "rig":
+		return "v1.0-20240301"
+	case "retexture":
+		return "v3.5-20260815"
+	case "animate", "convert":
+		return ""
+	default:
+		return "v3.1-20260211"
+	}
+}
+
 func (p *RemoteProvider) Prepare(r *Request) (Price, error) {
 	if p.ID != "meshy" && p.ID != "tripo" {
 		return Price{}, invalid("unknown provider")
 	}
 	r.Provider = p.ID
 	if r.Model == "" {
-		if p.ID == "meshy" {
-			if r.Operation != "rig" && r.Operation != "animate" {
-				r.Model = "meshy-7.1"
-				if r.Operation == "retexture" {
-					r.Model = "meshy-7"
-				}
-			}
-		} else {
-			switch r.Operation {
-			case "rig":
-				r.Model = "v1.0-20240301"
-			case "retexture":
-				r.Model = "v3.5-20260815"
-			case "animate":
-			default:
-				r.Model = "v3.1-20260211"
-			}
-		}
+		r.Model = p.DefaultModel(r.Operation)
 	}
+
 	if r.Parameters.Texture != nil && !*r.Parameters.Texture && r.Parameters.PBR != nil && *r.Parameters.PBR {
 		return Price{}, invalid("pbr requires texture")
 	}

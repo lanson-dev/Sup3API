@@ -315,7 +315,7 @@
             </div>
           </template>
           <template #cell-usage="{ row }">
-            <span v-if="isAssetPlatform(row.platform)" class="text-xs text-gray-500">供应商 credits · 见任务用量</span>
+            <span v-if="isAssetPlatform(row.platform)" class="text-xs text-gray-500">—</span>
             <AccountUsageCell v-else
               :account="row"
               :today-stats="todayStatsByAccountId[String(row.id)] ?? null"
@@ -455,7 +455,7 @@
       <template #pagination><Pagination v-if="pagination.total > 0" :page="pagination.page" :total="pagination.total" :page-size="pagination.page_size" @update:page="handlePageChange" @update:pageSize="handlePageSizeChange" /></template>
     </TablePageLayout>
     <CreateAccountModal :show="showCreate" :proxies="proxies" :groups="groups" @close="showCreate = false" @created="reload" />
-    <AssetAccountModal :show="showAssetAccount" :provider="assetProvider" :account="assetAccount" @close="showAssetAccount = false" @saved="reload" />
+    <AssetAccountModal :groups="groups" :show="showAssetAccount" :provider="assetProvider" :account="assetAccount" @close="showAssetAccount = false" @saved="reload" />
     <EditAccountModal :show="showEdit" :account="edAcc" :proxies="proxies" :groups="groups" @close="showEdit = false" @updated="handleAccountUpdated" />
     <ReAuthAccountModal :show="showReAuth" :account="reAuthAcc" @close="closeReAuthModal" @reauthorized="handleAccountUpdated" />
     <AccountTestModal :show="showTest" :account="testingAcc" @close="closeTestModal" />

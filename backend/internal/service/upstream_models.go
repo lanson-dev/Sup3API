@@ -28,6 +28,8 @@ const (
 )
 
 type UpstreamModelMetadata struct {
+	OutputModalities         []string                   `json:"output_modalities,omitempty"`
+	Operations               []string                   `json:"operations,omitempty"`
 	ID                       string                     `json:"id"`
 	DisplayName              string                     `json:"display_name,omitempty"`
 	Description              string                     `json:"description,omitempty"`
@@ -48,6 +50,8 @@ type UpstreamModelMetadataSnapshot struct {
 }
 
 type UpstreamModelCatalog struct {
+	Source   string                           `json:"source,omitempty"`
+	Sources  []string                         `json:"sources,omitempty"`
 	Models   []string                         `json:"models"`
 	Metadata map[string]UpstreamModelMetadata `json:"metadata,omitempty"`
 	Warnings []UpstreamModelSyncWarning       `json:"warnings,omitempty"`
@@ -208,6 +212,9 @@ func (s *AccountTestService) FetchUpstreamSupportedModels(ctx context.Context, a
 // snapshot. When no model is complete, the existing account snapshot is left
 // untouched.
 func (s *AccountTestService) SyncUpstreamModelCatalog(ctx context.Context, account *Account) (*UpstreamModelCatalog, error) {
+	if s != nil && account != nil && IsAssetPlatform(account.Platform) {
+		return s.syncAssetModelCatalog(ctx, account)
+	}
 	models, body, err := s.fetchUpstreamModelList(ctx, account)
 	liveListAvailable := err == nil
 	if err != nil {

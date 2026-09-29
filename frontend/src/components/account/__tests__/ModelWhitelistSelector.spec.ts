@@ -91,6 +91,21 @@ describe('ModelWhitelistSelector', () => {
     syncUpstreamModelsPreview.mockReset()
   })
 
+  it.each(['tripo', 'meshy'])('uses only asset model choices for %s and retains synced options', async platform => {
+    const model = platform === 'tripo' ? 'v3.1-20260211' : 'meshy-7.1'
+    syncUpstreamModels.mockResolvedValue({ models: [model] })
+    const wrapper = mountSelector({ platform, accountId: 1 })
+    await wrapper.get('div.cursor-pointer').trigger('click')
+    expect(wrapper.findAll('[data-testid="model-option"]')).toHaveLength(0)
+    const sync = wrapper.findAll('button').find(button => button.text() === 'admin.accounts.syncUpstreamModels')!
+    await sync.trigger('click')
+    await flushPromises()
+    expect(findModelRow(wrapper, model).text()).toContain(model)
+    expect(wrapper.text()).not.toContain('claude-')
+    await wrapper.setProps({ platform: platform === 'tripo' ? 'meshy' : 'tripo' })
+    expect(wrapper.findAll('[data-testid="model-option"]')).toHaveLength(0)
+  })
+
   it('copies a model ID without selecting the model', async () => {
     const wrapper = mountSelector()
     await wrapper.get('div.cursor-pointer').trigger('click')

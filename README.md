@@ -14,7 +14,7 @@ GPT / Claude 使用兼容协议。3D 接入三选一：
 | Tripo 原生 API | `/providers/tripo/v3` |
 | Meshy 原生 API | `/providers/meshy` |
 
-管理员在「账号管理」配置供应商 API Key；应用使用「API 密钥」创建的 Sup3API Key。支持范围见 [兼容说明](docs/COMPATIBILITY.md)。
+管理员在「账号管理」配置供应商 API Key、同步模型并绑定分组；应用使用同组的 Sup3API 密钥。支持模型白名单和别名映射。支持范围见 [兼容说明](docs/COMPATIBILITY.md)。
 
 ## 启动
 

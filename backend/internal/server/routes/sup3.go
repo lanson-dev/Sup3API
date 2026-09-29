@@ -63,6 +63,11 @@ func RegisterSup3Routes(r *gin.Engine, keys *service.APIKeyService, cfg *config.
 			c.AbortWithStatusJSON(403, gin.H{"error": gin.H{"code": "asset_access_denied", "message": "user is not provisioned for asset provider credits"}})
 			return
 		}
+		if key.GroupID == nil || *key.GroupID <= 0 {
+			c.AbortWithStatusJSON(403, gin.H{"error": gin.H{"code": "asset_group_required", "message": "bind the API key to a provider group"}})
+			return
+		}
+		c.Request = c.Request.WithContext(sup3.WithRouting(c.Request.Context(), *key.GroupID))
 		if strings.HasPrefix(c.Request.URL.Path, "/providers/") {
 			engine.ServeNativeHTTP(c.Writer, c.Request, key.UserID, key.ID)
 		} else {

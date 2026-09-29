@@ -222,9 +222,10 @@ describe('CreateAccountModal OpenAI long-context billing', () => {
     await selectButtonByText(wrapper, platform === 'tripo' ? 'Tripo' : 'Meshy')
     expect(wrapper.get('[aria-pressed="true"]').text()).toContain('3D')
     expect(wrapper.findComponent(OAuthAuthorizationFlowStub).exists()).toBe(false)
-    expect(wrapper.find('[data-testid="model-whitelist-selector"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="model-whitelist-selector"]').exists()).toBe(true)
     expect(wrapper.find('[data-testid="upstream-billing-auto-probe"]').exists()).toBe(false)
-    expect(wrapper.find('[data-testid="select-pricing-groups"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="select-pricing-groups"]').exists()).toBe(true)
+    await wrapper.get('[data-testid="select-pricing-groups"]').trigger('click')
     await wrapper.get('input[type="text"]').setValue('Asset provider')
     await wrapper.get('input[type="password"]').setValue(' upstream-key ')
     await wrapper.get('textarea').setValue('Provider notes')
@@ -233,7 +234,7 @@ describe('CreateAccountModal OpenAI long-context billing', () => {
     await flushPromises()
     expect(createAccountMock).toHaveBeenCalledWith({
       name: 'Asset provider', notes: 'Provider notes', platform, type: 'apikey',
-      credentials: { api_key: 'upstream-key' }, concurrency: 1, priority: 3, group_ids: []
+      credentials: { api_key: 'upstream-key', model_mapping: {} }, concurrency: 1, priority: 3, group_ids: [1, 2]
     })
     expect(probeUpstreamBillingMock).not.toHaveBeenCalled()
     expect(syncUpstreamModelsMock).not.toHaveBeenCalled()

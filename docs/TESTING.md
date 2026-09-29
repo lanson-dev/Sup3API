@@ -68,7 +68,7 @@ docker build -t sup3api:local .
 SUP3_ALLOWED_USER_IDS=1
 ```
 
-允许名单改成你实际开通的用户 ID；`1` 只是示例。启动后在「账号管理 → 创建账号 → Tripo / Meshy」填写上游 API Key，至少添加一个供应商账号。应用调用使用 `/keys` 创建的 Sup3API 密钥。在 `deploy` 目录执行：
+允许名单改成你实际开通的用户 ID；`1` 只是示例。启动后在「账号管理 → 创建账号 → Tripo / Meshy」填写上游 API Key，至少添加一个供应商账号并绑定对应供应商分组（或综合分组）。应用调用使用 `/keys` 创建并绑定同一分组的 Sup3API 密钥。在 `deploy` 目录执行：
 
 ```sh
 docker compose -f docker-compose.local.yml -f sup3.compose.yml up -d

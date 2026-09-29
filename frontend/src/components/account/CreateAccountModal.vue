@@ -95,13 +95,14 @@
         <label class="block">
           <span class="input-label">上游 API Key</span>
           <input v-model.trim="apiKeyValue" type="password" autocomplete="new-password" class="input" required :placeholder="`填写 ${form.platform === 'tripo' ? 'Tripo' : 'Meshy'} 开放平台的 API Key`" />
-          <span class="input-hint">使用供应商官方 API 额度，Studio 订阅不等同于 API 额度。</span>
         </label>
         <label class="block">
           <span class="input-label">{{ t('admin.accounts.priority') }}</span>
           <input v-model.number="form.priority" type="number" min="0" step="1" required class="input" data-tour="account-form-priority" />
           <span class="input-hint">{{ t('admin.accounts.priorityHint') }}</span>
         </label>
+        <AssetModelSettings v-model="assetModelMapping" :platform="form.platform" :sync-credentials="assetSyncCredentials" @upstream-synced="upstreamModelsPreviewed = true" />
+        <GroupSelector v-model="form.group_ids" :groups="groups" :platform="form.platform" data-tour="account-form-groups" />
       </template>
       <template v-else>
       <!-- Account Type Selection (Anthropic) -->
@@ -3760,6 +3761,7 @@
 </template>
 
 <script setup lang="ts">
+import AssetModelSettings from './AssetModelSettings.vue'
 import { ACCOUNT_PLATFORM_OPTIONS, isAssetPlatform } from '@/constants/platforms'
 import { ref, reactive, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -4026,6 +4028,8 @@ const accountCategory = ref<'oauth-based' | 'apikey' | 'bedrock' | 'service_acco
 const addMethod = ref<AddMethod>('oauth') // For oauth-based: 'oauth' or 'setup-token'
 const apiKeyBaseUrl = ref('https://api.anthropic.com')
 const apiKeyValue = ref('')
+const assetModelMapping = ref<Record<string, string>>({})
+const assetSyncCredentials = computed(() => apiKeyValue.value.trim() ? { platform: form.platform, type: 'apikey', api_key: apiKeyValue.value.trim() } : undefined)
 const upstreamBillingAutoProbeEnabled = ref(true)
 
 // ── 国产供应商（Kimi / Zhipu / DeepSeek）账号类型、API 协议与端点 ──
@@ -4722,6 +4726,8 @@ watch(
   (newPlatform, oldPlatform) => {
     if (isAssetPlatform(newPlatform) || isAssetPlatform(oldPlatform)) {
       apiKeyValue.value = ''
+      assetModelMapping.value = {}
+      form.group_ids = []
     }
     // Reset base URL based on platform
     if (isCNProviderPlatform(newPlatform) || newPlatform === 'opencode_go') {
@@ -5206,6 +5212,7 @@ const resetForm = () => {
   adaptiveBaseUrls.value = { chat_completions: '', anthropic: '', responses: '' }
   apiKeyBaseUrl.value = 'https://api.anthropic.com'
   apiKeyValue.value = ''
+  assetModelMapping.value = {}
   upstreamRequestIdHeader.value = ''
   upstreamBillingAutoProbeEnabled.value = true
   editQuotaLimit.value = null
@@ -5522,8 +5529,8 @@ const handleSubmit = async () => {
     }
     await submitCreateAccount({
       name: form.name.trim(), notes: form.notes, platform: form.platform, type: 'apikey',
-      credentials: { api_key: apiKeyValue.value.trim() },
-      concurrency: 1, priority: form.priority, group_ids: []
+      credentials: { api_key: apiKeyValue.value.trim(), model_mapping: assetModelMapping.value },
+      concurrency: 1, priority: form.priority, group_ids: form.group_ids
     })
     return
   }

@@ -608,6 +608,8 @@ export async function getAvailableModels(id: number): Promise<ClaudeModel[]> {
 }
 
 export interface SyncUpstreamModelsResult {
+  source?: string
+  sources?: string[]
   models: string[]
   metadata?: Record<string, UpstreamModelMetadata>
   warnings?: UpstreamModelSyncWarning[]

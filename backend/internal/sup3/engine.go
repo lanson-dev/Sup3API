@@ -53,8 +53,7 @@ func (e *Engine) Create(ctx context.Context, owner, key int64, idempotency strin
 	if len(idempotency) < 8 || len(idempotency) > 128 || strings.TrimSpace(idempotency) != idempotency {
 		return nil, false, invalid("Idempotency-Key header must be 8-128 characters")
 	}
-	quote, err := e.Prepare(&r)
-	if err != nil {
+	if err := normalizeContract(&r); err != nil {
 		return nil, false, err
 	}
 	binding := ""
@@ -82,7 +81,7 @@ func (e *Engine) Create(ctx context.Context, owner, key int64, idempotency strin
 		}
 		resolved = source.Steps[len(source.Steps)-1].UpstreamID
 	}
-	_, binding, err = e.resolve(ctx, r.Provider, binding)
+	quote, binding, resolvedModel, err := e.prepareAccount(ctx, &r, binding)
 	if err != nil {
 		return nil, false, err
 	}
@@ -96,7 +95,7 @@ func (e *Engine) Create(ctx context.Context, owner, key int64, idempotency strin
 	cost.Credits = 0
 	cost.USD = nil
 	cost.Kind = "pending"
-	j := &Job{ID: "job_" + randomID(), SchemaVersion: SchemaVersion, OwnerID: owner, KeyID: key, Request: r, Status: "queued", Steps: []Step{}, Quote: quote, Cost: cost, DeliveryStatus: "pending", Artifacts: []Artifact{}, Components: map[string]Component{}, CreatedAt: now, UpdatedAt: now, IdempotencyKey: idempotency, RequestHash: hex.EncodeToString(hash[:]), ResolvedInput: resolved, AccountBinding: binding}
+	j := &Job{ID: "job_" + randomID(), SchemaVersion: SchemaVersion, OwnerID: owner, KeyID: key, Request: r, Status: "queued", Steps: []Step{}, Quote: quote, Cost: cost, DeliveryStatus: "pending", Artifacts: []Artifact{}, Components: map[string]Component{}, CreatedAt: now, UpdatedAt: now, IdempotencyKey: idempotency, RequestHash: hex.EncodeToString(hash[:]), ResolvedInput: resolved, AccountBinding: binding, ResolvedModel: resolvedModel}
 	return e.Store.Create(ctx, j)
 }
 func apiError(err error) *APIError {
@@ -225,6 +224,9 @@ func (e *Engine) submit(ctx context.Context, j *Job, token, stage, previous stri
 		return err
 	}
 	r := j.Request
+	if j.ResolvedModel != "" {
+		r.Model = j.ResolvedModel
+	}
 	r.Inputs.UpstreamID = j.ResolvedInput
 	step, err := p.Submit(ctx, r, stage, previous)
 	if err != nil {

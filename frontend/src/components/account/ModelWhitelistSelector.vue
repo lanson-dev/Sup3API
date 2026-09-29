@@ -96,6 +96,7 @@
     <div class="mb-4 flex flex-wrap gap-2">
       <button
         type="button"
+        v-if="!isAssetPlatform(platform)"
         @click="fillRelated"
         class="rounded-lg border border-blue-200 px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/30"
       >
@@ -145,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { accountsAPI } from '@/api/admin/accounts'
@@ -153,6 +154,7 @@ import type { SyncUpstreamPreviewParams } from '@/api/admin/accounts'
 import { useClipboard } from '@/composables/useClipboard'
 import ModelIcon from '@/components/common/ModelIcon.vue'
 import Icon from '@/components/icons/Icon.vue'
+import { isAssetPlatform } from '@/constants/platforms'
 import { allModels, getModelsByPlatform } from '@/composables/useModelWhitelist'
 
 const { t } = useI18n()
@@ -183,6 +185,8 @@ const searchQuery = ref('')
 const customModel = ref('')
 const isComposing = ref(false)
 const isSyncingUpstream = ref(false)
+const syncedModels = ref<string[]>([])
+watch(() => [props.platform, props.platforms, props.accountId], () => { syncedModels.value = [] })
 const normalizedPlatforms = computed(() => {
   const rawPlatforms =
     props.platforms && props.platforms.length > 0
@@ -210,7 +214,7 @@ const upstreamSyncPlatforms = new Set([
   'zhipu',
   'deepseek',
   'minimax',
-  'opencode_go'
+  'opencode_go', 'tripo', 'meshy'
 ])
 const canSyncUpstream = computed(() => {
   if (props.accountId) {
@@ -235,7 +239,13 @@ const availableOptions = computed(() => {
     }
   }
 
-  return allModels.filter(model => allowedModels.has(model.value))
+  const options = allModels.filter(model => allowedModels.has(model.value))
+  if (normalizedPlatforms.value.some(isAssetPlatform)) {
+    for (const value of new Set([...syncedModels.value, ...props.modelValue])) {
+      if (!options.some(option => option.value === value)) options.push({ value, label: value })
+    }
+  }
+  return options
 })
 
 const filteredModels = computed(() => {
@@ -319,6 +329,7 @@ const syncUpstreamModels = async () => {
       emit('upstream-synced')
     }
 
+    syncedModels.value = upstreamModels
     const newModels = [...props.modelValue]
     let addedCount = 0
     for (const model of upstreamModels) {

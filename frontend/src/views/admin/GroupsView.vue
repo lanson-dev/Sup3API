@@ -611,6 +611,7 @@
           <p class="input-hint">{{ t("admin.groups.copyAccounts.hint") }}</p>
         </div>
         <template v-if="!authStore.isSimpleMode">
+        <template v-if="!isAssetPlatform(createForm.platform)">
         <div>
           <label class="input-label">{{
             t("admin.groups.form.rateMultiplier")
@@ -768,6 +769,7 @@
           </div>
         </div>
 
+        </template>
         <div class="border-t pt-4">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div>
@@ -889,6 +891,7 @@
           </div>
         </div>
 
+        <template v-if="!isAssetPlatform(createForm.platform)">
         <!-- 图片生成计费配置 -->
         <div
           v-if="supportsImagePricingPlatform(createForm.platform)"
@@ -2069,6 +2072,7 @@
           </button>
         </div>
         </template>
+      </template>
       </form>
 
       <template #footer>
@@ -2157,6 +2161,10 @@
             data-tour="group-form-platform"
           />
           <p class="input-hint">{{ t("admin.groups.platformNotEditable") }}</p>
+        </div>
+        <div v-if="!authStore.isSimpleMode">
+          <label class="input-label">{{ t("admin.groups.form.status") }}</label>
+          <Select v-model="editForm.status" :options="editStatusOptions" />
         </div>
         <template v-if="!authStore.isSimpleMode">
         <!-- 从分组复制账号（编辑时） -->
@@ -2250,6 +2258,7 @@
             {{ t("admin.groups.copyAccounts.hintEdit") }}
           </p>
         </div>
+        <template v-if="!isAssetPlatform(editForm.platform)">
         <div>
           <label class="input-label">{{
             t("admin.groups.form.rateMultiplier")
@@ -2340,10 +2349,7 @@
             </span>
           </div>
         </div>
-        <div>
-          <label class="input-label">{{ t("admin.groups.form.status") }}</label>
-          <Select v-model="editForm.status" :options="editStatusOptions" />
-        </div>
+
 
         <!-- Subscription Configuration -->
         <div class="mt-4 border-t pt-4">
@@ -2408,6 +2414,7 @@
           </div>
         </div>
 
+        </template>
         <div class="border-t pt-4">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div>
@@ -2529,6 +2536,7 @@
           </div>
         </div>
 
+        <template v-if="!isAssetPlatform(editForm.platform)">
         <!-- 图片生成计费配置 -->
         <div
           v-if="supportsImagePricingPlatform(editForm.platform)"
@@ -3718,6 +3726,7 @@
           </button>
         </div>
         </template>
+      </template>
       </form>
 
       <template #footer>
@@ -4284,7 +4293,7 @@ import type {
 } from "@/types";
 import {
   CONCRETE_PLATFORM_OPTIONS,
-  GROUP_PLATFORM_OPTIONS,
+  GROUP_PLATFORM_OPTIONS, isAssetPlatform,
 } from "@/constants/platforms";
 import type { Column } from "@/components/common/types";
 import AppLayout from "@/components/layout/AppLayout.vue";

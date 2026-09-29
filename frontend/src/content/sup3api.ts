@@ -104,7 +104,7 @@ export const docs: DocPage[] = [
     { title: '第一次调用', links: [{label:'快速开始 →',href:'/docs/quickstart'},{label:'打开 API 接入配置器 →',href:'/connect'},{label:'下载 3D OpenAPI Schema',href:'/docs/assets.openapi.json'}] },
   ] },
   { id: 'quickstart', group: '开始', title: '快速开始', intro: '创建密钥，选择接口，在你的服务端发出第一次请求。接入配置器可以为实际参数生成 cURL、JavaScript 和 Python 示例。', sections: [
-    { title: '1. 创建 Sup3API 密钥', text: ['登录控制台，在「API 密钥」中创建密钥并选择可用分组。GPT/Claude 的路由和权限受分组控制。3D 需要运营者单独开通资产额度访问。上游供应商密钥由服务端管理。'], links: [{label:'管理 API 密钥 ↗',href:'/keys'}] },
+    { title: '1. 创建 Sup3API 密钥', text: ['登录控制台，在「API 密钥」中创建密钥并选择可用分组。模型路由和权限受分组控制。3D 密钥须绑定已配置 Tripo/Meshy 账号的对应供应商分组或综合分组，并由运营者开通资产额度访问。上游供应商密钥由服务端管理。'], links: [{label:'管理 API 密钥 ↗',href:'/keys'}] },
     { title: '2. 设置服务地址', text: ['SUP3API_BASE_URL 填写本站根地址，不带 /v1。OpenAI SDK 的 base_url 则需要在根地址后加 /v1；Anthropic SDK 的 base_url 使用根地址。不要同时重复拼接 /v1。'], code: 'export SUP3API_BASE_URL="https://YOUR_SUP3API_HOST"\nexport SUP3API_API_KEY="YOUR_SUP3API_KEY"\n# New logical job: create a new ID. Retrying the same job: reuse it.\nexport JOB_REQUEST_ID="asset-example-001"', label:'Shell 环境变量' },
     { title: '3. 请求文本或图像理解', endpoint:'POST /v1/responses', code:curlExample('/v1/responses',sample('responses')),label:'cURL' },
     { title: '4. 创建三维任务', endpoint:'POST /v1/assets/jobs',code:curlExample('/v1/assets/jobs',sample('tripo')),label:'cURL',note:'创建任务会消耗供应商额度。先调用 /v1/assets/quotes 校验参数并获取估价；报价本身不创建生成任务。' },
@@ -117,7 +117,7 @@ export const docs: DocPage[] = [
   ]},
   {id:'models',group:'开始',title:'模型与能力',intro:'先发现可用能力，再决定输入与输出。本站不把所有供应商的模型视为可互换的同一种资源。',sections:[
     {title:'语言与图像模型',endpoint:'GET /v1/models',code:'curl "$SUP3API_BASE_URL/v1/models" \\\n  -H "Authorization: Bearer $SUP3API_API_KEY"',label:'cURL',text:['返回当前 Key 允许访问的模型列表。列表不是所有模态、工具、文件操作的能力保证；还需结合模型官方说明和上游账号类型。本站未配置上游时，会返回相应不可用错误。']},
-    {title:'三维模型能力',endpoint:'GET /v1/assets/capabilities',headers:['字段','含义'],rows:[['providers[].available','是否存在启用且可调度的上游账号，不代表已验证余额'],['models_by_operation','每种操作可选模型版本；rig 与生成模型不是同一套版本'],['operation_details','格式条件、扩展字段类型与枚举'],['native_api','已覆盖原生端点与兼容限制'],['operations','支持的生成、重纹理、绑定与动画操作'],['input_formats','sup3api 统一格式，以及 tripo 或 meshy 字段适配格式'],['billing / multiplier','provider_native_credits / 1；不是 LLM 的 USD 余额']]},
+    {title:'三维模型能力',endpoint:'GET /v1/assets/capabilities',headers:['字段','含义'],rows:[['providers[].available','当前密钥分组内是否存在启用且可调度的上游账号，不代表已验证余额'],['models_by_operation','每种操作可选模型版本；rig 与生成模型不是同一套版本'],['operation_details','格式条件、扩展字段类型与枚举'],['native_api','已覆盖原生端点与兼容限制'],['operations','支持的生成、重纹理、绑定与动画操作'],['input_formats','sup3api 统一格式，以及 tripo 或 meshy 字段适配格式'],['billing / multiplier','provider_native_credits / 1；不是 LLM 的 USD 余额']]},
     {title:'三维操作选择',headers:['操作','输入','输出'],rows:operations.map(([op,name])=>[`${op} · ${name}`,op==='text_to_3d'?'prompt':op==='image_to_3d'?'images[1]':op==='multi_image_to_3d'?'images[1–4]':op==='animate'?'rig job_id + animations':'job_id 或 model_url',op==='rig'?'绑定模型 / 骨骼 / 权重':op==='animate'?'动画模型 / 动画轨道':'模型 / 材质 / 贴图（取决于参数）'])},
   ]},
   {id:'responses',group:'文本与图像',title:'GPT · Responses',intro:'使用 OpenAI Responses 请求结构，将文本与图像内容块发送给支持视觉的模型。完整返回 output 数组及用量，不只返回最终文本。',sections:[

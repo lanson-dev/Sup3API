@@ -134,3 +134,44 @@ func TestManagedQueuedJobCanCancelAfterAccountDisabled(t *testing.T) {
 		t.Fatal("local cancellation must not need upstream access", err)
 	}
 }
+
+func TestManagedModelMappingIsPinnedAndNativePayloadIsMapped(t *testing.T) {
+	store := testStore(t)
+	model := "meshy-6"
+	p := NewProvider("meshy", "private")
+	p.ResolveModel = func(string) string { return model }
+	e := NewEngine(store, t.TempDir(), NewProvider("meshy", ""))
+	e.ResolveProvider = func(ctx context.Context, provider, binding string) (Provider, string, error) {
+		if requested := RoutingFromContext(ctx).Model; requested != "" && requested != "asset-fast" {
+			return nil, "", &APIError{Code: "model_not_allowed", HTTPStatus: 403}
+		}
+		return p, "1:pinned", nil
+	}
+	r := Request{Provider: "meshy", Model: "asset-fast", Operation: "text_to_3d", Inputs: Inputs{Prompt: "crate"}}
+	job, _, err := e.Create(context.Background(), 1, 2, "alias-request", r)
+	if err != nil || job.Request.Model != "asset-fast" || job.ResolvedModel != "meshy-6" {
+		t.Fatal(job, err)
+	}
+	model = "meshy-7.1"
+	replay, created, err := e.Create(context.Background(), 1, 2, "alias-request", r)
+	if err != nil || created || replay.ResolvedModel != "meshy-6" {
+		t.Fatal("mapping changed an existing job", err)
+	}
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body map[string]any
+		if json.NewDecoder(r.Body).Decode(&body) != nil || body["ai_model"] != "meshy-7.1" || body["prompt"] != "crate" {
+			t.Error("wrong native model mapping", body)
+		}
+		fmt.Fprint(w, `{"result":"native-alias-task"}`)
+	}))
+	defer upstream.Close()
+	p.BaseURL = upstream.URL
+	w := nativeRequest(e, "POST", "/providers/meshy/openapi/v2/text-to-3d", `{"ai_model":"asset-fast","prompt":"crate"}`, "native-alias-request", 1, 2)
+	if w.Code != 200 {
+		t.Fatal(w.Body)
+	}
+	w = nativeRequest(e, "POST", "/providers/meshy/openapi/v2/text-to-3d", `{"ai_model":"blocked","prompt":"crate"}`, "native-blocked-model", 1, 2)
+	if w.Code != 403 {
+		t.Fatal("native whitelist bypass", w.Body)
+	}
+}

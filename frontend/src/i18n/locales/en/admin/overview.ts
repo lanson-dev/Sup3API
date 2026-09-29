@@ -1044,6 +1044,8 @@ export default {
         deepseek: 'DeepSeek',
         minimax: 'MiniMax',
         opencode_go: 'OpenCode',
+        tripo: 'Tripo',
+        meshy: 'Meshy',
         composite: 'Composite',
       },
       deleteConfirm:

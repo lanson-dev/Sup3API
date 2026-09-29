@@ -63,12 +63,12 @@ func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request, owner, key in
 			return
 		}
 		if path == "quotes" {
-			price, err := e.Prepare(&req)
+			price, _, resolvedModel, err := e.prepareAccount(r.Context(), &req, "")
 			if err != nil {
 				replyError(w, err)
 				return
 			}
-			reply(w, 200, map[string]any{"request": req, "quote": price})
+			reply(w, 200, map[string]any{"request": req, "resolved_model": resolvedModel, "quote": price})
 			return
 		}
 		j, created, err := e.Create(r.Context(), owner, key, r.Header.Get("Idempotency-Key"), req)

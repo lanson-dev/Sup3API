@@ -532,6 +532,9 @@ func (s *adminServiceImpl) CreateAccount(ctx context.Context, input *CreateAccou
 	if err != nil {
 		return nil, err
 	}
+	if err := s.validateAssetGroupBindings(ctx, input.Platform, groupIDs); err != nil {
+		return nil, err
+	}
 	if err := s.ValidateAccountGroupBindings(ctx, groupIDs); err != nil {
 		return nil, err
 	}
@@ -843,6 +846,9 @@ func (s *adminServiceImpl) UpdateAccount(ctx context.Context, id int64, input *U
 
 	// 先验证分组是否存在（在任何写操作之前）
 	if input.GroupIDs != nil {
+		if err := s.validateAssetGroupBindings(ctx, account.Platform, *input.GroupIDs); err != nil {
+			return nil, err
+		}
 		if err := s.validateGroupIDsExist(ctx, *input.GroupIDs); err != nil {
 			return nil, err
 		}
@@ -1000,7 +1006,7 @@ func (s *adminServiceImpl) BulkUpdateAccounts(ctx context.Context, input *BulkUp
 
 	// 预取所有目标账号，供凭据守卫/代理守卫/混合渠道检查共用，避免多次 DB 查询。
 	var cachedTargets []*Account
-	if len(input.Credentials) > 0 || input.ProxyID != nil || needMixedChannelCheck || openAISettings.any() || input.ProbeEnabled != nil || input.RateMultiplier != nil {
+	if len(input.Credentials) > 0 || input.ProxyID != nil || input.GroupIDs != nil || openAISettings.any() || input.ProbeEnabled != nil || input.RateMultiplier != nil {
 		loaded, err := s.accountRepo.GetByIDs(ctx, input.AccountIDs)
 		if err != nil {
 			return nil, err
@@ -1011,6 +1017,15 @@ func (s *adminServiceImpl) BulkUpdateAccounts(ctx context.Context, input *BulkUp
 	for _, account := range cachedTargets {
 		if account != nil {
 			targetsByID[account.ID] = account
+		}
+	}
+	if input.GroupIDs != nil {
+		for _, account := range cachedTargets {
+			if account != nil {
+				if err := s.validateAssetGroupBindings(ctx, account.Platform, *input.GroupIDs); err != nil {
+					return nil, err
+				}
+			}
 		}
 	}
 	if openAISettings.any() {
@@ -1808,4 +1823,20 @@ func (s *adminServiceImpl) ForceAntigravityPrivacy(ctx context.Context, account 
 	}
 	applyAntigravityPrivacyMode(account, mode)
 	return mode
+}
+
+func (s *adminServiceImpl) validateAssetGroupBindings(ctx context.Context, platform string, ids []int64) error {
+	if !IsAssetPlatform(platform) {
+		return nil
+	}
+	for _, id := range ids {
+		group, err := s.groupRepo.GetByIDLite(ctx, id)
+		if err != nil {
+			return err
+		}
+		if group.Platform != platform && group.Platform != PlatformComposite {
+			return infraerrors.BadRequest("INVALID_ASSET_GROUP", "asset accounts require a matching provider group or composite group")
+		}
+	}
+	return nil
 }

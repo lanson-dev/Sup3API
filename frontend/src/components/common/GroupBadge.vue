@@ -33,6 +33,7 @@ import type { SubscriptionType, GroupPlatform } from '@/types'
 import { useAppStore } from '@/stores/app'
 import { formatPeakRateWindow, serverTimezoneLabel } from '@/utils/peak-rate'
 import PlatformIcon from './PlatformIcon.vue'
+import { isAssetPlatform } from '@/constants/platforms'
 
 interface Props {
   name: string
@@ -80,7 +81,7 @@ const hasCustomRate = computed(() => {
 const appStore = useAppStore()
 
 const hasPeakRate = computed(() => {
-  return Boolean(props.showRate && props.peakRateEnabled && props.peakStart && props.peakEnd)
+  return Boolean(!isAssetPlatform(props.platform ?? '') && props.showRate && props.peakRateEnabled && props.peakStart && props.peakEnd)
 })
 
 const peakRateText = computed(() => {
@@ -101,7 +102,7 @@ const peakRateTitle = computed(() => {
 
 // 是否显示右侧标签
 const showLabel = computed(() => {
-  if (!props.showRate) return false
+  if (!props.showRate || isAssetPlatform(props.platform ?? '')) return false
   // 订阅类型：显示天数或"订阅"
   if (isSubscription.value) return true
   // 标准类型：显示倍率（包括专属倍率）

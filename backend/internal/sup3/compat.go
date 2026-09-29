@@ -169,8 +169,9 @@ func (e *Engine) ServeNativeHTTP(w http.ResponseWriter, r *http.Request, owner, 
 		}
 		scope.Credential = binding
 	}
+	selectionModel := ""
 	resolveAccount := func() error {
-		resolved, binding, err := e.resolve(r.Context(), provider, scope.Credential)
+		resolved, binding, err := e.resolve(withModel(r.Context(), selectionModel), provider, scope.Credential)
 		if err != nil {
 			return err
 		}
@@ -222,6 +223,36 @@ func (e *Engine) ServeNativeHTTP(w http.ResponseWriter, r *http.Request, owner, 
 			nativeError(w, err)
 			return
 		}
+		modelField := "ai_model"
+		if provider == "tripo" {
+			modelField = "model"
+		}
+		if value, exists := payload[modelField]; exists {
+			var ok bool
+			selectionModel, ok = value.(string)
+			if !ok || strings.TrimSpace(selectionModel) == "" {
+				nativeError(w, invalid("model must be a nonempty string"))
+				return
+			}
+		} else {
+			switch {
+			case strings.HasSuffix(endpoint, "/rigging"), strings.HasSuffix(endpoint, "/rig"):
+				if provider == "tripo" {
+					selectionModel = p.DefaultModel("rig")
+				}
+			case strings.HasSuffix(endpoint, "/animations"), strings.HasSuffix(endpoint, "/retarget"):
+				selectionModel = ""
+			case strings.HasSuffix(endpoint, "/convert"):
+				selectionModel = ""
+			case provider == "meshy":
+				selectionModel = "latest"
+			case strings.HasSuffix(endpoint, "/texture"):
+				selectionModel = p.DefaultModel("retexture")
+			default:
+				selectionModel = p.DefaultModel("text_to_3d")
+			}
+		}
+
 		body, err = json.Marshal(payload)
 		if err != nil {
 			nativeError(w, invalid("invalid native JSON"))
@@ -237,6 +268,18 @@ func (e *Engine) ServeNativeHTTP(w http.ResponseWriter, r *http.Request, owner, 
 			nativeError(w, err)
 			return
 		}
+		if p.ResolveModel != nil && selectionModel != "" {
+			mapped := p.ResolveModel(selectionModel)
+			if mapped != selectionModel {
+				payload[modelField] = mapped
+				body, err = json.Marshal(payload)
+				if err != nil {
+					nativeError(w, invalid("invalid mapped JSON"))
+					return
+				}
+			}
+		}
+
 		var created bool
 		call, created, err = e.Store.reserveNative(r.Context(), scope, idem, hex.EncodeToString(hash[:]), endpoint)
 		if err != nil {

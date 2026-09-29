@@ -18,6 +18,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/internal/pkg/openai"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/pagination"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/xai"
+	"github.com/Wei-Shaw/sub2api/internal/sup3"
 )
 
 // Group management implementations
@@ -111,13 +112,24 @@ func (s *adminServiceImpl) GetGroupModelsListCandidates(ctx context.Context, id 
 	}
 	for _, acc := range accounts {
 		if platform == PlatformComposite {
-			if !isConcreteRequestPlatform(acc.Platform) {
+			if !isConcreteRequestPlatform(acc.Platform) && !IsAssetPlatform(acc.Platform) {
 				continue
 			}
 		} else if acc.Platform != platform {
 			continue
 		}
-		for model := range acc.GetModelMapping() {
+		modelIDs := make(map[string]bool)
+		for id := range acc.GetModelMapping() {
+			modelIDs[id] = true
+		}
+		if IsAssetPlatform(acc.Platform) {
+			if snapshot := acc.GetUpstreamModelMetadataSnapshot(); snapshot != nil {
+				for id := range snapshot.Models {
+					modelIDs[id] = true
+				}
+			}
+		}
+		for model := range modelIDs {
 			model = strings.TrimSpace(model)
 			if model == "" {
 				continue
@@ -276,6 +288,15 @@ func compositeRouteFromInput(groupID int64, input CompositeRouteInput) (*Composi
 }
 
 func defaultModelsListCandidateIDs(platform string) []string {
+	if IsAssetPlatform(platform) {
+		capability := sup3.NewProvider(platform, "").Capability()
+		var models []string
+		for _, ids := range capability.ModelsByOperation {
+			models = append(models, ids...)
+		}
+
+		return dedupeAndSortModelIDs(models)
+	}
 	switch platform {
 	case PlatformOpenAI:
 		return openai.DefaultModelIDs()

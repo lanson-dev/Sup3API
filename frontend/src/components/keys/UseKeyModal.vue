@@ -21,6 +21,10 @@
         </div>
       </div>
 
+      <div v-else-if="isAssetPlatform(platform ?? undefined)" class="flex gap-3">
+        <a href="/connect" class="btn btn-primary">API 接入</a>
+        <a href="/docs/assets" class="btn btn-secondary">API 文档</a>
+      </div>
       <!-- Platform-specific content -->
       <template v-else>
         <!-- Description -->
@@ -255,6 +259,7 @@
 </template>
 
 <script setup lang="ts">
+import { isAssetPlatform } from '@/constants/platforms'
 import { ref, computed, h, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { saveAs } from 'file-saver'
@@ -1258,7 +1263,9 @@ function generateRoutedCodexFiles(
     deepseek: 'DeepSeek',
     minimax: 'MiniMax',
     opencode_go: 'OpenCode',
-    composite: 'Composite'
+    composite: 'Composite',
+    tripo: 'Tripo',
+    meshy: 'Meshy'
   }
   const label = labels[platform]
   const envContent = isWindows
