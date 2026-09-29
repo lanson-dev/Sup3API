@@ -415,44 +415,15 @@
         "summary": "Create native meshy /openapi/v2/text-to-3d",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -465,33 +436,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       },
@@ -502,33 +452,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -541,43 +470,15 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Provider SSE stream",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeEventStream"
           },
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -591,44 +492,15 @@
         "summary": "Create native meshy /openapi/v1/image-to-3d",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -641,33 +513,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       },
@@ -678,33 +529,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -717,43 +547,15 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Provider SSE stream",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeEventStream"
           },
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -767,44 +569,15 @@
         "summary": "Create native meshy /openapi/v1/multi-image-to-3d",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -817,33 +590,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       },
@@ -854,33 +606,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -893,43 +624,15 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Provider SSE stream",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeEventStream"
           },
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -943,44 +646,15 @@
         "summary": "Create native meshy /openapi/v1/retexture",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -993,33 +667,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       },
@@ -1030,33 +683,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1069,43 +701,15 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Provider SSE stream",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeEventStream"
           },
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1119,44 +723,15 @@
         "summary": "Create native meshy /openapi/v1/rigging",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1169,33 +744,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       },
@@ -1206,33 +760,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1245,43 +778,15 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Provider SSE stream",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeEventStream"
           },
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1295,44 +800,15 @@
         "summary": "Create native meshy /openapi/v1/animations",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1345,33 +821,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       },
@@ -1382,33 +837,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1421,43 +855,15 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Provider SSE stream",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeEventStream"
           },
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1471,44 +877,15 @@
         "summary": "Create native meshy /openapi/v1/convert",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1521,33 +898,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       },
@@ -1558,33 +914,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1597,43 +932,15 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Provider SSE stream",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeEventStream"
           },
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1647,44 +954,15 @@
         "summary": "Create native tripo /generation/text-to-model",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1698,44 +976,15 @@
         "summary": "Create native tripo /generation/image-to-model",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1749,44 +998,15 @@
         "summary": "Create native tripo /generation/multiview-to-model",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1800,44 +1020,15 @@
         "summary": "Create native tripo /models/texture",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1851,44 +1042,15 @@
         "summary": "Create native tripo /animations/rig",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1902,44 +1064,15 @@
         "summary": "Create native tripo /animations/retarget",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -1953,44 +1086,15 @@
         "summary": "Create native tripo /models/convert",
         "parameters": [
           {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 8,
-              "maxLength": 128
-            },
-            "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+            "$ref": "#/components/parameters/NativeIdempotencyKey"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProviderNativePayload"
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NativeCreate"
         },
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -2003,33 +1107,12 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{1,160}$"
-            },
-            "description": "Native task ID created through this gateway key and provider credential."
+            "$ref": "#/components/parameters/NativeTaskID"
           }
         ],
         "responses": {
           "default": {
-            "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/ProviderNativeResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  ]
-                }
-              }
-            }
+            "$ref": "#/components/responses/NativeResponse"
           }
         }
       }
@@ -2686,6 +1769,70 @@
         "type": "object",
         "additionalProperties": true,
         "description": "Unmodified provider JSON. Meshy create returns result task ID; Tripo create returns code and data.task_id. Unknown fields retained."
+      }
+    },
+    "parameters": {
+      "NativeIdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 128
+        },
+        "description": "Recommended; reuse only for the same logical request. Pending/uncertain requests return 409; never automatically resubmit with a new key."
+      },
+      "NativeTaskID": {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,160}$"
+        },
+        "description": "Native task ID created through this gateway key and provider credential."
+      }
+    },
+    "requestBodies": {
+      "NativeCreate": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProviderNativePayload"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "NativeResponse": {
+        "description": "Provider HTTP status/body retained. Gateway errors use Error; authentication errors follow site middleware. Native creation does not return a unified Job.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ProviderNativeResponse"
+                },
+                {
+                  "$ref": "#/components/schemas/Error"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "NativeEventStream": {
+        "description": "Provider SSE stream",
+        "content": {
+          "text/event-stream": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
       }
     }
   }

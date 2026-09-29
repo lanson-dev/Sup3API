@@ -97,13 +97,9 @@ func validateOutput(j *Job) bool {
 	}
 	result := &OutputValidation{Status: "passed", Missing: []string{}}
 	for _, format := range j.Request.Parameters.Formats {
-		found := false
-		for _, a := range j.Artifacts {
-			if a.DerivedFrom == "" && (a.Role == "model" || a.Role == "animation") && a.Format == format {
-				found = true
-				break
-			}
-		}
+		found := slices.ContainsFunc(j.Artifacts, func(a Artifact) bool {
+			return a.DerivedFrom == "" && (a.Role == "model" || a.Role == "animation") && a.Format == format
+		})
 		if !found {
 			result.Missing = append(result.Missing, "format:"+format)
 		}

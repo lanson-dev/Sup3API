@@ -117,13 +117,8 @@ func (e *Engine) checkNativeReferences(ctx context.Context, scope nativeScope, v
 		if !taskReference && strings.HasPrefix(v, "https://") {
 			return validRemoteURL(v)
 		}
-		if _, err := e.Store.nativeTask(ctx, scope, v); err != nil {
-			return err
-		}
-	default:
-		if strings.HasSuffix(field, "task_id") || strings.Contains(field, "file_token") {
-			return invalid("native resource references must be strings")
-		}
+		_, err := e.Store.nativeTask(ctx, scope, v)
+		return err
 	}
 	return nil
 }

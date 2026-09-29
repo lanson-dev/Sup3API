@@ -24,7 +24,7 @@ Sup3API 是独立部署的多模态 AI API 站点，也是 AGraphs 生态中的 
 - **交付校验**：要求未满足时，生成状态仍可为 succeeded，交付状态为 failed，`output_validation.missing` 给出差异。实际生成费用可能已经产生；保留文件，不自动重新生成或转换。共同契约不保证模型效果、拓扑和质量相同。
 - **明确范围**：原生任务必须经同一账号、网关 Key、供应商凭据创建；更换凭据后旧任务不能直接访问。不支持列表、文件上传/file_token、Webhook、旧 Tripo V2、历史任务导入或未列出端点/查询参数。原生任务不进入统一 Job 列表和持久资产库；文件有效期由供应商管理，费用使用运营者 credits，暂不扣 LLM 钱包。
 
-接入页可选择「统一 API」「Tripo 原生 API」「Meshy 原生 API」「原生字段封套」，生成对应代码。站内 `/docs/compatibility` 与 `/docs/output` 说明迁移及输出要求；完整维护说明见 [API 兼容契约](docs/COMPATIBILITY.md)。原生创建建议传 `Idempotency-Key`，相同路径与规范化 JSON 重放已存 HTTP 状态/响应体；不确定提交返回 409，需核对上游，不换 ID 盲目重试。
+接入页可选择「统一 API」「Tripo 原生 API」「Meshy 原生 API」三选一，生成对应代码。旧字段封套仅保留后端兼容和维护文档。站内 `/docs/compatibility` 与 `/docs/output` 说明迁移及输出要求；完整维护说明见 [API 兼容契约](docs/COMPATIBILITY.md)。原生创建建议传 `Idempotency-Key`，相同路径与规范化 JSON 重放已存 HTTP 状态/响应体；不确定提交返回 409，需核对上游，不换 ID 盲目重试。
 
 ## 客户门户
 

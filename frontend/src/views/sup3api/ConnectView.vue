@@ -5,11 +5,11 @@
     <div class="ag-grid">
       <section class="ag-panel" aria-label="请求配置">
         <div class="ag-endpoint"><span class="ag-method">POST</span><span>{{ endpoint }}</span></div>
-        <label v-if="isAsset" class="ag-field" style="margin-top:22px"><span>接入方式</span><select v-model="accessMode" class="ag-select"><option value="unified">统一 API · 跨供应商请求与交付</option><option value="native-tripo">Tripo 原生 API · 兼容 V3 工作流</option><option value="native-meshy">Meshy 原生 API · 兼容已有工作流</option><option value="fields">原生字段封套 · 返回统一任务（旧版）</option></select></label>
+        <label v-if="isAsset" class="ag-field" style="margin-top:22px"><span>接入方式</span><select v-model="accessMode" class="ag-select"><option value="unified">统一 API</option><option value="native-tripo">Tripo 原生 API</option><option value="native-meshy">Meshy 原生 API</option></select></label>
         <template v-if="isNativeAPI">
           <label class="ag-field"><span>原生操作</span><select v-model="nativeOperation" class="ag-select"><option v-for="op in nativeChoices" :key="op.id" :value="op.id">{{ op.label }}</option></select></label>
           <label class="ag-field"><span>供应商原生请求 JSON</span><textarea v-model="nativeJSON" class="ag-textarea ag-mono" style="min-height:270px" spellcheck="false" /></label>
-          <p class="ag-notice">保留供应商字段、默认值与原生响应。前置任务必须使用同一网关密钥通过此入口创建；不会自动执行精修或转换。原生文件上传、任务列表、历史任务导入与 Webhook 暂不支持。</p>
+          <p class="ag-notice">沿用官方请求与返回；前置任务须由同一密钥通过本站创建。支持范围见迁移文档。</p>
           <RouterLink class="ag-link ag-small" to="/docs/compatibility">迁移与兼容范围 ↗</RouterLink>
         </template>
         <template v-else>
@@ -23,14 +23,15 @@
         <div v-if="isAsset && operation==='multi_image_to_3d'"><label v-for="(view,i) in viewNames" :key="view" class="ag-field"><span>{{ protocol==='tripo' ? view : `视角 ${i+1}${i===0 ? '（必填）' : '（可选）'}` }}</span><input v-model="views[i]" class="ag-input" placeholder="https://…/view.png" /></label></div>
         <label v-if="isAsset && !isGeneration" class="ag-field"><span>{{ operation==='animate' ? '成功绑定任务的 job_id' : '来源模型 URL 或 job_id' }}</span><input v-model="source" class="ag-input" :placeholder="operation==='animate' ? 'job_…' : 'https://…/model.glb 或 job_…'" /></label>
         <label v-if="isAsset && operation==='animate'" class="ag-field"><span>动作名称 / ID（逗号分隔）</span><input v-model="animation" class="ag-input" /></label>
-        <div v-if="isAsset && (isGeneration || operation==='retexture') && !(native && protocol==='meshy' && operation==='text_to_3d')" class="ag-actions"><label v-if="operation!=='retexture'" class="ag-check"><input v-model="texture" type="checkbox" />生成纹理</label><label class="ag-check"><input v-model="pbr" type="checkbox" :disabled="!texture" />PBR 材质</label></div>
-        <template v-if="isAsset && mode==='unified'">
-          <div v-if="isGeneration || operation==='retexture'" class="ag-field"><span>交付格式（可多选）</span><div class="ag-actions"><label v-for="format in formatChoices" :key="format" class="ag-check"><input v-model="formats" type="checkbox" :value="format" />{{ format.toUpperCase() }}</label></div><small class="ag-help">已选：{{ formats.join(", ") || "无" }}。切换供应商保留要求；不支持的格式会在提交前报错。当前不自动增加转换任务。</small><button v-if="formats.some(f=>!formatChoices.includes(f))" class="ag-button ag-button-secondary" @click="formats=['glb']">改用通用 GLB 格式</button></div>
-          <div v-if="isGeneration || operation==='retexture'" class="ag-field"><span>必须包含的组件（交付后验证）</span><div class="ag-actions"><label v-for="item in componentChoices" :key="item[0]" class="ag-check"><input v-model="requiredComponents" type="checkbox" :value="item[0]" />{{ item[1] }}</label></div></div>
-          <label class="ag-field"><span>供应商扩展参数（JSON，可选）</span><textarea v-model="extensionsJSON" class="ag-textarea ag-mono" spellcheck="false" placeholder="{}" /><small class="ag-help">自动放入 extensions.{{ protocol }}。切换供应商时请检查扩展；报价会校验参数与模型的兼容性。</small></label>
+        <div v-if="isAsset && textureOperation" class="ag-actions"><label v-if="operation!=='retexture'" class="ag-check"><input v-model="texture" type="checkbox" />生成纹理</label><label class="ag-check"><input v-model="pbr" type="checkbox" :disabled="!texture" />PBR 材质</label></div>
+        <template v-if="isAsset">
+          <div v-if="textureOperation" class="ag-field"><span>交付格式（可多选）</span><div class="ag-actions"><label v-for="format in formatChoices" :key="format" class="ag-check"><input v-model="formats" type="checkbox" :value="format" />{{ format.toUpperCase() }}</label></div><small class="ag-help">已选：{{ formats.join(", ") || "无" }}。切换供应商保留要求；不支持的格式会在提交前报错。当前不自动增加转换任务。</small><button v-if="formats.some(f=>!formatChoices.includes(f))" class="ag-button ag-button-secondary" @click="formats=['glb']">改用通用 GLB 格式</button></div>
+          <details class="ag-field"><summary class="ag-link">高级选项：组件与供应商扩展</summary>
+          <div v-if="textureOperation" class="ag-field"><span>必须包含的组件（交付后验证）</span><div class="ag-actions"><label v-for="item in componentChoices" :key="item[0]" class="ag-check"><input v-model="requiredComponents" type="checkbox" :value="item[0]" />{{ item[1] }}</label></div></div>
+          <label class="ag-field"><span>供应商扩展参数（JSON，可选）</span><textarea v-model="extensionsJSON" class="ag-textarea ag-mono" spellcheck="false" placeholder="{}" /><small class="ag-help">自动放入 extensions.{{ protocol }}，通过估价校验是否支持。</small></label>
+          </details>
         </template>
         </template>
-        <p v-if="native && protocol==='meshy' && operation==='text_to_3d'" class="ag-notice">Meshy 原生 preview 只生成无纹理预览。需要自动精修，请关闭原生封套并开启纹理。</p>
         <p v-if="formError" class="ag-notice ag-error" role="alert">{{ formError }}</p>
         <p class="ag-help">参考模型 ID 不代表此 Key 已开通。可在下方查询当前密钥的模型或能力。</p>
         <hr class="ag-divider" />
@@ -58,8 +59,14 @@ import { protocols, operations, assetModels, buildRequest, curlExample, sdkExamp
 const protocol = ref<Protocol>('responses'), operation = ref('text_to_3d'), model = ref(protocols[0]!.model)
 const prompt = ref('A stylized wooden treasure chest, game-ready'), image = ref(''), source = ref(''), views = ref(['','','',''])
 const animation = ref('preset:biped:walk'), texture = ref(true), pbr = ref(true)
-const mode = ref<'unified'|'native'|'fields'>('unified'), native = computed(()=>mode.value==='fields')
-const accessMode=computed({get:()=>mode.value==='native' ? `native-${protocol.value}` : mode.value,set:(value:string)=>{if(value==='native-tripo' || value==='native-meshy'){protocol.value=value==='native-tripo'?'tripo':'meshy';mode.value='native'}else{mode.value=value==='fields'?'fields':'unified'}}})
+const useNativeAPI = ref(false)
+const accessMode = computed({
+  get: () => useNativeAPI.value ? `native-${protocol.value}` : 'unified',
+  set: (value: string) => {
+    useNativeAPI.value = value !== 'unified'
+    if (useNativeAPI.value) protocol.value = value === 'native-tripo' ? 'tripo' : 'meshy'
+  },
+})
 const nativeOperation = ref('text_to_3d'), nativeJSON = ref('{}'), extensionsJSON=ref('{}')
 const formats=ref<string[]>(['glb']),requiredComponents=ref<string[]>([])
 const componentChoices=[['geometry','几何'],['materials','材质'],['textures','贴图']]
@@ -69,24 +76,32 @@ const languages = ['cURL', 'JavaScript', 'Python', 'JSON'] as const, language = 
 const origin = window.location.origin, viewNames = ['正面 front（必填）', '左侧 left', '背面 back', '右侧 right']
 const selected = computed(() => protocols.find(p => p.id === protocol.value)!)
 const isAsset = computed(() => protocol.value==='tripo' || protocol.value==='meshy'), isGeneration = computed(() => operation.value.endsWith('to_3d'))
-const isNativeAPI=computed(()=>isAsset.value && mode.value==='native')
+const isNativeAPI = computed(() => isAsset.value && useNativeAPI.value)
+const textureOperation = computed(() => isGeneration.value || operation.value === 'retexture')
 const nativeChoices=computed(()=>nativeOperations[protocol.value] || [])
 const nativeSelected=computed(()=>nativeChoices.value.find(o=>o.id===nativeOperation.value) || nativeChoices.value[0])
 const endpoint=computed(()=>isNativeAPI.value ? '/providers/'+protocol.value+(nativeSelected.value?.path || '') : selected.value.endpoint)
-watch([protocol,nativeOperation,mode],()=>{if(nativeChoices.value.length && !nativeChoices.value.some(o=>o.id===nativeOperation.value))nativeOperation.value=nativeChoices.value[0]!.id;nativeJSON.value=JSON.stringify(nativeSelected.value?.example || {},null,2)},{immediate:true})
-const parseObject=(text:string):RequestBody=>{const v=JSON.parse(text);if(!v || typeof v!=='object' || Array.isArray(v))throw new Error('请输入 JSON 对象');return v}
+watch([protocol,nativeOperation,useNativeAPI],()=>{if(nativeChoices.value.length && !nativeChoices.value.some(o=>o.id===nativeOperation.value))nativeOperation.value=nativeChoices.value[0]!.id;nativeJSON.value=JSON.stringify(nativeSelected.value?.example || {},null,2)},{immediate:true})
+function parseObject(text: string): RequestBody | null {
+  try {
+    const value = JSON.parse(text)
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : null
+  } catch { return null }
+}
+const nativeBody = computed(() => parseObject(nativeJSON.value))
+const extensions = computed(() => parseObject(extensionsJSON.value))
 const models = computed(() => assetModels[protocol.value]?.[operation.value] || [])
 const needsPrompt = computed(() => !isAsset.value || ['text_to_3d','retexture'].includes(operation.value))
 const needsImage = computed(() => (isAsset.value && operation.value==='image_to_3d') || ['responses','chat','claude'].includes(protocol.value))
 const docId = computed(() => isNativeAPI.value ? 'compatibility' : isAsset.value ? 'assets' : protocol.value==='chat' ? 'responses' : protocol.value)
 watch([protocol,operation], () => { model.value=isAsset.value ? models.value[0] || '' : selected.value.model; animation.value=protocol.value==='meshy' ? '0' : 'preset:biped:walk'; if(operation.value==='retexture')texture.value=true; diagnostic.value=''; diagnosticError.value=''; fileError.value='' })
 const formError = computed(() => {
-  if(isNativeAPI.value){try{parseObject(nativeJSON.value)}catch{return '原生请求必须是有效 JSON 对象。'}return ''}
-  if(isAsset.value && mode.value==='unified'){
-    try{parseObject(extensionsJSON.value)}catch{return '扩展参数必须是有效 JSON 对象。'}
-    if((isGeneration.value || operation.value==='retexture') && (!formats.value.length || formats.value.some(f=>!formatChoices.value.includes(f))))return '请选择当前供应商支持的交付格式。'
-    if((isGeneration.value || operation.value==='retexture') && requiredComponents.value.length && !formats.value.includes('glb'))return '组件验证需要 GLB 格式。'
-    if((isGeneration.value || operation.value==='retexture') && !texture.value && requiredComponents.value.some(c=>c==='materials'||c==='textures'))return '必需材质或贴图时，请开启纹理生成。'
+  if (isNativeAPI.value) return nativeBody.value ? '' : '原生请求必须是有效 JSON 对象。'
+  if(isAsset.value){
+    if (!extensions.value) return '扩展参数必须是有效 JSON 对象。'
+    if(textureOperation.value && (!formats.value.length || formats.value.some(f=>!formatChoices.value.includes(f))))return '请选择当前供应商支持的交付格式。'
+    if(textureOperation.value && requiredComponents.value.length && !formats.value.includes('glb'))return '组件验证需要 GLB 格式。'
+    if(textureOperation.value && !texture.value && requiredComponents.value.some(c=>c==='materials'||c==='textures'))return '必需材质或贴图时，请开启纹理生成。'
   }
   if(fileError.value) return fileError.value
   if(needsPrompt.value && !prompt.value.trim()) return '请输入提示词。'
@@ -98,7 +113,14 @@ const formError = computed(() => {
   if(protocol.value==='meshy' && operation.value==='animate' && !animation.value.split(',').every(s=>/^\d+$/.test(s.trim()))) return 'Meshy 动作 ID 必须是非负整数。'
   return ''
 })
-const body = computed(() => {if(isNativeAPI.value){try{return parseObject(nativeJSON.value)}catch{return {}}}let extensions:RequestBody={};try{extensions=parseObject(extensionsJSON.value)}catch{/* Shown by formError. */}return buildRequest({protocol:protocol.value,model:model.value,prompt:prompt.value,image:image.value,operation:operation.value,images:protocol.value==='tripo' ? views.value : views.value.filter(Boolean),source:source.value,texture:texture.value,pbr:pbr.value,animation:animation.value,native:native.value,formats:isGeneration.value || operation.value==='retexture'?formats.value:[],requiredComponents:isGeneration.value || operation.value==='retexture'?requiredComponents.value:[],extensions})})
+const body = computed(() => isNativeAPI.value ? nativeBody.value || {} : buildRequest({
+  protocol: protocol.value, model: model.value, prompt: prompt.value, image: image.value,
+  operation: operation.value, images: protocol.value === 'tripo' ? views.value : views.value.filter(Boolean),
+  source: source.value, texture: texture.value, pbr: pbr.value, animation: animation.value, native: false,
+  formats: textureOperation.value ? formats.value : [],
+  requiredComponents: textureOperation.value ? requiredComponents.value : [],
+  extensions: extensions.value || {},
+}))
 const snippet = computed(() => language.value==='JSON' ? JSON.stringify(body.value,null,2) : language.value==='cURL' ? curlExample(endpoint.value,body.value,protocol.value==='claude') : sdkExample(endpoint.value,body.value,language.value==='Python'?'python':'javascript'))
 async function readImage(event: Event) {
   fileError.value=''

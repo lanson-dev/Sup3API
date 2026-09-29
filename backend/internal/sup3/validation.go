@@ -1,6 +1,9 @@
 package sup3
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 // Reject unsupported combinations instead of silently dropping normalized fields.
 func validateSemantics(r Request) error {
@@ -12,12 +15,7 @@ func validateSemantics(r Request) error {
 		}
 		seen := map[string]bool{}
 		for _, f := range r.Parameters.Formats {
-			supported := false
-			for _, available := range directFormats(r.Provider, r.Operation, r.Parameters.Topology) {
-				if f == available {
-					supported = true
-				}
-			}
+			supported := slices.Contains(directFormats(r.Provider, r.Operation, r.Parameters.Topology), f)
 			if !supported || seen[f] {
 				return invalid("output format is unsupported for this provider/operation/topology; automatic conversion is not enabled, use the native convert endpoint")
 			}

@@ -109,8 +109,10 @@ Windows 可把 `python` 换成 `py -3`。本机已有工具链还可使用 `.loc
 
 ## 兼容性验收
 
-在 `/connect` 选 Meshy → 原生 API → Refine，填写此 Key 在原生入口创建的 preview ID；代码应直接调用 `/providers/meshy/openapi/v2/text-to-3d`，不包含统一封套。切换 Tripo 后操作与 URL 应同步变化。编辑 JSON 或切换选项不会提交生成。
+在 `/connect` 选三维能力 → Meshy 原生 API → Refine，填写此 Key 在原生入口创建的 preview ID；代码应直接调用 `/providers/meshy/openapi/v2/text-to-3d`，不包含统一封套。切换 Tripo 后操作与 URL 应同步变化。编辑 JSON 或切换选项不会提交生成。
 
 统一模式可选择多个输出格式和必需组件。Meshy 选择 FBX 后切换 Tripo，保留原要求并显示不支持；点击「改用通用 GLB 格式」恢复。通过报价验证扩展参数与模型。组件缺失检查在交付后完成，可能已产生供应商费用。
 
 `--assets` 另检查新输出契约报价、原生未认证/越权/不支持端点；不会 POST 原生生成。后端 `SUP3_TEST_DSN` 指向可创建临时 schema 的 PostgreSQL，运行 `go test ./internal/sup3` 可执行真实持久化 + 模拟上游测试。未设置时数据库测试跳过，不能据此声称幂等持久化已验证。
+
+接入方式下拉仅有三个互斥选项：统一 API、Tripo 原生 API、Meshy 原生 API。统一模式的组件要求和扩展 JSON 收入默认折叠的「高级选项」，输出格式仍可直接选择。
