@@ -90,6 +90,22 @@ function mountModal(account: Record<string, unknown> = {
 }
 
 describe('AccountTestModal', () => {
+  it('tests asset account balances without loading or submitting an LLM model', async () => {
+    getAvailableModels.mockClear()
+    const wrapper = mountModal({ id: 9, name: 'Tripo', platform: 'tripo', type: 'apikey', status: 'active' })
+    await wrapper.setProps({ show: true })
+    await flushPromises()
+    expect(getAvailableModels).not.toHaveBeenCalled()
+    expect(wrapper.find('.select-stub').exists()).toBe(false)
+    expect(wrapper.text()).toContain('不创建付费生成任务')
+    const start = wrapper.findAll('button').find(b => b.text().includes('admin.accounts.startTest'))!
+    await start.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).not.toContain('admin.accounts.sendingTestMessage')
+    expect(wrapper.text()).not.toContain('admin.accounts.usingModel')
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/admin/accounts/9/test'), expect.objectContaining({ body: JSON.stringify({ model_id: '', prompt: '' }) }))
+    wrapper.unmount()
+  })
   beforeEach(() => {
     getAvailableModels.mockResolvedValue([
       { id: 'gemini-2.0-flash', display_name: 'Gemini 2.0 Flash' },

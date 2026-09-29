@@ -45,7 +45,12 @@ func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request, owner, key in
 	if r.Method == "GET" && path == "capabilities" {
 		out := []Capability{}
 		for _, p := range e.Providers {
-			out = append(out, p.Capability())
+			capability := p.Capability()
+			if e.ResolveProvider != nil {
+				_, _, err := e.resolve(r.Context(), p.Name(), "")
+				capability.Available = err == nil
+			}
+			out = append(out, capability)
 		}
 		sort.Slice(out, func(i, j int) bool { return out[i].Provider < out[j].Provider })
 		reply(w, 200, map[string]any{"schema_version": SchemaVersion, "providers": out, "billing": "provider_native_credits", "multiplier": 1})

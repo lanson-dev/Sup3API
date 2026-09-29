@@ -19,7 +19,7 @@ import (
 
 // RegisterSup3Routes is the sole asset-module integration point. The module is
 // disabled by default. Shared operator credentials require an explicit owner allowlist.
-func RegisterSup3Routes(r *gin.Engine, keys *service.APIKeyService, cfg *config.Config) {
+func RegisterSup3Routes(r *gin.Engine, keys *service.APIKeyService, cfg *config.Config, resolve sup3.ProviderResolver) {
 	if os.Getenv("SUP3_ENABLED") != "true" {
 		return
 	}
@@ -49,7 +49,8 @@ func RegisterSup3Routes(r *gin.Engine, keys *service.APIKeyService, cfg *config.
 	if err != nil {
 		log.Fatal("cannot initialize Sup3API storage")
 	}
-	engine := sup3.NewEngine(store, dir, sup3.NewProvider("tripo", os.Getenv("SUP3_TRIPO_API_KEY")), sup3.NewProvider("meshy", os.Getenv("SUP3_MESHY_API_KEY")))
+	engine := sup3.NewEngine(store, dir, sup3.NewProvider("tripo", ""), sup3.NewProvider("meshy", ""))
+	engine.ResolveProvider = resolve
 	engine.Start(context.Background())
 	group := r.Group("/v1/assets", middleware.NewAPIKeyIdentityMiddleware(keys, cfg))
 	handle := func(c *gin.Context) {
@@ -60,10 +61,6 @@ func RegisterSup3Routes(r *gin.Engine, keys *service.APIKeyService, cfg *config.
 		}
 		if !owners[key.UserID] {
 			c.AbortWithStatusJSON(403, gin.H{"error": gin.H{"code": "asset_access_denied", "message": "user is not provisioned for asset provider credits"}})
-			return
-		}
-		if c.Request.Method != "GET" && (!key.IsActive() || key.IsExpired()) {
-			c.AbortWithStatusJSON(403, gin.H{"error": gin.H{"code": "api_key_inactive", "message": "an active, unexpired API key is required"}})
 			return
 		}
 		if strings.HasPrefix(c.Request.URL.Path, "/providers/") {

@@ -5,6 +5,13 @@
     width="wide"
     @close="handleClose"
   >
+    <div v-if="step === 1" class="mb-5 rounded-xl border border-gray-200 p-4 dark:border-dark-500">
+      <p class="mb-3 text-sm font-medium">三维资产供应商 · API Key 接入</p>
+      <div class="flex gap-3">
+        <button type="button" class="btn btn-secondary" @click="emit('asset', 'tripo')">Tripo</button>
+        <button type="button" class="btn btn-secondary" @click="emit('asset', 'meshy')">Meshy</button>
+      </div>
+    </div>
     <!-- Step Indicator for OAuth accounts -->
     <div v-if="isOAuthFlow" class="mb-6 flex items-center justify-center">
       <div class="flex items-center space-x-4">
@@ -4080,6 +4087,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   close: []
   created: []
+  asset: [provider: 'tripo' | 'meshy']
 }>()
 
 const appStore = useAppStore()

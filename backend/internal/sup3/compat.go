@@ -67,7 +67,7 @@ func nativeError(w http.ResponseWriter, err error) {
 // Check resource references recursively, including new provider *_task_id fields.
 // Prompts are never interpreted as IDs. Provider fields are not mapped to the
 // unified schema; JSON is canonicalized so duplicate keys cannot bypass checks.
-func (e *Engine) checkNativeReferences(ctx context.Context, scope nativeScope, value any, field string) error {
+func (e *Engine) checkNativeReferences(ctx context.Context, scope *nativeScope, value any, field string) error {
 	field = strings.ToLower(field)
 	taskReference := strings.HasSuffix(field, "task_id") || strings.HasSuffix(field, "task_ids")
 	resource := taskReference || field == "input" || field == "inputs" || strings.Contains(field, "file_token")
@@ -117,7 +117,17 @@ func (e *Engine) checkNativeReferences(ctx context.Context, scope nativeScope, v
 		if !taskReference && strings.HasPrefix(v, "https://") {
 			return validRemoteURL(v)
 		}
-		_, err := e.Store.nativeTask(ctx, scope, v)
+		if e.ResolveProvider != nil {
+			binding, err := e.Store.nativeBinding(ctx, *scope, v, "")
+			if err != nil {
+				return err
+			}
+			if scope.Credential != "" && scope.Credential != binding {
+				return invalid("native task references must use the same upstream account")
+			}
+			scope.Credential = binding
+		}
+		_, err := e.Store.nativeTask(ctx, *scope, v)
 		return err
 	}
 	return nil
@@ -147,12 +157,31 @@ func (e *Engine) ServeNativeHTTP(w http.ResponseWriter, r *http.Request, owner, 
 		nativeError(w, &APIError{Code: "native_endpoint_unsupported", Message: "unsupported native endpoint, method, or query; see capabilities.native_api", HTTPStatus: 404})
 		return
 	}
-	if p.Key == "" {
-		nativeError(w, &APIError{Code: "provider_not_configured", Message: "provider credentials are missing", HTTPStatus: 503})
-		return
+	scope := nativeScope{Owner: owner, Key: key, Provider: provider}
+	if e.ResolveProvider == nil {
+		scope.Credential = CredentialFingerprint(p.Key)
 	}
-	digest := sha256.Sum256([]byte(p.Key))
-	scope := nativeScope{Owner: owner, Key: key, Provider: provider, Credential: hex.EncodeToString(digest[:])}
+	if e.ResolveProvider != nil && (task != "" || r.Header.Get("Idempotency-Key") != "") {
+		binding, err := e.Store.nativeBinding(r.Context(), scope, task, r.Header.Get("Idempotency-Key"))
+		if err != nil {
+			nativeError(w, err)
+			return
+		}
+		scope.Credential = binding
+	}
+	resolveAccount := func() error {
+		resolved, binding, err := e.resolve(r.Context(), provider, scope.Credential)
+		if err != nil {
+			return err
+		}
+		var ok bool
+		p, ok = resolved.(*RemoteProvider)
+		if !ok {
+			return invalid("native provider must be remote")
+		}
+		scope.Credential = binding
+		return nil
+	}
 	if task != "" {
 		original, err := e.Store.nativeTask(r.Context(), scope, task)
 		if err != nil {
@@ -189,7 +218,7 @@ func (e *Engine) ServeNativeHTTP(w http.ResponseWriter, r *http.Request, owner, 
 			nativeError(w, invalid("native request must contain one JSON object"))
 			return
 		}
-		if err = e.checkNativeReferences(r.Context(), scope, payload, ""); err != nil {
+		if err = e.checkNativeReferences(r.Context(), &scope, payload, ""); err != nil {
 			nativeError(w, err)
 			return
 		}
@@ -204,6 +233,10 @@ func (e *Engine) ServeNativeHTTP(w http.ResponseWriter, r *http.Request, owner, 
 			return
 		}
 		hash := sha256.Sum256(append([]byte(endpoint+"\n"), body...))
+		if err = resolveAccount(); err != nil {
+			nativeError(w, err)
+			return
+		}
 		var created bool
 		call, created, err = e.Store.reserveNative(r.Context(), scope, idem, hex.EncodeToString(hash[:]), endpoint)
 		if err != nil {
@@ -224,6 +257,12 @@ func (e *Engine) ServeNativeHTTP(w http.ResponseWriter, r *http.Request, owner, 
 			w.Header().Set("Cache-Control", "no-store")
 			w.WriteHeader(call.Status)
 			_, _ = w.Write(call.Body)
+			return
+		}
+	}
+	if r.Method != "POST" {
+		if err := resolveAccount(); err != nil {
+			nativeError(w, err)
 			return
 		}
 	}

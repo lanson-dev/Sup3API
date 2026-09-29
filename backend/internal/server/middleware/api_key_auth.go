@@ -139,6 +139,12 @@ func apiKeyAuthWithBillingPolicy(apiKeyService *service.APIKeyService, subscript
 			return
 		}
 
+		// Separate billing must not bypass the application key's expiry.
+		if identityOnly && (apiKey.IsExpired() || apiKey.Status == service.StatusAPIKeyExpired) {
+			AbortWithError(c, http.StatusForbidden, "API_KEY_EXPIRED", "API key has expired")
+			return
+		}
+
 		// 检查 IP 限制（白名单/黑名单）
 		// 注意：错误信息故意模糊，避免暴露具体的 IP 限制机制
 		if len(apiKey.IPWhitelist) > 0 || len(apiKey.IPBlacklist) > 0 {

@@ -284,7 +284,8 @@
             </div>
           </template>
           <template #cell-capacity="{ row }">
-            <AccountCapacityCell :account="row" />
+            <span v-if="isAssetPlatform(row.platform)" class="text-gray-400" title="资产任务由独立 worker 处理">—</span>
+            <AccountCapacityCell v-else :account="row" />
           </template>
           <template #cell-status="{ row }">
             <div class="flex items-center gap-1.5">
@@ -297,7 +298,8 @@
             </button>
           </template>
           <template #cell-today_stats="{ row }">
-            <AccountTodayStatsCell
+            <span v-if="isAssetPlatform(row.platform)" class="text-gray-400">—</span>
+            <AccountTodayStatsCell v-else
               :stats="todayStatsByAccountId[String(row.id)] ?? null"
               :loading="todayStatsLoading"
               :error="todayStatsError"
@@ -313,7 +315,8 @@
             </div>
           </template>
           <template #cell-usage="{ row }">
-            <AccountUsageCell
+            <span v-if="isAssetPlatform(row.platform)" class="text-xs text-gray-500">供应商 credits · 见任务用量</span>
+            <AccountUsageCell v-else
               :account="row"
               :today-stats="todayStatsByAccountId[String(row.id)] ?? null"
               :today-stats-loading="todayStatsLoading"
@@ -348,7 +351,8 @@
             </div>
           </template>
           <template #cell-rate_multiplier="{ row }">
-            <span class="inline-flex items-center gap-1 text-sm font-mono text-gray-700 dark:text-gray-300">
+            <span v-if="isAssetPlatform(row.platform)" class="text-gray-400">—</span>
+            <span v-else class="inline-flex items-center gap-1 text-sm font-mono text-gray-700 dark:text-gray-300">
               <span>{{ formatMultiplier(row.rate_multiplier ?? 1) }}x</span>
               <span
                 v-if="row.extra?.upstream_billing_rate_sync_enabled === true"
@@ -404,8 +408,8 @@
             </div>
             <span v-else class="text-sm text-gray-400 dark:text-dark-500">-</span>
           </template>
-          <template #cell-last_used_at="{ value }">
-            <span class="text-sm text-gray-500 dark:text-dark-400">{{ formatRelativeTime(value) }}</span>
+          <template #cell-last_used_at="{ row, value }">
+            <span class="text-sm text-gray-500 dark:text-dark-400">{{ isAssetPlatform(row.platform) ? '—' : formatRelativeTime(value) }}</span>
           </template>
           <template #cell-created_at="{ value }">
             <span class="text-sm text-gray-500 dark:text-dark-400">{{ formatDateTime(value) }}</span>
@@ -450,7 +454,8 @@
       </template>
       <template #pagination><Pagination v-if="pagination.total > 0" :page="pagination.page" :total="pagination.total" :page-size="pagination.page_size" @update:page="handlePageChange" @update:pageSize="handlePageSizeChange" /></template>
     </TablePageLayout>
-    <CreateAccountModal :show="showCreate" :proxies="proxies" :groups="groups" @close="showCreate = false" @created="reload" />
+    <CreateAccountModal :show="showCreate" :proxies="proxies" :groups="groups" @close="showCreate = false" @created="reload" @asset="createAssetAccount" />
+    <AssetAccountModal :show="showAssetAccount" :provider="assetProvider" :account="assetAccount" @close="showAssetAccount = false" @saved="reload" />
     <EditAccountModal :show="showEdit" :account="edAcc" :proxies="proxies" :groups="groups" @close="showEdit = false" @updated="handleAccountUpdated" />
     <ReAuthAccountModal :show="showReAuth" :account="reAuthAcc" @close="closeReAuthModal" @reauthorized="handleAccountUpdated" />
     <AccountTestModal :show="showTest" :account="testingAcc" @close="closeTestModal" />
@@ -504,6 +509,8 @@ import HelpTooltip from '@/components/common/HelpTooltip.vue'
 import Pagination from '@/components/common/Pagination.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { CreateAccountModal, EditAccountModal, BulkEditAccountModal, SyncFromCrsModal, TempUnschedStatusModal } from '@/components/account'
+import { isAssetPlatform } from '@/constants/platforms'
+import AssetAccountModal from '@/components/account/AssetAccountModal.vue'
 import AccountTableActions from '@/components/admin/account/AccountTableActions.vue'
 import AccountTableFilters from '@/components/admin/account/AccountTableFilters.vue'
 import AccountBulkActionsBar from '@/components/admin/account/AccountBulkActionsBar.vue'
@@ -1836,9 +1843,24 @@ const loadAccountDetails = async (account: Pick<AccountListItem, 'id'>): Promise
   }
 }
 
+const showAssetAccount = ref(false)
+const assetProvider = ref<'tripo' | 'meshy'>('tripo')
+const assetAccount = ref<Account | null>(null)
+const createAssetAccount = (provider: 'tripo' | 'meshy') => {
+  showCreate.value = false
+  assetProvider.value = provider
+  assetAccount.value = null
+  showAssetAccount.value = true
+}
 const handleEdit = async (a: AccountListItem) => {
   const account = await loadAccountDetails(a)
   if (!account) return
+  if (account.platform === 'tripo' || account.platform === 'meshy') {
+    assetProvider.value = account.platform
+    assetAccount.value = account
+    showAssetAccount.value = true
+    return
+  }
   edAcc.value = account
   showEdit.value = true
 }

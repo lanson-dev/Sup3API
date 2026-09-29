@@ -77,10 +77,16 @@ go build -tags embed -o sup3api ./cmd/server
 
 官方资料链接、兼容范围与费用边界均列于站内 `/docs/sources`、`/docs/native` 和 `/docs/lifecycle`。
 
-统一请求可省略 `input_format` 或填写 `sup3api`；早期 `agraphs` 值仍作为兼容别名接受。对外能力发现返回 `sup3api`。客户端示例环境变量使用 `SUP3API_BASE_URL` / `SUP3API_API_KEY`；服务端已有 `SUP3_*` 配置名保持不变。
+统一请求可省略 `input_format` 或填写 `sup3api`；早期 `agraphs` 值仍作为兼容别名接受。对外能力发现返回 `sup3api`。客户端示例环境变量使用 `SUP3API_BASE_URL` / `SUP3API_API_KEY`；服务端凭据在管理员「账号管理」配置，不再从 `SUP3_TRIPO_API_KEY` / `SUP3_MESHY_API_KEY` 环境变量读取。
 
 [站点测试指南](TESTING.md) 包含浏览器验收、无生成费用的检查脚本和手工生成流程。
 
 ## Unified output and native compatibility
 
 New requests support `output.formats`, `output.required_components` and validated `extensions.<provider>`. Operation capabilities describe format conditions and extension schemas. Existing field envelopes remain supported. Native `/providers/meshy` and `/providers/tripo/v3` endpoints preserve covered provider workflows and response bodies, with scoped task ownership and optional durable idempotency. Native tasks/files are separate from unified jobs/delivery and use provider credits. No upload, lists, webhooks or historical task import. See [compatibility contract](COMPATIBILITY.md) and on-site `/docs/compatibility` / `/docs/output`.
+
+## 上游账号与应用密钥
+
+管理员在「账号管理」添加 Tripo/Meshy API Key 账号，支持编辑、停用和余额连接测试。应用从「API 密钥」创建 Sup3API Key，同一个 Key 可按已开通权限调用统一、Tripo 原生或 Meshy 原生接口；三选一只是示例调用方式。
+
+新任务选择启用、可调度账号，按优先级数值、ID 升序选择。任务及后续阶段绑定原账号和凭据版本，调整优先级不会迁移任务；停用、删除或替换凭据会阻止后续上游调用。未记录账号绑定的旧统一任务需人工核对，不能自动改派。账号测试只查询余额。当前资产账号仅支持官方地址直连，不支持 OAuth/Studio 会员额度、代理或 LLM 分组计费；并发仍由资产 worker 控制。用户开通仍使用 `SUP3_ALLOWED_USER_IDS`。

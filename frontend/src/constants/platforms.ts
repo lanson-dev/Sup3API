@@ -28,3 +28,12 @@ export const GROUP_PLATFORM_OPTIONS = [
   ...CONCRETE_PLATFORM_OPTIONS,
   { value: 'composite', label: 'Composite' }
 ] as const satisfies readonly PlatformOption<GroupPlatform>[]
+
+/** Asset accounts share account management, not LLM group routing. */
+export const ACCOUNT_PLATFORM_OPTIONS = [
+  ...CONCRETE_PLATFORM_OPTIONS,
+  { value: 'tripo', label: 'Tripo' },
+  { value: 'meshy', label: 'Meshy' }
+] as const satisfies readonly PlatformOption<AccountPlatform>[]
+
+export const isAssetPlatform = (platform?: string): boolean => platform === 'tripo' || platform === 'meshy'

@@ -5,6 +5,4 @@ services:
     environment:
       SUP3_ENABLED: "true"
       SUP3_ALLOWED_USER_IDS: ${SUP3_ALLOWED_USER_IDS:?Set explicitly provisioned user IDs}
-      SUP3_TRIPO_API_KEY: ${SUP3_TRIPO_API_KEY:-}
-      SUP3_MESHY_API_KEY: ${SUP3_MESHY_API_KEY:-}
       SUP3_DATA_DIR: /app/data/sup3-assets

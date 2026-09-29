@@ -3,7 +3,8 @@
 Sup3API is a fork of Wei-Shaw/sub2api. Keep the upstream Go module name and existing
 LLM providers intact. New code belongs in `backend/internal/sup3`; host integration
 belongs in `backend/internal/server/routes/sup3.go`. Avoid generated Ent/Wire changes.
-The host owns user/API-key authentication. Sup3 owns 3D requests, provider adapters,
+The host owns administrator upstream accounts and application API-key authentication.
+Tripo/Meshy credentials live in account management, never in application key records. Sup3 owns 3D requests, provider adapters,
 durable jobs, native-credit pricing, artifacts and portable component extraction.
 Game rules, editors, scenes and DCC import bridges remain outside this API service.
 

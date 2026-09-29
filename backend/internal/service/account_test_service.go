@@ -32,6 +32,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/internal/pkg/openai"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/openai_compat"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/xai"
+	"github.com/Wei-Shaw/sub2api/internal/sup3"
 	"github.com/Wei-Shaw/sub2api/internal/util/urlvalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -368,6 +369,25 @@ func (s *AccountTestService) TestAccountConnection(c *gin.Context, accountID int
 		return s.sendErrorAndEnd(c, "Account not found")
 	}
 
+	if IsAssetPlatform(account.Platform) {
+		c.Header("Content-Type", "text/event-stream")
+		c.Header("Cache-Control", "no-cache")
+		c.Header("X-Accel-Buffering", "no")
+		c.Writer.Flush()
+		s.sendEvent(c, TestEvent{Type: "test_start", Model: "account/balance"})
+		if err := ValidateAssetAccount(account); err != nil {
+			return s.sendErrorAndEnd(c, "Invalid asset account configuration")
+		}
+		key, _ := account.Credentials["api_key"].(string)
+		balance, err := sup3.NewProvider(account.Platform, key).Balance(ctx)
+		if err != nil {
+			return s.sendErrorAndEnd(c, "Upstream balance query failed; check API key and API credit access")
+		}
+		body, _ := json.Marshal(balance)
+		s.sendEvent(c, TestEvent{Type: "content", Text: string(body)})
+		s.sendEvent(c, TestEvent{Type: "test_complete", Success: true})
+		return nil
+	}
 	// Synthetic UI load-test accounts exercise the real SSE parsing and modal
 	// interactions, but intentionally do not send their placeholder credentials
 	// to an upstream provider.

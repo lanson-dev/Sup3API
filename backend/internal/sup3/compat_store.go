@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 )
 
 type nativeScope struct {
@@ -22,7 +23,7 @@ func (s *Store) reserveNative(ctx context.Context, scope nativeScope, idem, hash
 	if idem == "" {
 		idem = c.ID
 	}
-	result, err := s.DB.ExecContext(ctx, `INSERT INTO sup3_native_calls(id,owner_id,key_id,provider,credential,idempotency_key,request_hash,endpoint) VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT(owner_id,key_id,provider,credential,idempotency_key) DO NOTHING`, c.ID, scope.Owner, scope.Key, scope.Provider, scope.Credential, idem, hash, endpoint)
+	result, err := s.DB.ExecContext(ctx, `INSERT INTO sup3_native_calls(id,owner_id,key_id,provider,credential,idempotency_key,request_hash,endpoint) VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT DO NOTHING`, c.ID, scope.Owner, scope.Key, scope.Provider, scope.Credential, idem, hash, endpoint)
 	if err != nil {
 		return c, false, err
 	}
@@ -30,7 +31,11 @@ func (s *Store) reserveNative(ctx context.Context, scope nativeScope, idem, hash
 	if err != nil || n == 1 {
 		return c, n == 1, err
 	}
-	err = s.DB.QueryRowContext(ctx, `SELECT id,request_hash,task_id,endpoint,status,response FROM sup3_native_calls WHERE owner_id=$1 AND key_id=$2 AND provider=$3 AND credential=$4 AND idempotency_key=$5`, scope.Owner, scope.Key, scope.Provider, scope.Credential, idem).Scan(&c.ID, &c.Hash, &c.TaskID, &c.Endpoint, &c.Status, &c.Body)
+	query := `SELECT id,request_hash,task_id,endpoint,status,response FROM sup3_native_calls WHERE owner_id=$1 AND key_id=$2 AND provider=$3 AND credential=$4 AND idempotency_key=$5`
+	if strings.Contains(scope.Credential, ":") {
+		query = strings.Replace(query, "credential=$4", "(credential=$4 OR credential LIKE '%:%')", 1)
+	}
+	err = s.DB.QueryRowContext(ctx, query, scope.Owner, scope.Key, scope.Provider, scope.Credential, idem).Scan(&c.ID, &c.Hash, &c.TaskID, &c.Endpoint, &c.Status, &c.Body)
 	return c, false, err
 }
 
@@ -46,4 +51,17 @@ func (s *Store) nativeTask(ctx context.Context, scope nativeScope, task string) 
 		return "", &APIError{Code: "native_task_not_found", Message: "task must have been created through this native gateway with the same API key", HTTPStatus: 404}
 	}
 	return endpoint, err
+}
+
+// The gateway identity is checked before selecting a pinned upstream account.
+func (s *Store) nativeBinding(ctx context.Context, scope nativeScope, task, idem string) (string, error) {
+	var binding string
+	err := s.DB.QueryRowContext(ctx, `SELECT credential FROM sup3_native_calls WHERE owner_id=$1 AND key_id=$2 AND provider=$3 AND (($4<>'' AND task_id=$4) OR ($4='' AND $5<>'' AND idempotency_key=$5)) ORDER BY created_at LIMIT 1`, scope.Owner, scope.Key, scope.Provider, task, idem).Scan(&binding)
+	if errors.Is(err, sql.ErrNoRows) {
+		if task == "" {
+			return "", nil
+		}
+		return "", &APIError{Code: "native_task_not_found", Message: "task must belong to this API key", HTTPStatus: 404}
+	}
+	return binding, err
 }

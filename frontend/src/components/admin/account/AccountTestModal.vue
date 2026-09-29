@@ -56,6 +56,7 @@
         </p>
       </div>
 
+      <p v-if="isAssetAccount" class="text-sm text-gray-500">仅查询供应商 API 余额，不创建付费生成任务。</p>
       <div v-if="showModelSelect" class="space-y-1.5">
         <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
           {{ t('admin.accounts.selectTestModel') }}
@@ -304,7 +305,7 @@
       </Teleport>
 
       <!-- Test Info -->
-      <div class="flex items-center justify-between px-1 text-xs text-gray-500 dark:text-gray-400">
+      <div v-if="!isAssetAccount" class="flex items-center justify-between px-1 text-xs text-gray-500 dark:text-gray-400">
         <div class="flex items-center gap-3">
           <span class="flex items-center gap-1">
             <Icon name="grid" size="sm" :stroke-width="2" />
@@ -422,6 +423,7 @@ const uploadAudioDataURL = ref('')
 const uploadAudioName = ref('')
 const imageFileInput = ref<HTMLInputElement | null>(null)
 const audioFileInput = ref<HTMLInputElement | null>(null)
+const isAssetAccount = computed(() => props.account?.platform === 'tripo' || props.account?.platform === 'meshy')
 const isOpenAIAccount = computed(() => props.account?.platform === 'openai')
 const isGrokAccount = computed(() => props.account?.platform === 'grok')
 const openAITestModeOptions = computed(() => [
@@ -478,6 +480,7 @@ const supportsImageTest = computed(
 
 // Model select only when the mode needs a model.
 const showModelSelect = computed(() => {
+  if (isAssetAccount.value) return false
   if (!isGrokAccount.value) return true
   return grokTestMode.value === 'text' || grokTestMode.value === 'image' || grokTestMode.value === 'video'
 })
@@ -675,6 +678,7 @@ const testModeSummary = computed(() => {
 
 const canStartTest = computed(() => {
   if (status.value === 'connecting') return false
+  if (isAssetAccount.value) return true
   if (isGrokAccount.value) {
     if (
       grokTestMode.value === 'search' ||
@@ -761,6 +765,7 @@ watch(grokTestMode, () => {
 })
 
 const loadAvailableModels = async () => {
+  if (isAssetAccount.value) { availableModels.value = []; selectedModelId.value = ''; return }
   if (!props.account) return
 
   loadingModels.value = true
@@ -952,6 +957,10 @@ const handleEvent = (event: {
   switch (event.type) {
     case 'test_start':
       addLine(t('admin.accounts.connectedToApi'), 'text-green-400')
+      if (isAssetAccount.value) {
+        addLine('正在查询供应商 API 余额…', 'text-cyan-400')
+        break
+      }
       if (event.model) {
         addLine(t('admin.accounts.usingModel', { model: event.model }), 'text-cyan-400')
       }

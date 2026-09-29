@@ -28,14 +28,13 @@ Use the normal upstream PostgreSQL/Redis setup, then enable the module:
 ```dotenv
 SUP3_ENABLED=true
 SUP3_ALLOWED_USER_IDS=1
-SUP3_TRIPO_API_KEY=your-tripo-key
-SUP3_MESHY_API_KEY=your-meshy-key
 SUP3_DATA_DIR=/app/data/sup3-assets
 ```
 
 `SUP3_ALLOWED_USER_IDS` is mandatory: only these host users can spend the
 operator's provider credits. Generate a normal Sub2API API key for that user.
-Keys must be active and unexpired for mutations. Job reads are also restricted
+Keys must be enabled and unexpired for every asset request. LLM USD quota exhaustion
+does not consume or disable the separate provider-credit allowance. Job reads are also restricted
 to the API key that created them; revoking a key blocks access.
 
 Build with the upstream Dockerfile, and use the additive Compose override:
@@ -53,8 +52,10 @@ cd backend
 go build -o sup3api ./cmd/server
 ```
 
-The module defaults to disabled. Provider keys are read from environment variables,
-never returned by the API. `APIKeys.txt`, `.local/` and `sup3-data/` are ignored.
+The module defaults to disabled. Add Tripo/Meshy API-key accounts in administrator
+account management. Application keys remain separate. Provider keys are not returned
+to applications. Existing tasks pin their upstream account and credential revision;
+disabling/replacing credentials blocks further upstream calls rather than failing over. `APIKeys.txt`, `.local/` and `sup3-data/` are ignored.
 The local test server created during development runs on `127.0.0.1:18763`.
 Its private launch/configuration files are in `.local/` and are not part of the fork.
 

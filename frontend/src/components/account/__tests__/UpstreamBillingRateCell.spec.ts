@@ -59,6 +59,13 @@ const billingData = {
 }
 
 describe('UpstreamBillingRateCell', () => {
+  it('does not offer LLM billing probes for asset accounts', () => {
+    for (const platform of ['tripo', 'meshy'] as const) {
+      const wrapper = mount(UpstreamBillingRateCell, { props: { account: makeAccount({ platform }), now: Date.now() } })
+      expect(wrapper.find('button').exists()).toBe(false)
+      wrapper.unmount()
+    }
+  })
   beforeEach(() => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-07-13T00:30:00Z'))

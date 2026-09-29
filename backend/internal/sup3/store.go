@@ -21,12 +21,13 @@ type record struct {
 	Job                                        Job
 	OwnerID, KeyID                             int64
 	IdempotencyKey, RequestHash, ResolvedInput string
+	AccountBinding                             string
 	Endpoints                                  []string
 	Files                                      []privateArtifact
 }
 
 func encode(j *Job) ([]byte, error) {
-	r := record{Job: *j, OwnerID: j.OwnerID, KeyID: j.KeyID, IdempotencyKey: j.IdempotencyKey, RequestHash: j.RequestHash, ResolvedInput: j.ResolvedInput}
+	r := record{Job: *j, OwnerID: j.OwnerID, KeyID: j.KeyID, IdempotencyKey: j.IdempotencyKey, RequestHash: j.RequestHash, ResolvedInput: j.ResolvedInput, AccountBinding: j.AccountBinding}
 	for _, s := range j.Steps {
 		r.Endpoints = append(r.Endpoints, s.Endpoint)
 	}
@@ -46,6 +47,7 @@ func decode(b []byte) (*Job, error) {
 	j.IdempotencyKey = r.IdempotencyKey
 	j.RequestHash = r.RequestHash
 	j.ResolvedInput = r.ResolvedInput
+	j.AccountBinding = r.AccountBinding
 	for i := range j.Steps {
 		if i < len(r.Endpoints) {
 			j.Steps[i].Endpoint = r.Endpoints[i]
@@ -96,6 +98,7 @@ func (s *Store) Init(ctx context.Context) error {
  status INTEGER NOT NULL DEFAULT 0, response BYTEA NOT NULL DEFAULT ''::bytea,
  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
  UNIQUE(owner_id,key_id,provider,credential,idempotency_key));
+ CREATE UNIQUE INDEX IF NOT EXISTS sup3_native_managed_idem ON sup3_native_calls(owner_id,key_id,provider,idempotency_key) WHERE credential LIKE '%:%';
  CREATE INDEX IF NOT EXISTS sup3_native_task_owner ON sup3_native_calls(owner_id,key_id,provider,credential,task_id);`)
 	return err
 }

@@ -111,13 +111,13 @@ export const docs: DocPage[] = [
     { title: '5. 轮询并下载', code:'curl "$SUP3API_BASE_URL/v1/assets/jobs/$JOB_ID" \\\n  -H "Authorization: Bearer $SUP3API_API_KEY"\n\n# After status=succeeded AND delivery_status=ready:\ncurl "$SUP3API_BASE_URL$ARTIFACT_URL" \\\n  -H "Authorization: Bearer $SUP3API_API_KEY" \\\n  -o model.glb',label:'cURL', text:['建议每 3–5 秒轮询。分别判断执行状态与交付状态。不要因为下载失败而重新提交生成任务。'] },
   ] },
   { id:'authentication',group:'开始',title:'认证与访问',intro:'所有模型接口使用 Sup3API API Key。网页登录会话用于控制台，不能代替模型接口的密钥。',sections:[
-    {title:'请求头',headers:['请求头','用途'],rows:[['Authorization: Bearer <key>','全部模型与资产接口'],['x-api-key: <key>','Claude 客户端也可以使用此认证头'],['anthropic-version: 2023-06-01','Claude Messages 版本头'],['Content-Type: application/json','JSON 接口；图片编辑的 multipart 由客户端生成边界'],['Idempotency-Key: <8–128 characters>','3D 创建任务必填。同一密钥下，相同 ID 与参数复用同一个任务。']]},
+    {title:'请求头',headers:['请求头','用途'],rows:[['Authorization: Bearer <key>','全部模型与资产接口'],['x-api-key: <key>','Claude 客户端也可以使用此认证头'],['anthropic-version: 2023-06-01','Claude Messages 版本头'],['Content-Type: application/json','JSON 接口；图片编辑的 multipart 由客户端生成边界'],['Idempotency-Key: <8–128 characters>','统一 3D 创建任务必填；原生接口可选。同一密钥下，相同 ID 与参数复用同一个任务。']]},
     {title:'权限边界',text:['模型列表只展示当前密钥分组允许的 LLM 模型。访问 3D 接口还要求账号列入资产模块允许名单。失效或被撤销的密钥不能继续访问其任务。','3D 任务与下载绑定创建它的账号和 API Key。同一账号下另一个 Key 也不能读取该任务。跨供应商处理应导出模型，并提供公开 HTTPS model_url。','密钥只应保存在你的服务端环境变量。接入页的诊断密钥仅保存在当前页面内存，发送到本站同源接口，不写入网址、示例代码或浏览器存储。']},
     {title:'错误结构',code:JSON.stringify({error:{code:'asset_access_denied',message:'user is not provisioned for asset provider credits',retryable:false}},null,2),label:'3D 错误示例'},
   ]},
   {id:'models',group:'开始',title:'模型与能力',intro:'先发现可用能力，再决定输入与输出。本站不把所有供应商的模型视为可互换的同一种资源。',sections:[
     {title:'语言与图像模型',endpoint:'GET /v1/models',code:'curl "$SUP3API_BASE_URL/v1/models" \\\n  -H "Authorization: Bearer $SUP3API_API_KEY"',label:'cURL',text:['返回当前 Key 允许访问的模型列表。列表不是所有模态、工具、文件操作的能力保证；还需结合模型官方说明和上游账号类型。本站未配置上游时，会返回相应不可用错误。']},
-    {title:'三维模型能力',endpoint:'GET /v1/assets/capabilities',headers:['字段','含义'],rows:[['providers[].available','运营者是否配置了此供应商的 API 凭证，不代表已验证余额'],['models_by_operation','每种操作可选模型版本；rig 与生成模型不是同一套版本'],['operation_details','格式条件、扩展字段类型与枚举'],['native_api','已覆盖原生端点与兼容限制'],['operations','支持的生成、重纹理、绑定与动画操作'],['input_formats','sup3api 统一格式，以及 tripo 或 meshy 字段适配格式'],['billing / multiplier','provider_native_credits / 1；不是 LLM 的 USD 余额']]},
+    {title:'三维模型能力',endpoint:'GET /v1/assets/capabilities',headers:['字段','含义'],rows:[['providers[].available','是否存在启用且可调度的上游账号，不代表已验证余额'],['models_by_operation','每种操作可选模型版本；rig 与生成模型不是同一套版本'],['operation_details','格式条件、扩展字段类型与枚举'],['native_api','已覆盖原生端点与兼容限制'],['operations','支持的生成、重纹理、绑定与动画操作'],['input_formats','sup3api 统一格式，以及 tripo 或 meshy 字段适配格式'],['billing / multiplier','provider_native_credits / 1；不是 LLM 的 USD 余额']]},
     {title:'三维操作选择',headers:['操作','输入','输出'],rows:operations.map(([op,name])=>[`${op} · ${name}`,op==='text_to_3d'?'prompt':op==='image_to_3d'?'images[1]':op==='multi_image_to_3d'?'images[1–4]':op==='animate'?'rig job_id + animations':'job_id 或 model_url',op==='rig'?'绑定模型 / 骨骼 / 权重':op==='animate'?'动画模型 / 动画轨道':'模型 / 材质 / 贴图（取决于参数）'])},
   ]},
   {id:'responses',group:'文本与图像',title:'GPT · Responses',intro:'使用 OpenAI Responses 请求结构，将文本与图像内容块发送给支持视觉的模型。完整返回 output 数组及用量，不只返回最终文本。',sections:[
@@ -172,6 +172,7 @@ export const docs: DocPage[] = [
     {title:'执行状态',headers:['status','处理方式'],rows:[['queued / submitting / running','继续轮询；submitting 已记录付费提交意图'],['succeeded','检查 delivery_status 是否 ready'],['failed / canceled','停止轮询并检查 error'],['submission_unknown','提交结果不确定。由运营者核对上游，不自动重复付费提交']]},
     {title:'交付与控制接口',headers:['接口','用途'],rows:[['POST /v1/assets/quotes','验证并估价；不消耗生成额度'],['GET /v1/assets/jobs','当前账号及 Key 的最近 100 个任务'],['GET /v1/assets/jobs/{id}','查询执行、阶段、资产和用量'],['POST /v1/assets/jobs/{id}/retry-delivery','重新交付生成成功但下载失败的任务'],['POST /v1/assets/jobs/{id}/refresh-artifacts','重新查询已成功任务的文件 URL 并提取'],['POST /v1/assets/jobs/{id}/cancel','本地排队任务可取消；Meshy 仅上游待处理阶段可取消；Tripo 适配器不提供上游取消']]},
     {title:'幂等性',text:['Idempotency-Key 为 8–128 字符。相同 Key、相同请求 ID 与相同规范化参数返回原任务（200），首次创建返回 202；请求 ID 相同但参数不同返回 409。网络中断时先用相同 ID 重试，不能随意生成新 ID。']},
+    {title:'账号与密钥',text:['管理员在「账号管理」配置 Tripo/Meshy 上游 API Key。应用使用「API 密钥」中创建的 Sup3API Key；接入页三选一仅切换调用协议，不创建或更换供应商账号。','任务绑定创建时的上游账号。停用或替换上游凭据后，不会将已有任务转交其他账号。']},
     {title:'费用边界',text:['3D quote 是供应商原生 credits 估算，multiplier=1。cost.kind=reported 才表示所有阶段已取得消耗报告；pending / partially_reported 不是最终账单。','3D 额度由运营者的供应商 API 账号支付，与 LLM USD 钱包独立，目前通过账号允许名单控制。网页中的 LLM 余额和 Key USD 限额不覆盖 3D 额度。Tripo Studio 订阅不自动转换为 API 余额。']},
   ]},
   {id:'errors',group:'参考',title:'错误处理',intro:'协议不同，错误封套也可能不同。检查 HTTP 状态码，再读取 error；流式请求还需检查流中的错误事件。',sections:[

@@ -138,6 +138,7 @@ type Job struct {
 	IdempotencyKey string `json:"-"`
 	RequestHash    string `json:"-"`
 	ResolvedInput  string `json:"-"`
+	AccountBinding string `json:"-"`
 }
 
 func (j *Job) Terminal() bool {

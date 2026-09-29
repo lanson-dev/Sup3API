@@ -13,10 +13,11 @@ import (
 )
 
 type Engine struct {
-	Store          *Store
-	Providers      map[string]Provider
-	DataDir        string
-	DownloadClient *http.Client
+	Store           *Store
+	Providers       map[string]Provider
+	ResolveProvider ProviderResolver
+	DataDir         string
+	DownloadClient  *http.Client
 }
 
 func NewEngine(store *Store, dir string, providers ...Provider) *Engine {
@@ -56,9 +57,7 @@ func (e *Engine) Create(ctx context.Context, owner, key int64, idempotency strin
 	if err != nil {
 		return nil, false, err
 	}
-	if !e.Providers[r.Provider].Capability().Available {
-		return nil, false, &APIError{Code: "provider_not_configured", Message: "provider credentials are missing", HTTPStatus: 503}
-	}
+	binding := ""
 	resolved := ""
 	if r.Inputs.JobID != "" {
 		source, err := e.Store.Get(ctx, r.Inputs.JobID, owner, key)
@@ -77,7 +76,15 @@ func (e *Engine) Create(ctx context.Context, owner, key int64, idempotency strin
 		if r.Provider == "meshy" && r.Operation == "rig" && !source.Request.Textured() {
 			return nil, false, invalid("Meshy rig requires a textured model")
 		}
+		binding = source.AccountBinding
+		if e.ResolveProvider != nil && binding == "" {
+			return nil, false, invalid("legacy source job requires upstream account reconciliation")
+		}
 		resolved = source.Steps[len(source.Steps)-1].UpstreamID
+	}
+	_, binding, err = e.resolve(ctx, r.Provider, binding)
+	if err != nil {
+		return nil, false, err
 	}
 	b, err := json.Marshal(r)
 	if err != nil {
@@ -89,7 +96,7 @@ func (e *Engine) Create(ctx context.Context, owner, key int64, idempotency strin
 	cost.Credits = 0
 	cost.USD = nil
 	cost.Kind = "pending"
-	j := &Job{ID: "job_" + randomID(), SchemaVersion: SchemaVersion, OwnerID: owner, KeyID: key, Request: r, Status: "queued", Steps: []Step{}, Quote: quote, Cost: cost, DeliveryStatus: "pending", Artifacts: []Artifact{}, Components: map[string]Component{}, CreatedAt: now, UpdatedAt: now, IdempotencyKey: idempotency, RequestHash: hex.EncodeToString(hash[:]), ResolvedInput: resolved}
+	j := &Job{ID: "job_" + randomID(), SchemaVersion: SchemaVersion, OwnerID: owner, KeyID: key, Request: r, Status: "queued", Steps: []Step{}, Quote: quote, Cost: cost, DeliveryStatus: "pending", Artifacts: []Artifact{}, Components: map[string]Component{}, CreatedAt: now, UpdatedAt: now, IdempotencyKey: idempotency, RequestHash: hex.EncodeToString(hash[:]), ResolvedInput: resolved, AccountBinding: binding}
 	return e.Store.Create(ctx, j)
 }
 func apiError(err error) *APIError {
@@ -130,10 +137,6 @@ func (e *Engine) Tick(ctx context.Context) error {
 	return e.Store.Save(ctx, j, token, true)
 }
 func (e *Engine) advance(ctx context.Context, j *Job, token string) error {
-	p, ok := e.Providers[j.Request.Provider]
-	if !ok {
-		return errors.New("provider missing")
-	}
 	if j.Status == "submitting" {
 		j.Status = "submission_unknown"
 		j.Error = &APIError{Code: "submission_unknown", Message: "worker stopped during submission; reconcile upstream before creating another job"}
@@ -153,6 +156,11 @@ func (e *Engine) advance(ctx context.Context, j *Job, token string) error {
 		}
 		j.DeliveryStatus = "ready"
 		j.Error = nil
+		return nil
+	}
+	p, err := e.jobProvider(ctx, j)
+	if err != nil {
+		j.Error = apiError(err)
 		return nil
 	}
 	if len(j.Steps) == 0 {
@@ -206,6 +214,10 @@ func (e *Engine) advance(ctx context.Context, j *Job, token string) error {
 	return nil
 }
 func (e *Engine) submit(ctx context.Context, j *Job, token, stage, previous string) error {
+	p, err := e.jobProvider(ctx, j)
+	if err != nil {
+		return err
+	}
 	// Commit the intent before the external side effect. Lease recovery cannot
 	// distinguish a crashed successful POST from an unsent one, so neither retries.
 	j.Status = "submitting"
@@ -214,7 +226,7 @@ func (e *Engine) submit(ctx context.Context, j *Job, token, stage, previous stri
 	}
 	r := j.Request
 	r.Inputs.UpstreamID = j.ResolvedInput
-	step, err := e.Providers[r.Provider].Submit(ctx, r, stage, previous)
+	step, err := p.Submit(ctx, r, stage, previous)
 	if err != nil {
 		j.Error = apiError(err)
 		j.Status = "failed"
@@ -276,7 +288,11 @@ func (e *Engine) Mutate(ctx context.Context, id string, owner, key int64, action
 		if j.Status != "succeeded" || (action == "retry-delivery" && j.DeliveryStatus != "failed") {
 			return nil, invalid("refresh requires a succeeded job; retry-delivery requires failed delivery")
 		}
-		obs, err := e.Providers[j.Request.Provider].Poll(ctx, j.Steps[len(j.Steps)-1])
+		p, err := e.jobProvider(ctx, j)
+		if err != nil {
+			return nil, err
+		}
+		obs, err := p.Poll(ctx, j.Steps[len(j.Steps)-1])
 		if err != nil {
 			return nil, err
 		}
@@ -297,7 +313,11 @@ func (e *Engine) Mutate(ctx context.Context, id string, owner, key int64, action
 			return nil, &APIError{Code: "submission_unknown", Message: "submission must be reconciled first", HTTPStatus: 409}
 		}
 		if len(j.Steps) > 0 {
-			if err = e.Providers[j.Request.Provider].Cancel(ctx, j.Steps[len(j.Steps)-1]); err != nil {
+			p, err := e.jobProvider(ctx, j)
+			if err != nil {
+				return nil, err
+			}
+			if err = p.Cancel(ctx, j.Steps[len(j.Steps)-1]); err != nil {
 				return nil, err
 			}
 		}

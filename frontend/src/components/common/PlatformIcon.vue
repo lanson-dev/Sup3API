@@ -71,10 +71,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { GroupPlatform } from '@/types'
+import type { GroupPlatform, AccountPlatform } from '@/types'
 
 interface Props {
-  platform?: GroupPlatform
+  platform?: GroupPlatform | AccountPlatform
   size?: 'xs' | 'sm' | 'md' | 'lg'
 }
 

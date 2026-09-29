@@ -307,6 +307,8 @@ export function platformLabel(p: string): string {
     case 'deepseek': return 'DeepSeek'
     case 'minimax': return 'MiniMax'
     case 'opencode_go': return 'OpenCode'
+    case 'tripo': return 'Tripo'
+    case 'meshy': return 'Meshy'
     case 'composite': return 'Composite'
     default: return p || 'API'
   }

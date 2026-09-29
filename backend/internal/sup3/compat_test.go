@@ -166,11 +166,11 @@ func TestNativeReferenceShapesRejectedBeforeUpstream(t *testing.T) {
 		if err := json.Unmarshal([]byte(body), &payload); err != nil {
 			t.Fatal(err)
 		}
-		if err := e.checkNativeReferences(context.Background(), nativeScope{}, payload, ""); err == nil {
+		if err := e.checkNativeReferences(context.Background(), &nativeScope{}, payload, ""); err == nil {
 			t.Fatalf("accepted %s", body)
 		}
 	}
-	if err := e.checkNativeReferences(context.Background(), nativeScope{}, map[string]any{"inputs": []any{"https://example.com/a.png", ""}, "prompt": "task_in_prompt"}, ""); err != nil {
+	if err := e.checkNativeReferences(context.Background(), &nativeScope{}, map[string]any{"inputs": []any{"https://example.com/a.png", ""}, "prompt": "task_in_prompt"}, ""); err != nil {
 		t.Fatal(err)
 	}
 }

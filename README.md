@@ -14,11 +14,11 @@ GPT / Claude 使用兼容协议。3D 接入三选一：
 | Tripo 原生 API | `/providers/tripo/v3` |
 | Meshy 原生 API | `/providers/meshy` |
 
-支持范围见 [兼容说明](docs/COMPATIBILITY.md)。
+管理员在「账号管理」配置供应商 API Key；应用使用「API 密钥」创建的 Sup3API Key。支持范围见 [兼容说明](docs/COMPATIBILITY.md)。
 
 ## 启动
 
-需要 Docker Compose。首次部署将 `deploy/.env.example` 复制为 `deploy/.env`，填写数据库密码、管理员账号及密钥配置；3D 另需 `SUP3_ALLOWED_USER_IDS` 和至少一个供应商 API Key。完整步骤见 [部署指南](docs/TESTING.md#4-从源码启动自己的测试站)。
+需要 Docker Compose。首次部署将 `deploy/.env.example` 复制为 `deploy/.env`，填写数据库密码、管理员账号及密钥配置；3D 另需 `SUP3_ALLOWED_USER_IDS`，并在「账号管理」添加 Tripo/Meshy 上游账号。完整步骤见 [部署指南](docs/TESTING.md#4-从源码启动自己的测试站)。
 
 ```sh
 docker build -t sup3api:local .

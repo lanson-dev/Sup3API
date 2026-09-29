@@ -7,6 +7,10 @@ function readSource(path: string): string {
 }
 
 describe('admin platform filters', () => {
+  it('includes asset providers only in the account catalog', () => {
+    const source = readSource('src/components/admin/account/AccountTableFilters.vue')
+    expect(source).toContain("import { ACCOUNT_PLATFORM_OPTIONS } from '@/constants/platforms'")
+  })
   it('uses the group platform catalog on the subscriptions page', () => {
     const source = readSource('src/views/admin/SubscriptionsView.vue')
     expect(source).toContain("import { GROUP_PLATFORM_OPTIONS } from '@/constants/platforms'")
@@ -21,7 +25,6 @@ describe('admin platform filters', () => {
 
   it('uses the concrete platform catalog wherever concrete platforms are selected', () => {
     for (const path of [
-      'src/components/admin/account/AccountTableFilters.vue',
       'src/components/admin/ErrorPassthroughRulesModal.vue',
       'src/views/admin/ops/components/OpsDashboardHeader.vue'
     ]) {
