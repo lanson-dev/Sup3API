@@ -7,13 +7,19 @@ func validateSemantics(r Request) error {
 	gen := strings.HasSuffix(r.Operation, "to_3d")
 	tex := gen || r.Operation == "retexture"
 	if len(r.Parameters.Formats) > 0 {
-		if r.Provider != "meshy" || !tex {
-			return invalid("formats is supported for Meshy generation and retexture only")
+		if r.Provider == "meshy" && !tex {
+			return invalid("selectable formats require generation or retexture for Meshy")
 		}
 		seen := map[string]bool{}
 		for _, f := range r.Parameters.Formats {
-			if (f != "glb" && f != "fbx" && f != "obj" && f != "stl" && f != "usdz" && f != "3mf") || seen[f] {
-				return invalid("formats must contain distinct glb, fbx, obj, stl, usdz or 3mf values")
+			supported := false
+			for _, available := range directFormats(r.Provider, r.Operation, r.Parameters.Topology) {
+				if f == available {
+					supported = true
+				}
+			}
+			if !supported || seen[f] {
+				return invalid("output format is unsupported for this provider/operation/topology; automatic conversion is not enabled, use the native convert endpoint")
 			}
 			seen[f] = true
 		}
@@ -51,33 +57,7 @@ func validateSemantics(r Request) error {
 		}
 	}
 	for name := range r.ProviderOptions {
-		allowed := false
-		if r.Provider == "meshy" {
-			switch name {
-			case "geometry_resolution", "moderation":
-				allowed = gen
-			case "height_meters":
-				allowed = r.Operation == "rig"
-			case "texture_prompt":
-				allowed = r.Operation == "text_to_3d" && r.Textured()
-			}
-		}
-		if r.Provider == "tripo" {
-			switch name {
-			case "texture_quality":
-				allowed = tex && r.Textured()
-			case "geometry_quality", "smart_low_poly", "generate_parts", "model_seed", "auto_size":
-				allowed = gen
-			case "texture_version", "texture_seed":
-				allowed = gen && r.Textured()
-			case "image_seed", "negative_prompt":
-				allowed = r.Operation == "text_to_3d"
-			case "rig_type", "spec":
-				allowed = r.Operation == "rig"
-			case "animation_in_place":
-				allowed = r.Operation == "animate"
-			}
-		}
+		allowed := optionApplies(r, name)
 		if !allowed {
 			return invalid("provider_options." + name + " is unsupported for this operation")
 		}
@@ -124,4 +104,37 @@ func validateSemantics(r Request) error {
 		}
 	}
 	return nil
+}
+
+func optionApplies(r Request, name string) bool {
+	gen := strings.HasSuffix(r.Operation, "to_3d")
+	tex := gen || r.Operation == "retexture"
+	allowed := false
+	if r.Provider == "meshy" {
+		switch name {
+		case "geometry_resolution", "moderation":
+			allowed = gen
+		case "height_meters":
+			allowed = r.Operation == "rig"
+		case "texture_prompt":
+			allowed = r.Operation == "text_to_3d" && r.Textured()
+		}
+	}
+	if r.Provider == "tripo" {
+		switch name {
+		case "texture_quality":
+			allowed = tex && r.Textured()
+		case "geometry_quality", "smart_low_poly", "generate_parts", "model_seed", "auto_size":
+			allowed = gen
+		case "texture_version", "texture_seed":
+			allowed = gen && r.Textured()
+		case "image_seed", "negative_prompt":
+			allowed = r.Operation == "text_to_3d"
+		case "rig_type", "spec":
+			allowed = r.Operation == "rig"
+		case "animation_in_place":
+			allowed = r.Operation == "animate"
+		}
+	}
+	return allowed
 }

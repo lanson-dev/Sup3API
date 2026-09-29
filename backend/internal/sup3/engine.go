@@ -27,6 +27,9 @@ func NewEngine(store *Store, dir string, providers ...Provider) *Engine {
 	return e
 }
 func (e *Engine) Prepare(r *Request) (Price, error) {
+	if err := normalizeContract(r); err != nil {
+		return Price{}, err
+	}
 	p, ok := e.Providers[r.Provider]
 	if !ok {
 		return Price{}, invalid("unknown provider")
@@ -141,6 +144,11 @@ func (e *Engine) advance(ctx context.Context, j *Job, token string) error {
 		if err := e.download(ctx, j); err != nil {
 			j.DeliveryStatus = "failed"
 			j.Error = &APIError{Code: "delivery_failed", Message: "generation succeeded; artifact delivery failed, retry delivery without regenerating", Retryable: true}
+			return nil
+		}
+		if !validateOutput(j) {
+			j.DeliveryStatus = "failed"
+			j.Error = &APIError{Code: "output_requirements_unmet", Message: "generation completed but delivered assets do not meet requested output; see output_validation", HTTPStatus: 422}
 			return nil
 		}
 		j.DeliveryStatus = "ready"
@@ -279,6 +287,7 @@ func (e *Engine) Mutate(ctx context.Context, id string, owner, key int64, action
 		j.Components = map[string]Component{}
 		j.Steps[len(j.Steps)-1].ProviderResult = obs.ProviderResult
 		j.DeliveryStatus = "pending"
+		j.OutputValidation = nil
 		j.Error = nil
 	case "cancel":
 		if j.Terminal() {

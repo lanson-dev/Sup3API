@@ -80,3 +80,7 @@ go build -tags embed -o sup3api ./cmd/server
 统一请求可省略 `input_format` 或填写 `sup3api`；早期 `agraphs` 值仍作为兼容别名接受。对外能力发现返回 `sup3api`。客户端示例环境变量使用 `SUP3API_BASE_URL` / `SUP3API_API_KEY`；服务端已有 `SUP3_*` 配置名保持不变。
 
 [站点测试指南](TESTING.md) 包含浏览器验收、无生成费用的检查脚本和手工生成流程。
+
+## Unified output and native compatibility
+
+New requests support `output.formats`, `output.required_components` and validated `extensions.<provider>`. Operation capabilities describe format conditions and extension schemas. Existing field envelopes remain supported. Native `/providers/meshy` and `/providers/tripo/v3` endpoints preserve covered provider workflows and response bodies, with scoped task ownership and optional durable idempotency. Native tasks/files are separate from unified jobs/delivery and use provider credits. No upload, lists, webhooks or historical task import. See [compatibility contract](COMPATIBILITY.md) and on-site `/docs/compatibility` / `/docs/output`.

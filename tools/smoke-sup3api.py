@@ -53,7 +53,7 @@ def main():
 
     if read_json('/health').get('status') != 'ok':
         raise ValueError('Unexpected health response')
-    for path in ('/home', '/connect', '/docs/quickstart', '/login'):
+    for path in ('/home', '/connect', '/docs/quickstart', '/docs/compatibility', '/docs/output', '/login'):
         if b'id="app"' not in request(path):
             raise ValueError(f'{path}: expected the frontend application shell')
     if b'Sup3API' not in request('/sup3api-mark.svg'):
@@ -77,10 +77,22 @@ def main():
             if 'sup3api' not in provider.get('input_formats', []):
                 raise ValueError('Provider capabilities do not advertise sup3api input')
             body = {'provider': provider['provider'], 'operation': 'text_to_3d', 'input_format': 'sup3api',
-                    'inputs': {'prompt': 'A low-poly wooden crate'}, 'parameters': {'texture': False, 'pbr': False}}
+                    'inputs': {'prompt': 'A low-poly wooden crate'}, 'parameters': {'texture': False, 'pbr': False}, 'output': {'formats': ['glb'], 'required_components': ['geometry']}}
             quote = read_json('/v1/assets/quotes', body=body, authenticated=True)
             if not isinstance(quote.get('quote'), dict) or quote.get('request', {}).get('provider') != provider['provider']:
                 raise ValueError('Unexpected quote response')
+            if not provider.get('operation_details') or not provider.get('native_api'):
+                raise ValueError('Missing compatibility capabilities')
+            native_base = '/providers/' + provider['provider']
+            task_path = native_base + ('/v3/tasks/' if provider['provider'] == 'tripo' else '/openapi/v2/text-to-3d/') + 'sup3-smoke-foreign-task'
+            request(task_path, expected=(401, 403))
+            foreign = read_json(task_path, authenticated=True, expected=404)
+            if foreign.get('error', {}).get('code') != 'native_task_not_found':
+                raise ValueError('Native task isolation check failed')
+            unsupported = native_base + ('/v3/account/balance' if provider['provider'] == 'tripo' else '/openapi/v1/balance')
+            result = read_json(unsupported, authenticated=True, expected=404)
+            if result.get('error', {}).get('code') != 'native_endpoint_unsupported':
+                raise ValueError('Native route boundary check failed')
             tested += 1
         if not tested:
             raise ValueError('No configured 3D provider; set a server-side Tripo or Meshy API key')

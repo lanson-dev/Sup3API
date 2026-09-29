@@ -37,4 +37,11 @@ describe('Sup3API protocol examples', () => {
     expect(JSON.stringify(docs)).toContain('steps[].provider_result')
     expect(JSON.stringify(docs)).toContain('submission_unknown')
   })
+  it('builds a portable output contract and namespaced extensions',()=>{
+    for(const protocol of ['tripo','meshy'] as const) {
+      expect(buildRequest({...base,protocol,formats:['glb'],requiredComponents:['geometry'],extensions:{moderation:true}})).toMatchObject({output:{formats:['glb'],required_components:['geometry']},extensions:{[protocol]:{moderation:true}}})
+    }
+    for(const lang of ['javascript','python'] as const)expect(sdkExample('/providers/meshy/openapi/v2/text-to-3d',{mode:'preview'},lang)).toContain('Idempotency-Key')
+  })
+
 })

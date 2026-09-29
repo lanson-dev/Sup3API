@@ -23,6 +23,9 @@ func normalizeInput(r Request) (Request, error) {
 	if (r.InputFormat != "tripo" && r.InputFormat != "meshy") || r.Provider != r.InputFormat {
 		return r, invalid("input_format must match provider: tripo or meshy")
 	}
+	if r.Output != nil || len(r.Extensions) > 0 {
+		return r, invalid("native field envelopes cannot be mixed with output or extensions; use unified fields or the native endpoint")
+	}
 	if r.Payload == nil || r.Model != "" || r.Inputs.Prompt != "" || len(r.Inputs.Images) > 0 || r.Inputs.ModelURL != "" || r.Inputs.JobID != "" || len(r.ProviderOptions) > 0 || r.Parameters.Texture != nil || r.Parameters.PBR != nil || r.Parameters.TextureResolution != "" || r.Parameters.TargetFaces != 0 || r.Parameters.MaxFaces != 0 || r.Parameters.Topology != "" || r.Parameters.Pose != "" || len(r.Parameters.Animations) > 0 || len(r.Parameters.Formats) > 0 {
 		return r, invalid("native payload cannot be mixed with unified model, inputs, parameters or provider_options")
 	}

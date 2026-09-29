@@ -33,14 +33,16 @@ type Parameters struct {
 }
 
 type Request struct {
-	InputFormat     string                     `json:"input_format,omitempty"`
-	Payload         map[string]json.RawMessage `json:"payload,omitempty"`
-	Provider        string                     `json:"provider"`
-	Model           string                     `json:"model,omitempty"`
-	Operation       string                     `json:"operation"`
-	Inputs          Inputs                     `json:"inputs"`
-	Parameters      Parameters                 `json:"parameters"`
-	ProviderOptions map[string]json.RawMessage `json:"provider_options,omitempty"`
+	Output          *OutputRequirements                   `json:"output,omitempty"`
+	Extensions      map[string]map[string]json.RawMessage `json:"extensions,omitempty"`
+	InputFormat     string                                `json:"input_format,omitempty"`
+	Payload         map[string]json.RawMessage            `json:"payload,omitempty"`
+	Provider        string                                `json:"provider"`
+	Model           string                                `json:"model,omitempty"`
+	Operation       string                                `json:"operation"`
+	Inputs          Inputs                                `json:"inputs"`
+	Parameters      Parameters                            `json:"parameters"`
+	ProviderOptions map[string]json.RawMessage            `json:"provider_options,omitempty"`
 }
 
 func (r Request) Textured() bool { return r.Parameters.Texture == nil || *r.Parameters.Texture }
@@ -58,6 +60,8 @@ type Price struct {
 }
 
 type Capability struct {
+	NativeAPI         map[string]any      `json:"native_api"`
+	OperationDetails  map[string]any      `json:"operation_details"`
 	InputFormats      []string            `json:"input_formats"`
 	Provider          string              `json:"provider"`
 	Models            []string            `json:"models"`
@@ -113,22 +117,23 @@ func invalid(message string) error {
 }
 
 type Job struct {
-	ID             string               `json:"id"`
-	SchemaVersion  string               `json:"schema_version"`
-	OwnerID        int64                `json:"-"`
-	KeyID          int64                `json:"-"`
-	Request        Request              `json:"request"`
-	Status         string               `json:"status"`
-	Progress       int                  `json:"progress"`
-	Steps          []Step               `json:"steps"`
-	Quote          Price                `json:"quote"`
-	Cost           Price                `json:"cost"`
-	DeliveryStatus string               `json:"delivery_status"`
-	Artifacts      []Artifact           `json:"artifacts"`
-	Components     map[string]Component `json:"components"`
-	Error          *APIError            `json:"error,omitempty"`
-	CreatedAt      time.Time            `json:"created_at"`
-	UpdatedAt      time.Time            `json:"updated_at"`
+	OutputValidation *OutputValidation    `json:"output_validation,omitempty"`
+	ID               string               `json:"id"`
+	SchemaVersion    string               `json:"schema_version"`
+	OwnerID          int64                `json:"-"`
+	KeyID            int64                `json:"-"`
+	Request          Request              `json:"request"`
+	Status           string               `json:"status"`
+	Progress         int                  `json:"progress"`
+	Steps            []Step               `json:"steps"`
+	Quote            Price                `json:"quote"`
+	Cost             Price                `json:"cost"`
+	DeliveryStatus   string               `json:"delivery_status"`
+	Artifacts        []Artifact           `json:"artifacts"`
+	Components       map[string]Component `json:"components"`
+	Error            *APIError            `json:"error,omitempty"`
+	CreatedAt        time.Time            `json:"created_at"`
+	UpdatedAt        time.Time            `json:"updated_at"`
 	// These fields are persisted separately from the public JSON view.
 	IdempotencyKey string `json:"-"`
 	RequestHash    string `json:"-"`

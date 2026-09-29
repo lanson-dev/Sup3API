@@ -66,9 +66,19 @@ func RegisterSup3Routes(r *gin.Engine, keys *service.APIKeyService, cfg *config.
 			c.AbortWithStatusJSON(403, gin.H{"error": gin.H{"code": "api_key_inactive", "message": "an active, unexpired API key is required"}})
 			return
 		}
-		engine.ServeHTTP(c.Writer, c.Request, key.UserID, key.ID)
+		if strings.HasPrefix(c.Request.URL.Path, "/providers/") {
+			engine.ServeNativeHTTP(c.Writer, c.Request, key.UserID, key.ID)
+		} else {
+			engine.ServeHTTP(c.Writer, c.Request, key.UserID, key.ID)
+		}
 	}
 	group.GET("/*path", handle)
 	group.POST("/*path", handle)
+	for _, provider := range []string{"tripo", "meshy"} {
+		native := r.Group("/providers/"+provider, middleware.NewAPIKeyIdentityMiddleware(keys, cfg))
+		native.GET("/*path", handle)
+		native.POST("/*path", handle)
+		native.DELETE("/*path", handle)
+	}
 	log.Print("Sup3API asset routes enabled; billing uses provider-native credits at official rates")
 }

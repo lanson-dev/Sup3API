@@ -16,7 +16,7 @@ export const assetModels: Record<string, Record<string, string[]>> = {
   meshy: { text_to_3d: ['meshy-7.1', 'meshy-6', 'meshy-6-lite', 'meshy-t2'], image_to_3d: ['meshy-7.1', 'meshy-6', 'meshy-6-lite', 'meshy-t2'], multi_image_to_3d: ['meshy-7.1', 'meshy-6', 'meshy-6-lite'], retexture: ['meshy-7', 'meshy-6', 'meshy-6-lite'], rig: [], animate: [] },
 }
 export type RequestBody = Record<string, unknown>
-export interface BuildInput { protocol: Protocol; model: string; prompt: string; image: string; operation: string; images: string[]; source: string; texture: boolean; pbr: boolean; animation: string; native: boolean }
+export interface BuildInput { protocol: Protocol; model: string; prompt: string; image: string; operation: string; images: string[]; source: string; texture: boolean; pbr: boolean; animation: string; native: boolean; formats?: string[]; requiredComponents?: string[]; extensions?: RequestBody }
 export function buildRequest(v: BuildInput): RequestBody {
   if (v.protocol === 'responses') return { model: v.model, input: [{ role: 'user', content: [...(v.image ? [{ type: 'input_image', image_url: v.image }] : []), { type: 'input_text', text: v.prompt }] }], stream: false }
   if (v.protocol === 'chat') return { model: v.model, messages: [{ role: 'user', content: [...(v.image ? [{ type: 'image_url', image_url: { url: v.image } }] : []), { type: 'text', text: v.prompt }] }], stream: false }
@@ -34,7 +34,7 @@ export function buildRequest(v: BuildInput): RequestBody {
   if (!gen) inputs[v.source.startsWith('job_') ? 'job_id' : 'model_url'] = v.source
   if (gen || v.operation === 'retexture') { parameters.texture = v.texture; parameters.pbr = v.texture && v.pbr }
   if (v.operation === 'animate') parameters.animations = v.animation.split(',').map(s => s.trim()).filter(Boolean)
-  if (!v.native) return { provider: v.protocol, operation: v.operation, ...(v.model ? { model: v.model } : {}), inputs, parameters }
+  if (!v.native) return { provider: v.protocol, operation: v.operation, ...(v.model ? { model: v.model } : {}), inputs, parameters, ...(v.formats?.length || v.requiredComponents?.length ? {output:{...(v.formats?.length ? {formats:v.formats}:{}),...(v.requiredComponents?.length ? {required_components:v.requiredComponents}:{})}} : {}), ...(v.extensions && Object.keys(v.extensions).length ? {extensions:{[v.protocol]:v.extensions}} : {}) }
   const payload: RequestBody = {}
   if (v.model) payload[v.protocol === 'meshy' ? 'ai_model' : 'model'] = v.model
   if (v.protocol === 'tripo') {
@@ -59,16 +59,38 @@ export function buildRequest(v: BuildInput): RequestBody {
   return { provider: v.protocol, operation: v.operation, input_format: v.protocol, payload }
 }
 
+export const nativeOperations: Record<string, {id:string;label:string;path:string;example:RequestBody}[]> = {
+  meshy: [
+    {id:'text_to_3d',label:'文字生成 · Preview',path:'/openapi/v2/text-to-3d',example:{mode:'preview',prompt:'A stylized wooden treasure chest',target_formats:['glb']}},
+    {id:'refine',label:'纹理精修 · Refine',path:'/openapi/v2/text-to-3d',example:{mode:'refine',preview_task_id:'REPLACE_WITH_NATIVE_TASK_ID',enable_pbr:true,target_formats:['glb']}},
+    {id:'image_to_3d',label:'图像生成',path:'/openapi/v1/image-to-3d',example:{image_url:'https://example.com/reference.png',target_formats:['glb']}},
+    {id:'multi_image_to_3d',label:'多图生成',path:'/openapi/v1/multi-image-to-3d',example:{image_urls:['https://example.com/front.png','https://example.com/back.png'],target_formats:['glb']}},
+    {id:'retexture',label:'重纹理',path:'/openapi/v1/retexture',example:{input_task_id:'REPLACE_WITH_NATIVE_TASK_ID',text_style_prompt:'Painted wood'}},
+    {id:'rig',label:'骨骼绑定',path:'/openapi/v1/rigging',example:{input_task_id:'REPLACE_WITH_NATIVE_TASK_ID'}},
+    {id:'animate',label:'动画',path:'/openapi/v1/animations',example:{rig_task_id:'REPLACE_WITH_NATIVE_TASK_ID',action_ids:[0]}},
+    {id:'convert',label:'格式转换',path:'/openapi/v1/convert',example:{input_task_id:'REPLACE_WITH_NATIVE_TASK_ID',target_formats:['fbx','blend']}},
+  ],
+  tripo: [
+    {id:'text_to_3d',label:'文字生成',path:'/v3/generation/text-to-model',example:{model:'v3.1-20260211',prompt:'A stylized wooden treasure chest',texture:true,pbr:true}},
+    {id:'image_to_3d',label:'图像生成',path:'/v3/generation/image-to-model',example:{model:'v3.1-20260211',input:'https://example.com/reference.png'}},
+    {id:'multi_image_to_3d',label:'多视图生成',path:'/v3/generation/multiview-to-model',example:{model:'v3.1-20260211',inputs:['https://example.com/front.png','','https://example.com/back.png','']}},
+    {id:'retexture',label:'重纹理',path:'/v3/models/texture',example:{model:'v3.5-20260815',input:'REPLACE_WITH_NATIVE_TASK_ID',texture_prompt:{text:'Painted wood'}}},
+    {id:'rig',label:'骨骼绑定',path:'/v3/animations/rig',example:{model:'v1.0-20240301',input:'REPLACE_WITH_NATIVE_TASK_ID'}},
+    {id:'animate',label:'动画',path:'/v3/animations/retarget',example:{input:'REPLACE_WITH_NATIVE_TASK_ID',animations:['preset:biped:walk']}},
+    {id:'convert',label:'格式转换',path:'/v3/models/convert',example:{input:'REPLACE_WITH_NATIVE_TASK_ID',format:'FBX'}},
+  ],
+}
+
 export function curlExample(endpoint: string, body: RequestBody, claude = false): string {
   const headers = ['  -H "Authorization: Bearer $SUP3API_API_KEY"', '  -H "Content-Type: application/json"']
   if (claude) headers.push('  -H "anthropic-version: 2023-06-01"')
-  if (endpoint === '/v1/assets/jobs') headers.push('  -H "Idempotency-Key: $JOB_REQUEST_ID"')
+  if (endpoint === '/v1/assets/jobs' || endpoint.startsWith('/providers/')) headers.push('  -H "Idempotency-Key: $JOB_REQUEST_ID"')
   return `curl "$SUP3API_BASE_URL${endpoint}" \\\n${headers.join(' \\\n')} \\\n  --data-binary @- <<'SUP3API_JSON'\n${JSON.stringify(body, null, 2)}\nSUP3API_JSON`
 }
 export function sdkExample(endpoint: string, body: RequestBody, language: 'javascript' | 'python'): string {
-  const is3d = endpoint === '/v1/assets/jobs', claude = endpoint === '/v1/messages'
-  if (language === 'javascript') return `// Node.js 18+; keep your API key on the server.\nconst response = await fetch(process.env.SUP3API_BASE_URL + ${JSON.stringify(endpoint)}, {\n  method: "POST",\n  headers: {\n    "Authorization": "Bearer " + process.env.SUP3API_API_KEY,\n    "Content-Type": "application/json",${claude ? '\n    "anthropic-version": "2023-06-01",' : ''}${is3d ? '\n    "Idempotency-Key": process.env.JOB_REQUEST_ID,' : ''}\n  },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst result = await response.json();\nif (!response.ok) throw new Error(JSON.stringify(result));\nconsole.log(result); // Preserve the full response.${is3d ? '\n// Poll /v1/assets/jobs/{id} until execution and delivery complete.' : ''}`
-  return `# pip install requests\nimport os, json, requests\n\nresponse = requests.post(\n    os.environ["SUP3API_BASE_URL"] + ${JSON.stringify(endpoint)},\n    headers={\n        "Authorization": "Bearer " + os.environ["SUP3API_API_KEY"],${claude ? '\n        "anthropic-version": "2023-06-01",' : ''}${is3d ? '\n        "Idempotency-Key": os.environ["JOB_REQUEST_ID"],' : ''}\n    },\n    json=json.loads(${JSON.stringify(JSON.stringify(body))}),\n    timeout=180,\n)\nresponse.raise_for_status()\nresult = response.json()\nprint(result)${is3d ? '\n# Poll /v1/assets/jobs/{id}; download every artifact with auth.' : ''}`
+  const is3d = endpoint === '/v1/assets/jobs', native = endpoint.startsWith('/providers/'), claude = endpoint === '/v1/messages'
+  if (language === 'javascript') return `// Node.js 18+; keep your API key on the server.\nconst response = await fetch(process.env.SUP3API_BASE_URL + ${JSON.stringify(endpoint)}, {\n  method: "POST",\n  headers: {\n    "Authorization": "Bearer " + process.env.SUP3API_API_KEY,\n    "Content-Type": "application/json",${claude ? '\n    "anthropic-version": "2023-06-01",' : ''}${is3d || native ? '\n    "Idempotency-Key": process.env.JOB_REQUEST_ID,' : ''}\n  },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst result = await response.json();\nif (!response.ok) throw new Error(JSON.stringify(result));\nconsole.log(result); // Preserve the full response.${is3d ? '\n// Poll /v1/assets/jobs/{id} until execution and delivery complete.' : ''}`
+  return `# pip install requests\nimport os, json, requests\n\nresponse = requests.post(\n    os.environ["SUP3API_BASE_URL"] + ${JSON.stringify(endpoint)},\n    headers={\n        "Authorization": "Bearer " + os.environ["SUP3API_API_KEY"],${claude ? '\n        "anthropic-version": "2023-06-01",' : ''}${is3d || native ? '\n        "Idempotency-Key": os.environ["JOB_REQUEST_ID"],' : ''}\n    },\n    json=json.loads(${JSON.stringify(JSON.stringify(body))}),\n    timeout=180,\n)\nresponse.raise_for_status()\nresult = response.json()\nprint(result)${is3d ? '\n# Poll /v1/assets/jobs/{id}; download every artifact with auth.' : ''}`
 }
 
 export interface DocSection { title: string; text?: string[]; headers?: string[]; rows?: string[][]; code?: string; label?: string; endpoint?: string; note?: string; links?: { label: string; href: string }[] }
@@ -95,7 +117,7 @@ export const docs: DocPage[] = [
   ]},
   {id:'models',group:'开始',title:'模型与能力',intro:'先发现可用能力，再决定输入与输出。本站不把所有供应商的模型视为可互换的同一种资源。',sections:[
     {title:'语言与图像模型',endpoint:'GET /v1/models',code:'curl "$SUP3API_BASE_URL/v1/models" \\\n  -H "Authorization: Bearer $SUP3API_API_KEY"',label:'cURL',text:['返回当前 Key 允许访问的模型列表。列表不是所有模态、工具、文件操作的能力保证；还需结合模型官方说明和上游账号类型。本站未配置上游时，会返回相应不可用错误。']},
-    {title:'三维模型能力',endpoint:'GET /v1/assets/capabilities',headers:['字段','含义'],rows:[['providers[].available','运营者是否配置了此供应商的 API 凭证，不代表已验证余额'],['models_by_operation','每种操作可选模型版本；rig 与生成模型不是同一套版本'],['operations','支持的生成、重纹理、绑定与动画操作'],['input_formats','sup3api 统一格式，以及 tripo 或 meshy 字段适配格式'],['billing / multiplier','provider_native_credits / 1；不是 LLM 的 USD 余额']]},
+    {title:'三维模型能力',endpoint:'GET /v1/assets/capabilities',headers:['字段','含义'],rows:[['providers[].available','运营者是否配置了此供应商的 API 凭证，不代表已验证余额'],['models_by_operation','每种操作可选模型版本；rig 与生成模型不是同一套版本'],['operation_details','格式条件、扩展字段类型与枚举'],['native_api','已覆盖原生端点与兼容限制'],['operations','支持的生成、重纹理、绑定与动画操作'],['input_formats','sup3api 统一格式，以及 tripo 或 meshy 字段适配格式'],['billing / multiplier','provider_native_credits / 1；不是 LLM 的 USD 余额']]},
     {title:'三维操作选择',headers:['操作','输入','输出'],rows:operations.map(([op,name])=>[`${op} · ${name}`,op==='text_to_3d'?'prompt':op==='image_to_3d'?'images[1]':op==='multi_image_to_3d'?'images[1–4]':op==='animate'?'rig job_id + animations':'job_id 或 model_url',op==='rig'?'绑定模型 / 骨骼 / 权重':op==='animate'?'动画模型 / 动画轨道':'模型 / 材质 / 贴图（取决于参数）'])},
   ]},
   {id:'responses',group:'文本与图像',title:'GPT · Responses',intro:'使用 OpenAI Responses 请求结构，将文本与图像内容块发送给支持视觉的模型。完整返回 output 数组及用量，不只返回最终文本。',sections:[
@@ -117,12 +139,29 @@ export const docs: DocPage[] = [
   ]},
   {id:'assets',group:'三维资产',title:'统一 3D 任务',intro:'通过同一任务契约调用 Tripo 与 Meshy。生成、交付、用量和资产清单分别表达，避免重复生成与丢失结果。',sections:[
     {title:'创建任务',endpoint:'POST /v1/assets/jobs',code:JSON.stringify(sample('meshy'),null,2)},
-    {title:'请求字段',headers:['字段','约束'],rows:[['provider','tripo 或 meshy'],['operation','text_to_3d / image_to_3d / multi_image_to_3d / retexture / rig / animate'],['model','使用 capabilities.models_by_operation 中的版本；省略会选择适配器默认版本'],['inputs.prompt','Tripo 文生模型 1–1024 字符；Meshy 1–800 字符'],['inputs.images','Tripo：HTTPS；Meshy：HTTPS 或 PNG/JPEG Base64 data URI'],['inputs.model_url / job_id','重纹理与绑定二选一；动画必须引用同 Key、同供应商的成功 rig 任务'],['parameters','texture、pbr、target_faces 或 max_faces、topology、pose、texture_resolution、animations、formats'],['provider_options','按供应商与操作校验的特有选项；未知字段报错，不静默忽略']]},
+    {title:'请求字段',headers:['字段','约束'],rows:[['provider','tripo 或 meshy'],['operation','text_to_3d / image_to_3d / multi_image_to_3d / retexture / rig / animate'],['model','使用 capabilities.models_by_operation 中的版本；省略会选择适配器默认版本'],['inputs.prompt','Tripo 文生模型 1–1024 字符；Meshy 1–800 字符'],['inputs.images','Tripo：HTTPS；Meshy：HTTPS 或 PNG/JPEG Base64 data URI'],['inputs.model_url / job_id','重纹理与绑定二选一；动画必须引用同 Key、同供应商的成功 rig 任务'],['parameters','texture、pbr、target_faces 或 max_faces、topology、pose、texture_resolution、animations、formats'],['output','formats 与 required_components：交付格式和必需组件'],['extensions.<provider>','按供应商命名空间传入特有选项；未知字段报错'],['provider_options','兼容旧扩展字段；与同名 extensions 冲突时拒绝']]},
     {title:'图生模型',code:JSON.stringify(sample('meshy',{operation:'image_to_3d',image:imageURL}),null,2),text:['请求 JSON 总体最大 16 MiB。Meshy 内联 PNG/JPEG 解码后每张最大 10 MiB，每边最大 16384 像素；仍须符合上游实际限制。Tripo 请使用公开 HTTPS 图片 URL。','3D 文件当前通过公开 HTTPS model_url 输入，支持的格式由对应操作决定。没有通用二进制模型上传接口，不接受 data:model/*。']},
     {title:'多视图与模型处理',headers:['场景','规则'],rows:[['Tripo 多视图','四个固定槽位 [front,left,back,right]；front 必填，至少另一个视角非空，其余用空字符串'],['Meshy 多视图','1–4 张图片；按模型能力选择视角'],['重纹理','输入成功 job_id 或公开 model_url；inputs.prompt 是纹理描述'],['骨骼绑定','Meshy 要求适合人形绑定的有纹理模型；Tripo rig 模型版本单独选择'],['动画','Tripo v1 使用 preset:biped:*；v2.5 使用相应版本动作名；Meshy 使用动作 ID 字符串，如 ["0","1"]']]},
+    {title:'统一输出契约',links:[{label:'格式、组件与扩展参数 →',href:'/docs/output'},{label:'已有工作流迁移 →',href:'/docs/compatibility'}]},
     {title:'格式与供应商参数',text:['Meshy 可通过 parameters.formats 选择 glb、fbx、obj、stl、usdz、3mf；默认请求 glb 与 fbx。需要便携组件解析时保留 glb。Tripo 输出格式取决于操作，quad 模式可能返回 FBX。','Tripo 使用 max_faces（上限），Meshy 使用 target_faces（目标）；不可混用。Meshy 的 texture_resolution 为 2k / 4k / 8k，Tripo 用 provider_options.texture_quality。'],links:[{label:'查看完整参数 Schema ↗',href:'/docs/assets.openapi.json'}]},
   ]},
-  {id:'native',group:'三维资产',title:'Tripo / Meshy 字段接入',intro:'已有供应商请求体可以放入显式的原生字段封套。Sup3API 将受支持的字段转换为统一任务，然后执行同样的校验、鉴权和交付流程。',sections:[
+  {id:'compatibility',group:'三维资产',title:'原生 API 迁移与兼容',intro:'已有 Tripo V3 / Meshy 工作流可使用原生兼容入口。已覆盖端点保留请求字段、供应商默认值、响应 JSON 与任务 ID；需客户端支持修改 Base URL。',sections:[
+    {title:'选择正确入口',headers:['需求','入口','返回'],rows:[['新应用，跨供应商切换','/v1/assets/jobs','统一 Job、交付校验、持久资产'],['已有官方 API 工作流','/providers/tripo/v3 或 /providers/meshy','原生任务、原生状态、供应商资产 URL'],['已有字段封套调用','/v1/assets/jobs + input_format + payload','继续兼容原先的统一 Job 返回']]},
+    {title:'修改地址与密钥',text:['Meshy 原根地址替换为 https://YOUR_SUP3API_HOST/providers/meshy，保留 /openapi/v2 或 /openapi/v1 后缀。Tripo V3 原版本根地址替换为 https://YOUR_SUP3API_HOST/providers/tripo/v3，保留 /generation、/models、/animations、/tasks 后缀。SDK 若自动添加版本路径，避免重复 /v3。','Authorization: Bearer 使用 Sup3API 网关 Key；供应商 Key 由运营者配置。请求体不加 provider / operation / payload 封套。未知非资源选项保留，由上游校验。原生接口不经过统一字段转换器。']},
+    {title:'已覆盖创建端点',headers:['供应商','POST 路径（相对原生根地址）'],rows:[...nativeOperations.meshy!.filter(o=>o.id!=='refine').map(o=>['Meshy',o.path]),...nativeOperations.tripo!.map(o=>['Tripo V3',o.path.slice(3)])]},
+    {title:'查询与控制',headers:['供应商','接口'],rows:[['Meshy','GET 创建路径/{task_id}；GET 创建路径/{task_id}/stream；DELETE 创建路径/{task_id}'],['Tripo V3','GET /tasks/{task_id}']],text:['Meshy DELETE 的具体取消/删除条件及 SSE 内容由上游决定。供应商响应与 HTTP 状态保留；网关自身错误使用 error.code，入口错误带 X-Sup3-Error-Origin: gateway；认证层错误仍遵循站点认证结构。']},
+    {title:'Meshy preview → refine',code:JSON.stringify({mode:'refine',preview_task_id:'REPLACE_WITH_NATIVE_PREVIEW_TASK_ID',enable_pbr:true,target_formats:['glb']},null,2),endpoint:'POST /providers/meshy/openapi/v2/text-to-3d',text:['先创建 preview，查询至成功，再用返回的 result 任务 ID 提交上述 refine。不会替你自动追加 refine。所有前置 task_id 必须通过同一网关 Key、同一供应商凭据创建。使用原生 ID，不使用统一 job_ ID。'],links:[{label:'在接入页生成代码 →',href:'/connect'}]},
+    {title:'幂等与不确定提交',text:['建议 POST 提供 8–128 字符的 Idempotency-Key。同一 Key、同一供应商凭据和同一幂等 ID 下，相同路径与规范化 JSON 重放已保存的 HTTP 状态和响应体，不重复提交；参数不同返回 409。未提供时每次 POST 都是新调用。','尚在提交或结果不确定时，相同幂等 ID 返回 409 submission_unknown。网络错误、缺少有效任务 ID 等情况应由运营者核对上游；不要换新 ID 盲目重试。响应的 X-Sup3-Request-ID 可用于排查。重放不保证保留上游动态响应头。']},
+    {title:'当前兼容边界',text:['当前不支持 Tripo V2、文件上传 / file_token、任务列表、Webhook / callback、余额查询、历史任务导入，以及未列出的端点和查询参数。图片和模型优先使用公开 HTTPS URL；Meshy 支持的 data URI 由其原生 API 决定。','原生任务隔离范围为账号 + 网关 Key + 供应商凭据。更换网关 Key 或供应商凭据后，旧任务不能直接查询或引用，需运营者处理迁移。原生任务不进入统一 Job 列表，无法与 job_id 混用。','原生输出使用供应商 URL 及有效期，不进入 Sup3API 持久资产存储。费用直接消耗运营者供应商 credits；目前不扣 LLM 钱包，也不形成统一 3D 账单。受同一资产用户允许名单控制。','仅对上述端点提供协议兼容；尚未以所有官方 SDK 和真实付费生成完成端到端认证。不能承诺所有已有工作流仅改地址即可运行。']},
+  ]},
+  {id:'output',group:'三维资产',title:'统一输出与扩展参数',intro:'切换供应商时保持输入与交付要求；模型的视觉效果、拓扑、质量和生成时间仍可能不同。',sections:[
+    {title:'可移植的请求',code:JSON.stringify(sample('meshy',{model:'',formats:['glb'],requiredComponents:['geometry','materials','textures']}),null,2),text:['模型字段省略时由各适配器选择默认版本；仅修改 provider 即可使用这组共同参数。指定 model 或供应商专属参数时，切换后必须重新核对能力。','output.formats 是必须交付的格式，required_components 是交付后验证的组件。缺少要求时 delivery_status=failed、error.code=output_requirements_unmet，output_validation.missing 列出差异。已有生成文件保留，不自动重新生成。']},
+    {title:'输出格式与条件',headers:['操作','直接交付格式'],rows:[['Tripo 生成','默认 / triangle 为 GLB；quad 为 FBX'],['Tripo 重纹理、绑定、动画','GLB'],['Meshy 生成 / 重纹理','glb、fbx、obj、stl、usdz、3mf'],['Meshy 绑定 / 动画','格式由上游决定，统一入口暂不支持指定 formats']],text:['组件校验目前依赖 GLB；可要求 geometry、materials、textures、skeleton、skin_weights、animations。骨骼与权重需 rig 或 animate，动画需 animate。压缩或不支持的组件同样不能视为已满足要求。','已知不支持的组合在创建前拒绝；实际缺失组件在交付后发现时，生成费用可能已经产生。无需自动付费转换；需要额外格式时由调用者显式使用原生 convert。Tripo convert 的 GLTF 与 GLB 不应混为一谈。']},
+    {title:'供应商扩展',code:JSON.stringify({extensions:{meshy:{geometry_resolution:'4k'}}},null,2),text:['统一入口的 extensions.<provider> 使用经过验证的扩展字段，geometry_resolution=4k 需要 meshy-7.1。命名空间必须与 provider 一致。未知字段报错；需要上游新功能时可使用原生兼容入口。','旧 provider_options 与 parameters.formats 继续可用。新旧参数冲突会被拒绝；不要重复提交同名扩展。报价返回规范化后的 provider_options。']},
+    {title:'先查能力，再校验估价',endpoint:'GET /v1/assets/capabilities',text:['providers[].operation_details 给出各操作的模型、可选格式、条件与 extension_fields 类型 / 枚举；providers[].native_api 公布原生兼容范围。再用相同请求调用 POST /v1/assets/quotes 验证具体参数组合。报价不提交生成任务。'],links:[{label:'API 迁移范围 →',href:'/docs/compatibility'},{label:'完整结果 →',href:'/docs/results'}]},
+  ]},
+  {id:'native',group:'三维资产',title:'旧版原生字段封套',intro:'已有供应商请求体可以放入显式的原生字段封套。Sup3API 将受支持的字段转换为统一任务，然后执行同样的校验、鉴权和交付流程。',sections:[
+    {title:'与原生 API 的区别',text:['本页只描述 input_format + payload 旧封套；迁移官方 API 工作流请使用 /providers/ 原生兼容入口。两者的任务 ID 和返回结构不同。'],links:[{label:'查看原生 API 迁移 →',href:'/docs/compatibility'}]},
     {title:'Tripo V3 字段',code:JSON.stringify(sample('tripo',{native:true,operation:'image_to_3d',image:imageURL}),null,2),text:['这是 Tripo V3 字段适配器，不是旧版 V2 task API 的完整路径代理。原生 input 支持公开 HTTPS 资源或本平台 job_id（用于模型处理），不接收其他账号的 file_token / task_id。']},
     {title:'Meshy 字段',code:JSON.stringify(sample('meshy',{native:true,operation:'image_to_3d',image:imageURL}),null,2)},
     {title:'字段映射',headers:['原生字段','Sup3API 字段'],rows:[['Tripo model / Meshy ai_model','model'],['Tripo input / inputs · Meshy image_url / image_urls','inputs.images'],['Tripo face_limit · Meshy target_polycount','parameters.max_faces · parameters.target_faces'],['Tripo texture / pbr · Meshy should_texture / enable_pbr','parameters.texture / pbr'],['Meshy target_formats','parameters.formats'],['Meshy model_url / input_task_id','inputs.model_url / job_id'],['Tripo texture_prompt.text · Meshy text_style_prompt','inputs.prompt（retexture）'],['Meshy rig_task_id / action_ids','inputs.job_id / parameters.animations']]},
@@ -130,6 +169,7 @@ export const docs: DocPage[] = [
   ]},
   {id:'results',group:'三维资产',title:'完整结果与资产下载',intro:'同时保存统一资产清单和每个上游阶段的任务结果。应用可以按角色导入文件，也可以读取供应商特有字段。',sections:[
     {title:'任务返回',code:JSON.stringify({id:'job_...',schema_version:'sup3.asset.v1',request:{provider:'meshy',operation:'text_to_3d',model:'meshy-7.1'},status:'succeeded',progress:100,delivery_status:'ready',steps:[{name:'preview',upstream_id:'...',status:'succeeded',provider_result:{status:'SUCCEEDED',model_urls:{glb:'https://provider-cdn.example/preview.glb'}}},{name:'refine',upstream_id:'...',status:'succeeded',provider_result:{status:'SUCCEEDED',model_urls:{glb:'https://provider-cdn.example/textured.glb'},texture_urls:[]}}],artifacts:[{id:'a1',role:'model',format:'glb',media_type:'model/gltf-binary',url:'/v1/assets/jobs/job_.../artifacts/a1',size:123456,sha256:'...'}],components:{geometry:{status:'available',artifact_ids:['a1_geometry']},skeleton:{status:'absent',reason:'no skin in source model'}},cost:{provider:'meshy',credits:30,unit:'credits',kind:'reported',multiplier:1}},null,2),label:'结构示意，省略部分字段'},
+    {title:'交付要求校验',text:['设置 output 后检查 output_validation.status 和 missing。要求不满足时即使生成成功也不会标记交付 ready；retry-delivery / refresh-artifacts 仍执行相同校验，不会发起新的生成。'],links:[{label:'输出契约 →',href:'/docs/output'}]},
     {title:'按角色保留所有文件',headers:['角色 / 组件','内容'],rows:[['model','供应商实际提供的原始 GLB、FBX、OBJ 等模型'],['geometry','从 GLB 提取的几何衍生文件'],['materials / textures','PBR 清单与贴图；保留材质及纹理关联'],['skeleton / skin_weights','实际骨骼层级、逆绑定矩阵、顶点关节索引与权重'],['animations','动画轨道与供应商动画文件'],['preview','模型预览图（如提供）']]},
     {title:'保留差异，不编造缺失项',text:['components 的 status 为 available、absent、unsupported 或 pending。无骨骼模型不会被伪装成已绑定；Draco/meshopt 压缩、FBX 组件提取目前不支持。原始文件仍保留。','steps[].provider_result 保存每次查询的供应商任务内容，包括未知扩展字段与原生 URL。多阶段任务分别保存 preview/refine 结果。原生 URL 可能过期；长期使用 artifacts[].url 的认证下载，并校验 size 与 sha256。旧任务在重新查询前可能没有 provider_result。','不同模型与操作的输出格式、材质和动画数量不同。遍历全部 artifacts，而不是假设唯一 model_url 或第一张贴图。derived_from 指明衍生文件来源。']},
   ]},

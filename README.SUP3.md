@@ -171,3 +171,7 @@ commands above. Do not use the upstream binary updater on this fork: it would
 replace the extended binary with upstream Sub2API. Build this fork for upgrades.
 
 Sub2API's existing LGPL-3.0 license and notices remain in place.
+
+## Unified output and native compatibility
+
+New requests support `output.formats`, `output.required_components` and validated `extensions.<provider>`. Operation capabilities describe format conditions and extension schemas. Existing field envelopes remain supported. Native `/providers/meshy` and `/providers/tripo/v3` endpoints preserve covered provider workflows and response bodies, with scoped task ownership and optional durable idempotency. Native tasks/files are separate from unified jobs/delivery and use provider credits. No upload, lists, webhooks or historical task import. See [compatibility contract](docs/COMPATIBILITY.md) and on-site `/docs/compatibility` / `/docs/output`.

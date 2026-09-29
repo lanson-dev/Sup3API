@@ -88,7 +88,15 @@ func (s *Store) Init(ctx context.Context) error {
  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
  UNIQUE(owner_id,key_id,idempotency_key));
  CREATE INDEX IF NOT EXISTS sup3_jobs_due ON sup3_jobs(next_run) WHERE active;
- CREATE INDEX IF NOT EXISTS sup3_jobs_owner ON sup3_jobs(owner_id,key_id,created_at DESC);`)
+ CREATE INDEX IF NOT EXISTS sup3_jobs_owner ON sup3_jobs(owner_id,key_id,created_at DESC);
+ CREATE TABLE IF NOT EXISTS sup3_native_calls (
+ id TEXT PRIMARY KEY, owner_id BIGINT NOT NULL, key_id BIGINT NOT NULL,
+ provider TEXT NOT NULL, credential TEXT NOT NULL, idempotency_key TEXT NOT NULL,
+ request_hash TEXT NOT NULL, endpoint TEXT NOT NULL, task_id TEXT NOT NULL DEFAULT '',
+ status INTEGER NOT NULL DEFAULT 0, response BYTEA NOT NULL DEFAULT ''::bytea,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ UNIQUE(owner_id,key_id,provider,credential,idempotency_key));
+ CREATE INDEX IF NOT EXISTS sup3_native_task_owner ON sup3_native_calls(owner_id,key_id,provider,credential,task_id);`)
 	return err
 }
 func (s *Store) Create(ctx context.Context, j *Job) (*Job, bool, error) {
