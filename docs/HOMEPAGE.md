@@ -1,22 +1,25 @@
-# 首页与客户界面验收
+# 首页演示
 
-首页使用白底三角网格 Logo、简洁正文与可交互三维主图。主图和三维能力卡片复用同一 WebGL Canvas；Three.js 提供平滑几何、物理材质、环境反射与 OrbitControls 阻尼，替代自绘三角面的二维渲染器。渲染依赖独立分包，模型不访问供应商。
-
-## 交互
-
-- 拖动带阻尼；左右按钮、方向键、Home、实体/线框及暂停均可用。纵向触摸保留页面滚动。
-- 减少动态效果偏好关闭自动旋转和光晕动画；离屏、后台停止绘制，卸载释放 GPU 资源。WebGL 不可用时显示静态标志。
-- 保留键盘标签导航、复制成功/失败反馈、手机菜单和 FAQ。删除装饰性英文小字、编号、伪终端标题和重复宣传区。
-- 交互原则参考 Apple [Motion](https://developer.apple.com/design/human-interface-guidelines/motion) 和 [Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility)。
-
-## 历史提交审查
-
-两名子代理审查了 Sup3API 自定义提交与页面设计。删除失效样式和简化版 ConsoleView；恢复已有 Dashboard/Usage 完整统计，以及按权限和功能开关显示的客户导航入口。API 协议、原生兼容、分组、上游账号绑定、幂等与所有权验证均保留，未修改后端。
-
-接入页三维模型选择目前仍用静态模型表，能力查询不会自动填充模型选项；不宣称已经实现动态模型列表。
+- 主图：哑光三角形，持续自动旋转，可拖动；无播放、线框、旋转及重置按钮。系统“减少动态效果”偏好关闭自动旋转。
+- 文本展示实际提示词与 Nano Banana → Tripo H3.1 的生成流程，图像展示对应原画。
+- 三维：角色与天使双翼两套真实 Tripo H3.1 资产；右侧选择器联动文本、原画和模型。角色支持骨骼；场景只显示实际可用的工具。模型、骨骼、材质与下载使用图标及无障碍名称。
+- 骨骼与材质信息直接读取 GLB：65 个关节、1 个网格、1 个材质、1 张颜色贴图；不添加虚构的骨骼或贴图。资产来源见 [示例记录](../frontend/src/assets/demos/README.md)。
+- Three.js 按需加载；离屏与后台停止绘制，卸载释放 GPU 资源。预览失败仍可下载优化后的 GLB。打开首页不会调用供应商生成任务。
 
 ## 验证
 
-71 项自动化测试通过，覆盖首页导航/复制、WebGL 生命周期与降级、客户导航权限、既有用量统计、API 密钥及页面标题。命令见 [测试指南](TESTING.md)。
+组件测试覆盖首页导航与复制、自动旋转与动态偏好、模型信息显示、加载失败及卸载清理。执行：
 
-Chromium 实际检查 320、390、768、1440px 布局，无横向溢出，首页可见按钮至少 44×44px。真实拖动后检测到 27 帧减速绘制，停稳后停止；三维标签、减少动态效果、手机菜单、统计日期筛选与客户菜单均验证。首页/三维面板 axe 扫描分别通过 38/37 条规则，零违规。未进行实体 iPhone/Safari 验收。
+```sh
+cd frontend
+node node_modules/vue-tsc/bin/vue-tsc.js -b
+node node_modules/vitest/vitest.mjs run src/components/sup3api/__tests__/LandingMesh.spec.ts src/components/sup3api/__tests__/CharacterDemo.spec.ts src/views/__tests__/Sup3APIHomeView.spec.ts
+```
+
+本次保留既有 Dashboard/Usage、客户菜单、API 密钥、分组及供应商账号逻辑，不修改后端 API。默认 CSP 与部署示例增加 Meshopt 所需的 `wasm-unsafe-eval`，以及内嵌贴图所需的 `connect-src blob:`；JavaScript `unsafe-eval` 仍不允许。已有自定义 CSP 的部署需同步这两项。
+
+## 传输与缓存
+
+角色 188 KiB、场景 138 KiB，分别较供应商文件减少 65% / 73%。每个模型不足一万三角形，色彩图为 1024px。资源经 Vite 内容哈希输出，复用现有一年不可变缓存；只加载选中且进入视口的三维 Demo，不预加载全部模型。原画共约几十 KiB，Three.js 为懒加载独立共享包。大流量部署可让 CDN 缓存 `/assets/`；缓存头不等于已经配置了 CDN。
+
+自定义前端删除分组脚注、拖动提示、重复格式状态、文件编码说明及文档重复品牌标题。保留表单校验、协议约束、费用行为和错误反馈。

@@ -23,6 +23,7 @@ function mountHome() {
       stubs: {
         RouterLink: RouterLinkStub,
         LandingMesh: true,
+        CharacterDemo: true,
         PlatformIcon: true,
       },
     },
@@ -98,6 +99,18 @@ describe('Sup3API landing interactions', () => {
       .get('#capability-tab-mesh')
       .trigger('keydown', { key: 'ArrowRight' })
     expect(first.attributes('aria-selected')).toBe('true')
+  })
+  it('switches prompt, image and model together without loading a second viewer', async () => {
+    const wrapper = mountHome()
+    expect(wrapper.get('.sh-prompt-demo').text()).toContain('无相人形')
+    await wrapper.findAll('.sh-demo-picker button')[1].trigger('click')
+    expect(wrapper.get('.sh-prompt-demo').text()).toContain('天使双翼')
+    expect(wrapper.get('.sh-model-flow').text()).toContain('Nano Banana')
+    expect(wrapper.get('.sh-image-demo img').attributes('src')).toContain('angel-wings')
+    await wrapper.get('#capability-tab-mesh').trigger('click')
+    expect(wrapper.findAll('character-demo-stub')).toHaveLength(1)
+    expect(wrapper.get('character-demo-stub').attributes('modelurl')).toContain('angel-wings')
+    expect(wrapper.find('.sh-capability-footnote').exists()).toBe(false)
   })
   it('opens mobile navigation, closes with Escape and restores focus', async () => {
     const wrapper = mountHome()

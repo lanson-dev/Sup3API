@@ -117,22 +117,40 @@
             </h2>
             <p>让不同模型各展所长，让你的应用少一些接入工作。</p>
           </div>
-          <div class="sh-capability-tabs" role="tablist" aria-label="生成能力">
-            <button
-              v-for="(item, index) in capabilities"
-              :id="`capability-tab-${item.id}`"
-              :key="item.id"
-              role="tab"
-              :aria-selected="capabilityIndex === index"
-              :tabindex="capabilityIndex === index ? 0 : -1"
-              :aria-controls="`capability-panel-${item.id}`"
-              @click="capabilityIndex = index"
-              @keydown="
-                selectTab($event, index, capabilities.length, 'capability')
-              "
+          <div class="sh-demo-toolbar">
+            <div
+              class="sh-capability-tabs"
+              role="tablist"
+              aria-label="生成能力"
             >
-              {{ item.label }}
-            </button>
+              <button
+                v-for="(item, index) in capabilities"
+                :id="`capability-tab-${item.id}`"
+                :key="item.id"
+                role="tab"
+                :aria-selected="capabilityIndex === index"
+                :tabindex="capabilityIndex === index ? 0 : -1"
+                :aria-controls="`capability-panel-${item.id}`"
+                @click="capabilityIndex = index"
+                @keydown="
+                  selectTab($event, index, capabilities.length, 'capability')
+                "
+              >
+                {{ item.label }}
+              </button>
+            </div>
+            <div class="sh-demo-picker" role="group" aria-label="演示资产">
+              <button
+                v-for="(asset, index) in demos"
+                :key="asset.id"
+                :aria-pressed="demoIndex === index"
+                @click="demoIndex = index"
+              >
+                <img :src="asset.image" width="36" height="36" alt="" />{{
+                  asset.label
+                }}
+              </button>
+            </div>
           </div>
           <div
             v-for="(item, index) in capabilities"
@@ -158,92 +176,47 @@
                 <span aria-hidden="true">↗</span></RouterLink
               >
             </div>
-            <div
-              class="sh-capability-art"
-              :aria-hidden="item.id !== 'mesh' ? true : undefined"
-            >
-              <div v-if="item.id === 'text'" class="sh-conversation">
-                <div class="sh-chat-request">
-                  <span>你</span>
-                  <p>为我的游戏，构思一座漂浮的花园。</p>
-                </div>
-                <div class="sh-chat-response">
-                  <span class="sh-mini-logo"
-                    ><img src="/sup3api-mark.svg" width="24" height="24" alt=""
-                  /></span>
-                  <div>
-                    <p>让世界，生长在云端。</p>
-                    <span
-                      >悬浮的岛屿，发光的植物，<br />以及一条通向未知的石阶。</span
-                    >
-                    <div class="sh-chat-cursor"></div>
-                  </div>
+            <div class="sh-capability-art">
+              <div v-if="item.id === 'text'" class="sh-prompt-demo">
+                <h4>{{ demo.name }}</h4>
+                <p>{{ demo.summary }}</p>
+                <details class="sh-full-prompt">
+                  <summary>完整提示词</summary>
+                  <p>{{ demo.prompt }}</p>
+                </details>
+                <div
+                  class="sh-model-flow"
+                  aria-label="生成流程：Nano Banana 生成原画，再由 Tripo H3.1 图生三维"
+                >
+                  <span
+                    ><PlatformIcon platform="gemini" size="md" />Nano
+                    Banana</span
+                  >
+                  <Icon name="arrowRight" size="sm" aria-hidden="true" />
+                  <span><PlatformIcon platform="tripo" size="md" />H3.1</span>
                 </div>
               </div>
-              <div v-else-if="item.id === 'image'" class="sh-image-composition">
-                <div class="sh-art-frame sh-art-frame-back"></div>
-                <div class="sh-art-frame sh-art-frame-front">
-                  <svg viewBox="0 0 420 440" fill="none">
-                    <defs>
-                      <linearGradient id="sh-sky" x2="0" y2="1">
-                        <stop stop-color="#c7d9f2" />
-                        <stop offset="1" stop-color="#f8d9bb" />
-                      </linearGradient>
-                      <linearGradient id="sh-mountain" x2="1" y2="1">
-                        <stop stop-color="#40534c" />
-                        <stop offset="1" stop-color="#182c34" />
-                      </linearGradient>
-                      <linearGradient id="sh-island" x2="0" y2="1">
-                        <stop stop-color="#b9d7a8" />
-                        <stop offset="1" stop-color="#738c67" />
-                      </linearGradient>
-                    </defs>
-                    <path fill="url(#sh-sky)" d="M0 0h420v440H0z" />
-                    <circle cx="303" cy="104" r="48" fill="#fff7e7" />
-                    <path
-                      d="m38 277 183 124 161-135-176 26Z"
-                      fill="url(#sh-mountain)"
-                    />
-                    <path
-                      d="m38 277 134-123 99 10 111 102-176 57Z"
-                      fill="url(#sh-island)"
-                    />
-                    <path
-                      d="m172 154 34 169 65-159-46 52Z"
-                      fill="#d1e0b5"
-                      opacity=".6"
-                    />
-                    <path
-                      d="m123 256 81 14 57-58-33-8-26 39-59-2Z"
-                      fill="#e8e4d1"
-                    />
-                    <path
-                      d="m228 204 29-37M205 239l24-64"
-                      stroke="#6c8060"
-                      stroke-width="6"
-                    />
-                    <ellipse cx="244" cy="160" rx="42" ry="34" fill="#506e57" />
-                    <ellipse cx="215" cy="165" rx="29" ry="26" fill="#759471" />
-                    <circle cx="110" cy="234" r="13" fill="#c5d8a0" />
-                    <path
-                      d="M0 368c88-39 118 31 199-4s124-17 221 7v69H0Z"
-                      fill="#fff"
-                      opacity=".25"
-                    />
-                  </svg>
-                </div>
-                <div class="sh-art-prompt">
-                  <span aria-hidden="true">✦</span> 一座漂浮在云端的花园
-                </div>
-              </div>
-              <template v-else>
-                <LandingMesh v-if="capabilityIndex === index" compact />
-              </template>
+              <figure v-else-if="item.id === 'image'" class="sh-image-demo">
+                <img
+                  :src="demo.image"
+                  width="864"
+                  height="1184"
+                  loading="lazy"
+                  :alt="demo.name + '生成原画'"
+                />
+                <figcaption>
+                  <PlatformIcon platform="gemini" size="md" />Nano Banana
+                </figcaption>
+              </figure>
+              <CharacterDemo
+                v-else-if="capabilityIndex === index"
+                :key="demo.id"
+                :model-url="demo.model"
+                :rotation="demo.rotation"
+                :name="demo.name"
+              />
             </div>
           </div>
-          <p class="sh-capability-footnote">
-            可用模型与功能取决于你选择的分组。
-          </p>
         </div>
       </section>
 
@@ -372,11 +345,14 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import Icon from '@/components/icons/Icon.vue'
 import PlatformIcon from '@/components/common/PlatformIcon.vue'
 import LandingMesh from '@/components/sup3api/LandingMesh.vue'
+import CharacterDemo from '@/components/sup3api/CharacterDemo.vue'
 import {
+  landingDemos as demos,
   landingCapabilities as capabilities,
   landingExamples as examples,
   landingFaqs as faqs,
@@ -394,6 +370,8 @@ const providers = [
 const menuOpen = ref(false)
 const menuButton = ref<HTMLButtonElement>()
 const capabilityIndex = ref(0)
+const demoIndex = ref(0)
+const demo = computed(() => demos[demoIndex.value])
 const exampleIndex = ref(0)
 const copied = ref(false)
 const copyMessage = ref('')

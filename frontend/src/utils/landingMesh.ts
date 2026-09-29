@@ -1,24 +1,19 @@
 import {
   ACESFilmicToneMapping,
-  Color,
   DirectionalLight,
+  ExtrudeGeometry,
+  HemisphereLight,
   Mesh,
-  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+  Path,
   PerspectiveCamera,
-  PMREMGenerator,
   Scene,
-  TorusKnotGeometry,
-  Vector3,
+  Shape,
   WebGLRenderer,
 } from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 
-/** A local studio-lit object; no supplier calls or remote model downloads. */
-export function createLandingScene(
-  canvas: HTMLCanvasElement,
-  onInteract: () => void,
-) {
+export function createLandingScene(canvas: HTMLCanvasElement) {
   const renderer = new WebGLRenderer({
     canvas,
     alpha: true,
@@ -27,50 +22,53 @@ export function createLandingScene(
   })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
   renderer.toneMapping = ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.05
   const scene = new Scene()
   const camera = new PerspectiveCamera(38, 1, 0.1, 50)
-  const initialPosition = new Vector3(0, 0.65, 7.3)
-  camera.position.copy(initialPosition)
-  const environment = new RoomEnvironment()
-  const generator = new PMREMGenerator(renderer)
-  const environmentMap = generator.fromScene(environment, 0.04)
-  scene.environment = environmentMap.texture
-  environment.dispose()
-  generator.dispose()
-  const geometry = new TorusKnotGeometry(1.22, 0.43, 192, 32)
-  const material = new MeshPhysicalMaterial({
-    color: '#a3e6d2',
-    metalness: 0.86,
-    roughness: 0.24,
-    clearcoat: 1,
-    clearcoatRoughness: 0.18,
-    envMapIntensity: 1.45,
+  camera.position.set(0, 0.4, 7.2)
+  const outline = new Shape()
+    .moveTo(0, 1.7)
+    .lineTo(-1.65, -1.2)
+    .lineTo(1.65, -1.2)
+    .closePath()
+  outline.holes.push(
+    new Path()
+      .moveTo(0, 0.85)
+      .lineTo(0.82, -0.64)
+      .lineTo(-0.82, -0.64)
+      .closePath(),
+  )
+  const geometry = new ExtrudeGeometry(outline, {
+    depth: 0.48,
+    bevelEnabled: true,
+    bevelSize: 0.12,
+    bevelThickness: 0.12,
+    bevelSegments: 12,
+    steps: 1,
+  })
+  geometry.center()
+  const material = new MeshStandardMaterial({
+    color: '#a7ceb9',
+    metalness: 0,
+    roughness: 0.82,
   })
   const model = new Mesh(geometry, material)
-  model.rotation.set(0.3, 0, -0.35)
-  scene.add(model)
-  const keyLight = new DirectionalLight('#eafff9', 3.5)
-  keyLight.position.set(-3, 5, 4)
-  const rimLight = new DirectionalLight('#63aaff', 3)
-  rimLight.position.set(4, 1, -2)
-  scene.add(keyLight, rimLight)
+  model.rotation.set(-0.12, 0.25, -0.12)
+  scene.add(model, new HemisphereLight('#f0fff8', '#233b32', 2.6))
+  const light = new DirectionalLight('#fffaf0', 3)
+  light.position.set(-3, 5, 4)
+  scene.add(light)
   const controls = new OrbitControls(camera, canvas)
   controls.enableDamping = true
   controls.dampingFactor = 0.075
   controls.rotateSpeed = 0.55
-  controls.enablePan = false
-  controls.enableZoom = false
+  controls.enablePan = controls.enableZoom = false
   controls.autoRotateSpeed = 0.65
   controls.minPolarAngle = 0.3
   controls.maxPolarAngle = Math.PI - 0.3
-  // Vertical touch gestures still scroll the page; horizontal drags rotate.
   canvas.style.touchAction = 'pan-y'
-  controls.update()
-  controls.saveState()
-  let active = false
-  let frame = 0
-  let lastTime = 0
+  let active = false,
+    frame = 0,
+    lastTime = 0
   function wake() {
     if (active && !frame) frame = requestAnimationFrame(draw)
   }
@@ -87,12 +85,6 @@ export function createLandingScene(
     frame = 0
     lastTime = 0
   }
-  function interact() {
-    controls.autoRotate = false
-    onInteract()
-    wake()
-  }
-  controls.addEventListener('start', interact)
   controls.addEventListener('change', wake)
   return {
     setActive(value: boolean) {
@@ -112,39 +104,12 @@ export function createLandingScene(
       controls.autoRotate = value
       wake()
     },
-    setWireframe(value: boolean) {
-      material.wireframe = value
-      material.color = new Color(value ? '#75d4bd' : '#a3e6d2')
-      wake()
-    },
-    rotate(horizontal: number, vertical = 0) {
-      interact()
-      const offset = camera.position.clone().sub(controls.target)
-      offset.applyAxisAngle(new Vector3(0, 1, 0), horizontal)
-      offset.applyAxisAngle(
-        new Vector3().crossVectors(camera.up, offset).normalize(),
-        vertical,
-      )
-      camera.position.copy(controls.target).add(offset)
-      wake()
-    },
-    reset() {
-      interact()
-      // Flush remaining damping before restoring the saved camera position.
-      const damping = controls.enableDamping
-      controls.enableDamping = false
-      controls.update()
-      controls.reset()
-      controls.enableDamping = damping
-      wake()
-    },
     dispose() {
       active = false
       stop()
       controls.dispose()
       geometry.dispose()
       material.dispose()
-      environmentMap.dispose()
       renderer.dispose()
     },
   }

@@ -1,3 +1,7 @@
+import mannequinImage from '@/assets/demos/mannequin-concept.webp'
+import mannequinModel from '@/assets/demos/mannequin-rigged.glb?url'
+import wingsImage from '@/assets/demos/angel-wings.webp'
+import wingsModel from '@/assets/demos/angel-wings.glb?url'
 import { curlExample, nativeOperations } from './sup3api'
 
 export const landingCapabilities = [
@@ -116,5 +120,32 @@ export const landingFaqs = [
       '在 API 接入页填入应用密钥，查询可用能力。三维任务可先进行校验与估价，再由你的应用提交生成请求。',
     to: '/connect',
     link: '打开接入工作台',
+  },
+]
+
+export const landingDemos = [
+  {
+    id: 'character',
+    label: '角色',
+    name: '无相人形',
+    image: mannequinImage,
+    model: mannequinModel,
+    rotation: -Math.PI / 2,
+    summary:
+      '一个接近游戏引擎默认人形的中性灰模。无五官、无服装与装饰，浅灰哑光材质，清晰分离的四肢，以 A 姿势站立。神秘感仅来自匿名轮廓与柔和光影。',
+    prompt:
+      'A neutral humanoid game-engine test mannequin, in the restrained spirit of a default Unreal Engine gray mannequin, original design. Featureless smooth oval head: absolutely no face, eyes, nose, mouth, hair or mask. Gender-neutral simplified adult proportions, softly abstract anatomical volumes rather than muscles, solid matte pale warm-gray polymer body, subtle graphite articulation seams at shoulders, elbows, wrists, hips and knees. Entire body is the mannequin itself: absolutely NO clothing, cape, hood, jacket, trousers, boots, armor, accessories, weapons, emblems, decorative panels, glowing lines or mechanical greebles. Clean continuous sculptural form, quiet and anonymous, a slightly mysterious presence through the blank face and soft shadow only. Symmetrical A-pose, arms 35 degrees away from torso, five separated fingers on each hand, feet apart. Full body visible head to toe, front view, centered. Premium realistic 3D render with soft diffuse studio lighting, high roughness and low reflections, off-white background, no pedestal, no text, no watermark. Clear separate limbs suitable for biped skeletal rigging.',
+  },
+  {
+    id: 'scene',
+    label: '场景',
+    name: '天使双翼',
+    image: wingsImage,
+    model: wingsModel,
+    rotation: -Math.PI / 2,
+    summary:
+      '一对向上舒展的天使羽翼，立于低矮圆形石座。象牙白哑光陶瓷、少量旧金色边缘，层叠羽毛与中央留白，构成安静神秘的场景摆件。',
+    prompt:
+      '一座用于幻想游戏场景的天使双翼雕塑摆件：一对对称向上舒展的羽翼，从低矮的圆形石质底座自然生长，中央留出优雅的空隙，没有人物。羽毛层叠有清晰的大中小层次，形体完整厚实，轮廓简洁。温润的象牙白哑光陶瓷，羽毛边缘少量旧金色细节，底座浅灰石材，带一点安静神秘的气质。精致的实时游戏资产风格，柔和棚拍光，低反射，不要水晶透明材质，不要光环、文字或额外背景物体。浅灰纯色背景，正面略偏三分之四视角，整个摆件完整入镜，为单图生成3D模型设计。',
   },
 ]

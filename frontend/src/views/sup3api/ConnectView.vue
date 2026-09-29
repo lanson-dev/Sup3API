@@ -19,13 +19,13 @@
         </div>
         <label v-if="needsPrompt" class="ag-field"><span>{{ operation==='retexture' && isAsset ? '纹理描述' : '提示词' }}</span><textarea v-model="prompt" class="ag-textarea" /></label>
         <label v-if="needsImage" class="ag-field"><span>{{ isAsset ? '输入图像' : '参考图像（可选）' }}</span><input v-model="image" class="ag-input" placeholder="https://…/reference.png" /><small class="ag-help">{{ protocol==='tripo' ? 'Tripo 使用公开 HTTPS 图片链接。' : '支持图片 URL 或 Base64 data URI。' }}</small></label>
-        <label v-if="needsImage && protocol!=='tripo'" class="ag-field"><span>或从本地读取 PNG / JPEG</span><input type="file" accept="image/png,image/jpeg" @change="readImage" /><small class="ag-help">仅在浏览器中编码，读取文件不会发送生成请求。</small></label>
+        <label v-if="needsImage && protocol!=='tripo'" class="ag-field"><span>或从本地读取 PNG / JPEG</span><input type="file" accept="image/png,image/jpeg" @change="readImage" /></label>
         <div v-if="isAsset && operation==='multi_image_to_3d'"><label v-for="(view,i) in viewNames" :key="view" class="ag-field"><span>{{ protocol==='tripo' ? view : `视角 ${i+1}${i===0 ? '（必填）' : '（可选）'}` }}</span><input v-model="views[i]" class="ag-input" placeholder="https://…/view.png" /></label></div>
         <label v-if="isAsset && !isGeneration" class="ag-field"><span>{{ operation==='animate' ? '成功绑定任务的 job_id' : '来源模型 URL 或 job_id' }}</span><input v-model="source" class="ag-input" :placeholder="operation==='animate' ? 'job_…' : 'https://…/model.glb 或 job_…'" /></label>
         <label v-if="isAsset && operation==='animate'" class="ag-field"><span>动作名称 / ID（逗号分隔）</span><input v-model="animation" class="ag-input" /></label>
         <div v-if="isAsset && textureOperation" class="ag-actions"><label v-if="operation!=='retexture'" class="ag-check"><input v-model="texture" type="checkbox" />生成纹理</label><label class="ag-check"><input v-model="pbr" type="checkbox" :disabled="!texture" />PBR 材质</label></div>
         <template v-if="isAsset">
-          <div v-if="textureOperation" class="ag-field"><span>交付格式（可多选）</span><div class="ag-actions"><label v-for="format in formatChoices" :key="format" class="ag-check"><input v-model="formats" type="checkbox" :value="format" />{{ format.toUpperCase() }}</label></div><small class="ag-help">已选：{{ formats.join(", ") || "无" }}。切换供应商保留要求；不支持的格式会在提交前报错。当前不自动增加转换任务。</small><button v-if="formats.some(f=>!formatChoices.includes(f))" class="ag-button ag-button-secondary" @click="formats=['glb']">改用通用 GLB 格式</button></div>
+          <div v-if="textureOperation" class="ag-field"><span>交付格式（可多选）</span><div class="ag-actions"><label v-for="format in formatChoices" :key="format" class="ag-check"><input v-model="formats" type="checkbox" :value="format" />{{ format.toUpperCase() }}</label></div><button v-if="formats.some(f=>!formatChoices.includes(f))" class="ag-button ag-button-secondary" @click="formats=['glb']">改用通用 GLB 格式</button></div>
           <details class="ag-field"><summary class="ag-link">高级选项：组件与供应商扩展</summary>
           <div v-if="textureOperation" class="ag-field"><span>必须包含的组件（交付后验证）</span><div class="ag-actions"><label v-for="item in componentChoices" :key="item[0]" class="ag-check"><input v-model="requiredComponents" type="checkbox" :value="item[0]" />{{ item[1] }}</label></div></div>
           <label class="ag-field"><span>供应商扩展参数（JSON，可选）</span><textarea v-model="extensionsJSON" class="ag-textarea ag-mono" spellcheck="false" placeholder="{}" /><small class="ag-help">自动放入 extensions.{{ protocol }}，通过估价校验是否支持。</small></label>
@@ -33,11 +33,10 @@
         </template>
         </template>
         <p v-if="formError" class="ag-notice ag-error" role="alert">{{ formError }}</p>
-        <p class="ag-help">参考模型 ID 不代表此 Key 已开通。可在下方查询当前密钥的模型或能力。</p>
         <hr class="ag-divider" />
-        <label class="ag-field" style="margin-top:18px"><span>Sup3API API Key（仅用于本站诊断）</span><input v-model="apiKey" type="password" class="ag-input" autocomplete="off" placeholder="输入你的 Sup3API API Key" /></label>
+        <label class="ag-field" style="margin-top:18px"><span>Sup3API API Key</span><input v-model="apiKey" type="password" class="ag-input" autocomplete="off" placeholder="输入你的 Sup3API API Key" /></label>
         <div class="ag-actions"><button class="ag-button ag-button-secondary" :disabled="busy || !apiKey.trim()" @click="diagnose(false)">{{ isAsset ? '查询资产能力' : '查询可用模型' }}</button><button v-if="isAsset && !isNativeAPI" class="ag-button" :disabled="busy || !apiKey.trim() || !!formError" @click="diagnose(true)">校验与估价</button></div>
-        <p class="ag-help">以上操作不创建生成任务。Key 仅驻留页面内存；请求发送至本站同源 API。</p>
+        <p class="ag-help">查询与估价不会创建生成任务。</p>
         <p v-if="diagnosticError" class="ag-notice ag-error" role="alert">{{ diagnosticError }}</p><CodeBlock v-if="diagnostic" :code="diagnostic" label="实际接口返回" />
       </section>
       <section aria-label="接入代码与结果">

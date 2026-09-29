@@ -18,7 +18,7 @@
       <button class="ag-logout" @click="logout">退出</button>
     </nav>
     <main :class="['ag-main', { 'ag-main-wide': wide }]"><slot /></main>
-    <footer class="ag-footer"><span>© {{ new Date().getFullYear() }} Sup3API</span><RouterLink to="/docs/sources">技术与开源说明 ↗</RouterLink></footer>
+    <footer class="ag-footer"><span>© {{ new Date().getFullYear() }} Sup3API</span><RouterLink to="/docs/sources">技术与开源 ↗</RouterLink></footer>
   </div>
 </template>
 <script setup lang="ts">

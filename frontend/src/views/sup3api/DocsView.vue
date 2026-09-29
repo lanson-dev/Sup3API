@@ -8,7 +8,7 @@
       </aside>
       <article class="ag-doc-article">
         <template v-if="page">
-          <div class="ag-eyebrow">{{ page.group }} / SUP3API API</div><h1>{{ page.title }}</h1><p class="ag-lead">{{ page.intro }}</p>
+          <h1>{{ page.title }}</h1><p class="ag-lead">{{ page.intro }}</p>
           <section v-for="(section,index) in page.sections" :id="'section-'+index" :key="section.title">
             <h2>{{ section.title }}</h2>
             <div v-if="section.endpoint" class="ag-endpoint"><span class="ag-method">{{ section.endpoint.split(' ')[0] }}</span><span>{{ section.endpoint.split(' ').slice(1).join(' ') }}</span></div>
