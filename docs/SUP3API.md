@@ -6,15 +6,17 @@
 
 | 页面 | 实现 |
 | --- | --- |
-| `/home` | `frontend/src/content/sup3api-home.html`，由 `Sup3APIHomeView.vue` 加载并同步独立 HTML |
+| `/home` | `Sup3APIHomeView.vue`；样式 `sup3api-landing.css`，交互三维视觉 `LandingMesh.vue` |
+| `/keys` | `frontend/src/views/user/KeysView.vue` |
+| `/sup3api.html`、`/agraphs.html` | 重定向到 `/home`，不维护第二套首页 |
 | `/connect` | `frontend/src/views/sup3api/ConnectView.vue` |
 | `/docs/:section?` | `DocsView.vue`；内容与示例在 `frontend/src/content/sup3api.ts` |
-| `/dashboard`、`/keys`、`/usage` | `ConsoleView.vue`；使用现有用户 API，独立客户界面 |
+| `/dashboard`、`/usage` | `ConsoleView.vue`；使用现有用户 API，独立客户界面 |
 | 登录、注册、找回密码等 | 复用认证逻辑，使用 Sup3API `AuthLayout` |
 | 其他用户页面 | Sup3API `AppLayout` 分支；管理员路由沿用原布局 |
 | `/docs/assets.openapi.json` | 从 `docs/sup3/openapi.json` 同步的可下载 3D Schema |
 
-全站图标使用 `frontend/public/sup3api-mark.svg` 的蓝色立方体标记。客户界面的站名与图标独立于管理员配置。原始上游图标保存在 `assets/upstream/sub2api-logo.svg`。
+全站图标使用 `frontend/public/sup3api-mark.svg` 的浅绿色三角网格标记。客户界面的站名与图标独立于管理员配置。原始上游图标保存在 `assets/upstream/sub2api-logo.svg`。
 
 ## 输入协议
 

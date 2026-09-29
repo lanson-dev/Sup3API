@@ -8,7 +8,7 @@ Sup3API 是可独立部署的站点，包含首页、API 接入、文档、客�
 
 | 地址 | 验收内容 |
 | --- | --- |
-| `/home` | Sup3API 名称与浅绿色三角网格 Logo；文本、图像、3D 卡片；文档、接入、控制台链接 |
+| `/home` | 三维形态旋转、暂停、重置及线框切换；能力与代码标签键盘切换、复制反馈、手机菜单、FAQ；[首页验收记录](HOMEPAGE.md) |
 | `/connect` | 切换六种协议，确认端点、模型、输入框与生成代码同步变化 |
 | `/docs` | 搜索、目录跳转、代码复制、选中文本可读；Schema 下载 |
 | `/login`、`/keys` | 使用已有账号登录，创建测试网关密钥，确认密钥默认隐藏 |
@@ -84,7 +84,7 @@ python tools/sync-sup3api-docs.py --check
 cd frontend
 corepack pnpm@9.15.9 install --frozen-lockfile
 node node_modules/vue-tsc/bin/vue-tsc.js -b
-node node_modules/vitest/vitest.mjs run src/content/__tests__/sup3api.spec.ts src/views/sup3api/__tests__/portal.spec.ts src/router/__tests__/title.spec.ts
+node node_modules/vitest/vitest.mjs run src/content/__tests__/sup3api.spec.ts src/views/sup3api/__tests__/portal.spec.ts src/router/__tests__/title.spec.ts src/views/__tests__/Sup3APIHomeView.spec.ts src/components/sup3api/__tests__/LandingMesh.spec.ts
 node node_modules/vite/bin/vite.js build
 cd ../backend
 go test ./internal/sup3
