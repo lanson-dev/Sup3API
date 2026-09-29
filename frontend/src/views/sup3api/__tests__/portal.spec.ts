@@ -1,30 +1,11 @@
 import { mount, flushPromises } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { reactive } from 'vue'
 import ConnectView from '../ConnectView.vue'
-import ConsoleView from '../ConsoleView.vue'
 
-const api = vi.hoisted(() => ({ list:vi.fn(), groups:vi.fn(), create:vi.fn(), toggle:vi.fn(), stats:vi.fn(), usage:vi.fn() }))
-const route = reactive({path:'/keys'})
-vi.mock('vue-router',()=>({useRoute:()=>route}))
-vi.mock('@/stores/auth',()=>({useAuthStore:()=>({user:{balance:12},isAuthenticated:true})}))
-vi.mock('@/api/keys',()=>({keysAPI:{list:api.list,create:api.create,toggleStatus:api.toggle}}))
-vi.mock('@/api/groups',()=>({userGroupsAPI:{getAvailable:api.groups}}))
-vi.mock('@/api/usage',()=>({usageAPI:{getDashboardStats:api.stats,list:api.usage}}))
 const global = { stubs:{Sup3APIShell:{template:'<div><slot /></div>'},RouterLink:{template:'<a><slot /></a>'}} }
-beforeEach(()=>{vi.clearAllMocks();route.path='/keys'})
+beforeEach(()=>{vi.clearAllMocks()})
 
 describe('Sup3API customer portal',()=>{
-  it('loads real dashboard statistics without fetching or creating keys',async()=>{
-    route.path='/dashboard'
-    api.stats.mockResolvedValue({active_api_keys:3,today_requests:12})
-    const wrapper=mount(ConsoleView,{global});await flushPromises()
-    expect(wrapper.text()).toContain('3')
-    expect(api.stats).toHaveBeenCalledOnce()
-    expect(api.list).not.toHaveBeenCalled()
-    expect(api.create).not.toHaveBeenCalled()
-    wrapper.unmount()
-  })
   it('only sends explicit diagnostics to same-origin endpoints, never inserts keys into snippets',async()=>{
     const fetch=vi.fn().mockResolvedValue({ok:true,headers:new Headers({'content-type':'application/json'}),json:async()=>({providers:[]})})
     vi.stubGlobal('fetch',fetch)

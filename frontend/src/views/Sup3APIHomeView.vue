@@ -74,10 +74,6 @@
         <div class="sh-hero-glow" aria-hidden="true"></div>
         <div class="sh-hero-grid sh-container">
           <div class="sh-hero-copy">
-            <p class="sh-eyebrow">
-              <span class="sh-signal" aria-hidden="true"></span> ONE API. MORE
-              DIMENSIONS.
-            </p>
             <h1 id="home-title">让想象，<br /><span>多一个维度。</span></h1>
             <p class="sh-hero-description">
               从文字、图像，到三维世界。<br />连接领先的生成模型，让灵感成为应用的一部分。
@@ -92,14 +88,10 @@
                 >探索可能 <span aria-hidden="true">↓</span></a
               >
             </div>
-            <div class="sh-hero-note">
-              <span></span> 文本 · 图像 · 3D，一站接入。
-            </div>
           </div>
           <LandingMesh />
         </div>
         <div class="sh-providers sh-container" aria-label="支持的模型平台">
-          <span class="sh-providers-label">连接你的创造力</span>
           <div
             v-for="provider in providers"
             :key="provider.id"
@@ -109,7 +101,6 @@
               provider.name
             }}</span>
           </div>
-          <span class="sh-providers-end">BUILT FOR WHAT'S NEXT.</span>
         </div>
       </section>
 
@@ -121,7 +112,6 @@
       >
         <div class="sh-container">
           <div class="sh-section-heading">
-            <p class="sh-eyebrow">EXPLORE THE POSSIBILITIES</p>
             <h2 id="capabilities-title">
               想得到。<br /><span>也能创造得到。</span>
             </h2>
@@ -141,8 +131,7 @@
                 selectTab($event, index, capabilities.length, 'capability')
               "
             >
-              <span class="sh-tab-number">0{{ index + 1 }}</span
-              >{{ item.label }}
+              {{ item.label }}
             </button>
           </div>
           <div
@@ -157,7 +146,6 @@
             tabindex="0"
           >
             <div class="sh-capability-copy">
-              <span class="sh-kicker">{{ item.eyebrow }}</span>
               <h3>{{ item.title }}</h3>
               <p>{{ item.description }}</p>
               <ul>
@@ -170,7 +158,10 @@
                 <span aria-hidden="true">↗</span></RouterLink
               >
             </div>
-            <div class="sh-capability-art" aria-hidden="true">
+            <div
+              class="sh-capability-art"
+              :aria-hidden="item.id !== 'mesh' ? true : undefined"
+            >
               <div v-if="item.id === 'text'" class="sh-conversation">
                 <div class="sh-chat-request">
                   <span>你</span>
@@ -188,7 +179,6 @@
                     <div class="sh-chat-cursor"></div>
                   </div>
                 </div>
-                <div class="sh-example-label">创意对话示意</div>
               </div>
               <div v-else-if="item.id === 'image'" class="sh-image-composition">
                 <div class="sh-art-frame sh-art-frame-back"></div>
@@ -239,60 +229,16 @@
                       d="M0 368c88-39 118 31 199-4s124-17 221 7v69H0Z"
                       fill="#fff"
                       opacity=".25"
-                    /></svg
-                  ><span>A WORLD OF YOUR OWN</span>
+                    />
+                  </svg>
                 </div>
                 <div class="sh-art-prompt">
                   <span aria-hidden="true">✦</span> 一座漂浮在云端的花园
                 </div>
-                <span class="sh-example-label">画面创意示意</span>
               </div>
-              <div v-else class="sh-model-composition">
-                <svg viewBox="0 0 520 430" fill="none">
-                  <defs>
-                    <linearGradient id="sh-gem" x2="1" y2="1">
-                      <stop stop-color="#def5cb" />
-                      <stop offset="1" stop-color="#577a60" />
-                    </linearGradient>
-                  </defs>
-                  <ellipse
-                    cx="263"
-                    cy="365"
-                    rx="150"
-                    ry="20"
-                    fill="#5d8761"
-                    opacity=".1"
-                  />
-                  <g
-                    stroke="#557961"
-                    stroke-width="1.2"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="m260 49 142 111 29 151-166 58-175-66 31-157Z"
-                      fill="url(#sh-gem)"
-                    />
-                    <path
-                      d="m260 49 4 170-143-73m143 73L402 160M264 219l167 92m-167-92 1 150m-1-150L90 303"
-                    />
-                    <path
-                      d="m260 49-69 118 73 52 59-43 79-16M121 146l70 21-39 109-62 27m62-27 112-57 83 56 84 36m-279-35 113 93 82-94"
-                      opacity=".55"
-                    />
-                  </g>
-                  <g fill="#edffdf" stroke="#557961">
-                    <circle cx="260" cy="49" r="4" />
-                    <circle cx="264" cy="219" r="4" />
-                    <circle cx="402" cy="160" r="4" />
-                    <circle cx="90" cy="303" r="4" />
-                    <circle cx="265" cy="369" r="4" />
-                  </g></svg
-                ><span class="sh-model-chip sh-model-chip-top"
-                  >MESH + MATERIAL</span
-                ><span class="sh-model-chip sh-model-chip-bottom"
-                  >.glb <span>三维资产</span></span
-                ><span class="sh-example-label">几何与材质示意</span>
-              </div>
+              <template v-else>
+                <LandingMesh v-if="capabilityIndex === index" compact />
+              </template>
             </div>
           </div>
           <p class="sh-capability-footnote">
@@ -308,7 +254,6 @@
         tabindex="-1"
       >
         <div class="sh-developer-intro">
-          <p class="sh-eyebrow">DESIGNED FOR DEVELOPERS</p>
           <h2 id="developers-title">
             你的工作流。<br /><span>依然熟悉。</span>
           </h2>
@@ -318,27 +263,8 @@
           <RouterLink to="/docs/compatibility" class="sh-text-link"
             >查看兼容范围 <span aria-hidden="true">↗</span></RouterLink
           >
-          <div class="sh-developer-detail">
-            <span>01</span>
-            <div>
-              <h3>一把应用密钥</h3>
-              <p>通过分组管理权限，连接已开通的生成能力。</p>
-            </div>
-          </div>
-          <div class="sh-developer-detail">
-            <span>02</span>
-            <div>
-              <h3>保留模型的能力</h3>
-              <p>统一任务与资产交付，也为供应商特性留出空间。</p>
-            </div>
-          </div>
         </div>
         <div class="sh-code-window">
-          <div class="sh-window-top">
-            <span class="sh-window-dots" aria-hidden="true"
-              ><i></i><i></i><i></i></span
-            ><span>your-next-idea.sh</span><span>cURL</span>
-          </div>
           <div class="sh-code-tabs" role="tablist" aria-label="接入方式">
             <button
               v-for="(example, index) in examples"
@@ -373,7 +299,7 @@
             ><code>{{ example.code }}</code></pre>
           </div>
           <div class="sh-code-footer">
-            <span role="status">{{ copyMessage || 'cURL 请求示例' }}</span
+            <span role="status">{{ copyMessage }}</span
             ><button class="sh-copy" @click="copyExample">
               {{ copied ? '已复制 ✓' : '复制代码' }}
             </button>
@@ -384,7 +310,6 @@
       <section class="sh-start-section" aria-labelledby="start-title">
         <div class="sh-container">
           <div class="sh-section-heading">
-            <p class="sh-eyebrow">FROM IDEA TO YOUR APP</p>
             <h2 id="start-title">下一步，<span>开始创造。</span></h2>
           </div>
           <div class="sh-steps">
@@ -396,12 +321,6 @@
               ><span class="sh-step-number">{{ step.number }}</span>
               <h3>{{ step.title }}<span aria-hidden="true">↗</span></h3>
               <p>{{ step.description }}</p></RouterLink
-            >
-          </div>
-          <div class="sh-bottom-cta">
-            <p>为下一次灵感，准备好接口。</p>
-            <RouterLink to="/connect" class="sh-button sh-button-mint"
-              >打开接入工作台 <span aria-hidden="true">↗</span></RouterLink
             >
           </div>
         </div>
@@ -433,7 +352,6 @@
             alt=""
           />Sup3API</RouterLink
         >
-        <p>Text. Image. A new dimension.</p>
       </div>
       <nav aria-label="页脚导航">
         <RouterLink to="/docs">API 文档</RouterLink
@@ -512,6 +430,7 @@ async function selectTab(
   count: number,
   kind: 'capability' | 'example',
 ) {
+  if (event.ctrlKey || event.metaKey || event.altKey) return
   let target: number
   if (event.key === 'ArrowRight') target = (index + 1) % count
   else if (event.key === 'ArrowLeft') target = (index - 1 + count) % count

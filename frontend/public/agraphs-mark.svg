@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title">
   <title id="title">Sup3API</title>
-  <rect width="64" height="64" rx="17" fill="#e6edda"/>
+  <rect width="64" height="64" rx="17" fill="#ffffff"/>
   <g stroke="#202b22" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 49 32 13l20 36H12Z" stroke-width="2.6"/>
     <path d="M32 13v24M12 49l20-12 20 12" stroke-width="2"/>

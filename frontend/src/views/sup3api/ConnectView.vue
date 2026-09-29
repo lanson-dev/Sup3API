@@ -1,6 +1,6 @@
 <template>
   <Sup3APIShell wide>
-    <div class="ag-page-intro"><div class="ag-eyebrow">BUILD WITH SUP3API</div><h1>把生成能力，接入你的应用。</h1><p class="ag-lead">选择协议和输入，生成可运行的请求示例。文本、图像与三维模型，保留各自完整的输出。</p></div>
+    <div class="ag-page-intro"><h1>把生成能力，接入你的应用。</h1><p class="ag-lead">选择协议和输入，生成可运行的请求示例。文本、图像与三维模型，保留各自完整的输出。</p></div>
     <div class="ag-tabs" role="tablist" aria-label="API 协议"><button v-for="p in protocols" :key="p.id" role="tab" :aria-selected="protocol===p.id" @click="protocol=p.id">{{ p.label }}</button></div>
     <div class="ag-grid">
       <section class="ag-panel" aria-label="请求配置">
@@ -35,18 +35,17 @@
         <p v-if="formError" class="ag-notice ag-error" role="alert">{{ formError }}</p>
         <p class="ag-help">参考模型 ID 不代表此 Key 已开通。可在下方查询当前密钥的模型或能力。</p>
         <hr class="ag-divider" />
-        <div class="ag-eyebrow">CONNECTION CHECK</div>
         <label class="ag-field" style="margin-top:18px"><span>Sup3API API Key（仅用于本站诊断）</span><input v-model="apiKey" type="password" class="ag-input" autocomplete="off" placeholder="输入你的 Sup3API API Key" /></label>
         <div class="ag-actions"><button class="ag-button ag-button-secondary" :disabled="busy || !apiKey.trim()" @click="diagnose(false)">{{ isAsset ? '查询资产能力' : '查询可用模型' }}</button><button v-if="isAsset && !isNativeAPI" class="ag-button" :disabled="busy || !apiKey.trim() || !!formError" @click="diagnose(true)">校验与估价</button></div>
         <p class="ag-help">以上操作不创建生成任务。Key 仅驻留页面内存；请求发送至本站同源 API。</p>
         <p v-if="diagnosticError" class="ag-notice ag-error" role="alert">{{ diagnosticError }}</p><CodeBlock v-if="diagnostic" :code="diagnostic" label="实际接口返回" />
       </section>
       <section aria-label="接入代码与结果">
-        <div class="ag-panel"><div class="ag-eyebrow">YOUR API ENDPOINT</div><p class="ag-mono" style="overflow-wrap:anywhere;margin:16px 0">{{ origin }}{{ endpoint }}</p><div class="ag-actions"><RouterLink class="ag-link ag-small" to="/keys">创建密钥 ↗</RouterLink><RouterLink class="ag-link ag-small" :to="'/docs/'+docId">阅读接口文档 ↗</RouterLink></div></div>
+        <div class="ag-panel"><p class="ag-mono" style="overflow-wrap:anywhere;margin:16px 0">{{ origin }}{{ endpoint }}</p><div class="ag-actions"><RouterLink class="ag-link ag-small" to="/keys">创建密钥 ↗</RouterLink><RouterLink class="ag-link ag-small" :to="'/docs/'+docId">阅读接口文档 ↗</RouterLink></div></div>
         <p class="ag-help" style="margin-top:18px">环境变量 SUP3API_BASE_URL={{ origin }}；SUP3API_API_KEY=你的服务端密钥。统一 3D 创建必需 JOB_REQUEST_ID，原生创建建议提供以防重复提交。</p>
         <div class="ag-tabs" style="margin:20px 0 0" role="tablist" aria-label="示例语言"><button v-for="lang in languages" :key="lang" role="tab" :aria-selected="language===lang" @click="language=lang">{{ lang }}</button></div>
         <CodeBlock :code="snippet" :label="language" />
-        <div class="ag-panel"><div class="ag-eyebrow">RESPONSE CONTRACT</div><h3 style="margin-top:16px">{{ isNativeAPI ? '供应商原生 JSON · 状态 · 资产 URL' : selected.output }}</h3><p class="ag-help">{{ isNativeAPI ? '创建返回供应商任务 ID；使用同一原生入口查询，保留官方状态码和响应字段。资产下载使用供应商返回的 URL，受其有效期限制。' : isAsset ? '202 返回任务 ID。轮询到 succeeded 且 delivery_status=ready 后，使用同一 Key 下载全部 artifacts。每个阶段的原生结果在 steps[].provider_result。' : '保留返回的全部内容块、工具调用、结束原因与用量。模型及上游路线决定可用的输入模态和具体输出。' }}</p><RouterLink :to="'/docs/'+(isNativeAPI ? 'compatibility' : isAsset ? 'results' : docId)" class="ag-link ag-small" style="display:inline-block;margin-top:15px">返回字段与示例 →</RouterLink></div>
+        <div class="ag-panel"><h3 style="margin-top:16px">{{ isNativeAPI ? '供应商原生 JSON · 状态 · 资产 URL' : selected.output }}</h3><p class="ag-help">{{ isNativeAPI ? '创建返回供应商任务 ID；使用同一原生入口查询，保留官方状态码和响应字段。资产下载使用供应商返回的 URL，受其有效期限制。' : isAsset ? '202 返回任务 ID。轮询到 succeeded 且 delivery_status=ready 后，使用同一 Key 下载全部 artifacts。每个阶段的原生结果在 steps[].provider_result。' : '保留返回的全部内容块、工具调用、结束原因与用量。模型及上游路线决定可用的输入模态和具体输出。' }}</p><RouterLink :to="'/docs/'+(isNativeAPI ? 'compatibility' : isAsset ? 'results' : docId)" class="ag-link ag-small" style="display:inline-block;margin-top:15px">返回字段与示例 →</RouterLink></div>
       </section>
     </div>
   </Sup3APIShell>

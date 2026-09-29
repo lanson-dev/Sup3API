@@ -79,6 +79,8 @@ describe('Sup3API landing interactions', () => {
   it('supports arrow navigation, wraparound and Home/End in capability tabs', async () => {
     const wrapper = mountHome()
     const first = wrapper.get('#capability-tab-text')
+    await first.trigger('keydown', { key: 'End', ctrlKey: true })
+    expect(first.attributes('aria-selected')).toBe('true')
     await first.trigger('keydown', { key: 'ArrowLeft' })
     expect(
       wrapper.get('#capability-tab-mesh').attributes('aria-selected'),

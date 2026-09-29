@@ -4,7 +4,6 @@ export const landingCapabilities = [
   {
     id: 'text',
     label: '文本与视觉',
-    eyebrow: 'WORDS BECOME WORLDS',
     title: '每个世界，始于一句话。',
     description: '从创意构思到图像理解，让 GPT 与 Claude 成为应用的思考伙伴。',
     features: ['文本与图像输入', '流式响应与工具调用', '保留完整内容与用量'],
@@ -14,7 +13,6 @@ export const landingCapabilities = [
   {
     id: 'image',
     label: '图像生成',
-    eyebrow: 'MAKE THE INVISIBLE VISIBLE',
     title: '让脑海中的画面，浮现。',
     description:
       '用文字描绘全新画面，或从参考图像继续创作。接入模型的图像生成与编辑能力。',
@@ -25,7 +23,6 @@ export const landingCapabilities = [
   {
     id: 'mesh',
     label: '三维资产',
-    eyebrow: 'IDEAS TAKE SHAPE',
     title: '从平面灵感，到立体可能。',
     description:
       '通过 Tripo、Meshy 生成模型与材质，让三维资产进入你的应用和工作流。',

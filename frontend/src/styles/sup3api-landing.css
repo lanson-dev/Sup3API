@@ -4,7 +4,6 @@ html:has(.sh-home) {
 .sh-home {
   --sh-bg: #090f0d;
   --sh-ink: #f0f4ef;
-  --sh-muted: #a0ada4;
   --sh-mint: #c0f4c7;
   --sh-line: #ffffff20;
   --sh-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -56,7 +55,7 @@ html:has(.sh-home) {
   text-wrap: balance;
 }
 .sh-container {
-  width: min(1180px, calc(100% - 96px));
+  width: min(1240px, calc(100% - 96px));
   margin-inline: auto;
 }
 .sh-sr-only {
@@ -174,49 +173,36 @@ html:has(.sh-home) {
 .sh-hero-glow {
   position: absolute;
   top: 60px;
-  right: -160px;
-  width: 620px;
-  height: 620px;
-  background: radial-gradient(circle, #68ba8720, transparent 65%);
+  right: -120px;
+  width: 850px;
+  height: 720px;
+  background: radial-gradient(
+    ellipse,
+    #80e7c338,
+    #5b8ca71a 40%,
+    transparent 68%
+  );
+  filter: blur(30px);
   pointer-events: none;
 }
 .sh-hero-grid {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 0.95fr 1.05fr;
   align-items: center;
-  min-height: 650px;
+  min-height: 700px;
   padding-block: 50px 40px;
 }
 .sh-hero-copy {
   z-index: 2;
   padding-block: 35px;
 }
-.sh-eyebrow {
-  color: var(--sh-muted);
-  font-size: 10px;
-  line-height: 1.6;
-  letter-spacing: 2.1px;
-  font-weight: 550;
-}
-.sh-hero .sh-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.sh-signal {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--sh-mint);
-  box-shadow: 0 0 12px #b4ffd35c;
-}
 .sh-home h1 {
-  margin-top: 29px;
+  margin-top: 0;
   font-size: clamp(54px, 5.6vw, 82px);
   line-height: 1.18;
-  font-weight: 630;
-  letter-spacing: -0.065em;
+  font-weight: 600;
+  letter-spacing: -0.055em;
 }
 .sh-home h1 span {
   color: var(--sh-mint);
@@ -288,31 +274,14 @@ html:has(.sh-home) {
   text-decoration: underline;
   text-underline-offset: 5px;
 }
-.sh-hero-note {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: #82968a;
-  font-size: 11px;
-  margin-top: 35px;
-}
-.sh-hero-note span {
-  width: 15px;
-  height: 1px;
-  background: #6b8a74;
-}
 .sh-providers {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 37px;
+  gap: clamp(30px, 7vw, 100px);
+  justify-content: center;
   border-top: 1px solid var(--sh-line);
-  padding-block: 26px 31px;
-}
-.sh-providers-label {
-  font-size: 11px;
-  color: #91a299;
-  margin-right: auto;
+  padding-block: 30px;
 }
 .sh-provider {
   display: flex;
@@ -326,179 +295,15 @@ html:has(.sh-home) {
 .sh-provider img {
   filter: grayscale(1);
 }
-.sh-providers-end {
-  margin-left: auto;
-  font-size: 9px;
-  letter-spacing: 1.7px;
-  color: #84978b;
-}
-
-/* The model is contained in a stationary scene; controls remain ordinary buttons. */
-.sh-mesh-stage {
-  position: relative;
-  min-width: 0;
-  height: 535px;
-  width: calc(100% + 60px);
-  margin-left: -10px !important;
-}
-.sh-mesh-surface {
-  position: absolute;
-  inset: 8px -25px 55px;
-  cursor: grab;
-  touch-action: pan-y;
-  border-radius: 50%;
-}
-.sh-mesh-surface:active {
-  cursor: grabbing;
-}
-.sh-mesh-surface canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-.sh-mesh-fallback {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 55px;
-}
-.sh-mesh-orbit {
-  position: absolute;
-  pointer-events: none;
-  border: 1px solid #bbefcf15;
-  border-radius: 50%;
-  width: 86%;
-  height: 44%;
-  left: 7%;
-  top: 27%;
-  transform: rotate(-24deg);
-}
-.sh-mesh-orbit-two {
-  width: 70%;
-  left: 15%;
-  height: 65%;
-  top: 14%;
-  transform: rotate(39deg);
-  border-style: dashed;
-  opacity: 0.7;
-}
-.sh-mesh-caption {
-  position: absolute;
-  top: 2px;
-  right: 38px;
-  font:
-    9px/1.6 ui-monospace,
-    monospace;
-  letter-spacing: 1.7px;
-  color: #7e9d8a;
-}
-.sh-mesh-label {
-  position: absolute;
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  font:
-    9px/1.6 ui-monospace,
-    monospace;
-  letter-spacing: 1.3px;
-  color: #9bb7a6;
-  pointer-events: none;
-}
-.sh-mesh-label-top {
-  right: 3%;
-  top: 24%;
-}
-.sh-mesh-label-bottom {
-  left: 0;
-  bottom: 25%;
-}
-.sh-cross {
-  font:
-    20px/1 ui-monospace,
-    monospace;
-  color: #95c7a4;
-}
-.sh-mesh-stage figcaption {
-  position: absolute;
-  bottom: 56px;
-  width: 100%;
-  text-align: center;
-  font-size: 10px;
-  color: #8da596;
-}
-.sh-mesh-controls {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.sh-mesh-segment {
-  display: flex;
-  padding: 3px;
-  border: 1px solid #bad9c322;
-  background: #17211ad9;
-  border-radius: 99px;
-}
-.sh-mesh-segment button {
-  min-width: 65px;
-  min-height: 44px;
-  border: 0;
-  border-radius: 99px;
-  background: transparent;
-  color: #a8b9ad;
-  font-size: 12px;
-  transition:
-    background 180ms ease,
-    color 180ms ease;
-}
-.sh-mesh-segment button[aria-pressed='true'] {
-  background: #d9e6d9;
-  color: #12231a;
-  box-shadow: 0 2px 8px #0003;
-}
-.sh-mesh-icon {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid #bad9c322;
-  background: #17211ad9;
-  border-radius: 50%;
-}
-.sh-mesh-icon:hover {
-  background: #2d4034;
-}
-.sh-mesh-icon svg {
-  width: 16px;
-  height: 16px;
-}
-.sh-mesh-turn {
-  position: absolute;
-  top: 43%;
-  background: #122219d9;
-}
-.sh-mesh-turn-left {
-  left: 0;
-}
-.sh-mesh-turn-right {
-  right: 0;
-}
 
 .sh-capabilities {
   background: #f3f5f1;
   color: #17281c;
-  padding-block: 112px 86px;
+  padding-block: 120px 90px;
   color-scheme: light;
 }
 .sh-home section[id] {
   scroll-margin-top: 100px;
-}
-.sh-section-heading .sh-eyebrow {
-  color: #4e6e55;
 }
 .sh-home h2 {
   font-size: clamp(36px, 4vw, 54px);
@@ -506,16 +311,14 @@ html:has(.sh-home) {
   line-height: 1.25;
   letter-spacing: -0.055em;
 }
-.sh-section-heading h2 {
-  margin-top: 18px;
+.sh-section-heading > p {
+  color: #5e7062;
+  font-size: 16px;
+  line-height: 1.85;
+  margin-top: 24px;
 }
 .sh-section-heading h2 span {
   color: #7b8b7e;
-}
-.sh-section-heading > p:last-child:not(.sh-eyebrow) {
-  color: #5e7062;
-  font-size: 15px;
-  margin-top: 22px;
 }
 .sh-capability-tabs {
   display: flex;
@@ -548,13 +351,6 @@ html:has(.sh-home) {
   color: #182d20;
   box-shadow: 0 2px 8px #2a3a2210;
 }
-.sh-tab-number {
-  font:
-    10px ui-monospace,
-    monospace;
-  opacity: 1;
-  color: #54675a;
-}
 .sh-capability-panel {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -566,36 +362,30 @@ html:has(.sh-home) {
   border: 1px solid #e0e6dd;
 }
 .sh-capability-copy {
-  padding: 65px 50px;
+  padding: 64px 52px;
   align-self: center;
 }
-.sh-kicker {
-  color: #596f5e;
-  letter-spacing: 1.6px;
-  font-size: 9px;
-  font-weight: 550;
-}
 .sh-capability-copy h3 {
-  font-size: 32px;
+  font-size: 34px;
   line-height: 1.4;
   letter-spacing: -0.045em;
   font-weight: 600;
-  margin-top: 19px;
+  margin-top: 0;
 }
 .sh-capability-copy > p {
-  font-size: 14px;
-  color: #69766a;
+  font-size: 16px;
+  color: #59675c;
   line-height: 1.95;
   margin-top: 16px;
   max-width: 365px;
 }
 .sh-capability-copy ul {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   padding: 0;
-  margin: 24px 0;
+  margin: 28px 0;
   list-style: none;
-  font-size: 12px;
+  font-size: 14px;
   color: #4f6254;
 }
 .sh-capability-copy li {
@@ -618,6 +408,10 @@ html:has(.sh-home) {
   align-items: center;
   padding: 40px;
 }
+.sh-capability-mesh .sh-capability-art {
+  padding: 24px;
+  background: #091511;
+}
 .sh-conversation {
   display: grid;
   gap: 20px;
@@ -631,12 +425,12 @@ html:has(.sh-home) {
   box-shadow: 0 5px 18px #4c71400a;
   border: 1px solid #fff;
   padding: 21px 24px;
-  font-size: 12px;
-  transform: rotate(-3deg);
+  font-size: 14px;
+  transform: none;
 }
 .sh-chat-request > span {
   color: #5c7061;
-  font-size: 10px;
+  font-size: 13px;
 }
 .sh-chat-request p {
   margin-top: 8px;
@@ -651,13 +445,13 @@ html:has(.sh-home) {
   box-shadow: 0 20px 50px #3d60381a;
   border-radius: 22px;
   padding: 27px;
-  transform: rotate(2deg);
+  transform: none;
 }
 .sh-mini-logo {
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: #f2f6ed;
+  background: #fff;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -670,7 +464,7 @@ html:has(.sh-home) {
 .sh-chat-response div > span {
   font-size: 13px;
   line-height: 1.9;
-  color: #6a7b6d;
+  color: #617365;
   display: block;
   margin-top: 12px;
 }
@@ -679,15 +473,6 @@ html:has(.sh-home) {
   height: 16px;
   background: #a0cda3;
   margin-top: 14px;
-}
-.sh-example-label {
-  position: absolute;
-  bottom: -38px;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  font-size: 10px;
-  color: #526858;
 }
 .sh-capability-image .sh-capability-art {
   background: #ebece7;
@@ -705,7 +490,7 @@ html:has(.sh-home) {
   top: 0;
   left: 15%;
   border-radius: 15px;
-  padding: 9px 9px 27px;
+  padding: 9px;
   box-shadow: 0 18px 38px #30473220;
   background: #fff;
 }
@@ -724,14 +509,6 @@ html:has(.sh-home) {
   object-fit: cover;
   border-radius: 9px;
 }
-.sh-art-frame > span {
-  display: block;
-  text-align: center;
-  font-size: 7px;
-  letter-spacing: 2px;
-  margin-top: 6px;
-  color: #5c7364;
-}
 .sh-art-prompt {
   position: absolute;
   bottom: 15px;
@@ -743,62 +520,24 @@ html:has(.sh-home) {
   background: #fffffff0;
   box-shadow: 0 10px 40px #24332612;
   color: #47614c;
-  font-size: 12px;
+  font-size: 14px;
   text-align: center;
 }
 .sh-art-prompt > span {
   margin-right: 8px;
   color: #597d63;
 }
-.sh-image-composition .sh-example-label {
-  bottom: -18px;
-}
-.sh-model-composition {
-  position: relative;
-  width: 100%;
-}
-.sh-model-composition svg {
-  width: 100%;
-}
-.sh-model-chip {
-  position: absolute;
-  font:
-    9px ui-monospace,
-    monospace;
-  letter-spacing: 0.8px;
-  color: #54765c;
-  background: #ffffffbd;
-  border: 1px solid #fff;
-  padding: 11px 13px;
-  border-radius: 10px;
-  box-shadow: 0 10px 35px #4b6f3e0c;
-}
-.sh-model-chip-top {
-  top: 12%;
-  right: -8px;
-}
-.sh-model-chip-bottom {
-  bottom: 10%;
-  left: 5%;
-  font-size: 14px;
-  color: #305c39;
-}
-.sh-model-chip-bottom > span {
-  font: 10px sans-serif;
-  color: #67816a;
-  margin-left: 12px;
-}
 .sh-capability-footnote {
   margin-top: 18px !important;
-  font-size: 11px;
+  font-size: 13px;
   color: #5c7061;
-  text-align: right;
+  text-align: left;
 }
 
 .sh-developers {
   padding-block: 115px;
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
+  grid-template-columns: 0.85fr 1.15fr;
   gap: 80px;
   align-items: center;
 }
@@ -808,37 +547,15 @@ html:has(.sh-home) {
 .sh-developer-intro h2 > span {
   color: #94b29d;
 }
-.sh-developer-intro > p:not(.sh-eyebrow) {
-  color: #9baca2;
-  font-size: 14px;
-  line-height: 1.95;
+.sh-developer-intro > p {
+  color: #aab8b0;
+  font-size: 16px;
+  line-height: 1.9;
 }
 .sh-developer-intro > .sh-text-link {
   color: var(--sh-mint);
   margin-block: 14px 22px;
   font-size: 13px;
-}
-.sh-developer-detail {
-  display: flex;
-  gap: 17px;
-  margin-top: 24px;
-}
-.sh-developer-detail > span {
-  font:
-    10px ui-monospace,
-    monospace;
-  color: #718c7a;
-  padding-top: 6px;
-}
-.sh-developer-detail h3 {
-  font-size: 14px;
-  font-weight: 550;
-}
-.sh-developer-detail p {
-  color: #8e9f95;
-  font-size: 12px;
-  margin-top: 6px;
-  line-height: 1.8;
 }
 .sh-code-window {
   border: 1px solid #c7e5cd26;
@@ -848,44 +565,16 @@ html:has(.sh-home) {
   box-shadow: 0 30px 70px #0003;
   overflow: hidden;
 }
-.sh-window-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 54px;
-  padding: 0 22px;
-  border-bottom: 1px solid #ffffff10;
-  font:
-    10px ui-monospace,
-    monospace;
-  color: #8da594;
-}
-.sh-window-dots {
-  display: flex;
-  gap: 6px;
-}
-.sh-window-dots i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #5b7262;
-}
-.sh-window-dots i:nth-child(2) {
-  opacity: 0.65;
-}
-.sh-window-dots i:nth-child(3) {
-  opacity: 0.35;
-}
 .sh-code-tabs {
   display: flex;
-  padding: 9px 16px 0;
+  padding: 12px 20px 0;
   gap: 15px;
   border-bottom: 1px solid #ffffff12;
 }
 .sh-code-tabs button {
   min-height: 44px;
   padding: 7px 6px;
-  font-size: 12px;
+  font-size: 14px;
   color: #8b9f91;
   border: 0;
   border-bottom: 2px solid transparent;
@@ -905,24 +594,24 @@ html:has(.sh-home) {
   padding: 24px 24px 0;
   color: #90a899;
   font:
-    10px/1.7 ui-monospace,
+    13px/1.7 ui-monospace,
     monospace;
   overflow-wrap: anywhere;
 }
 .sh-code-endpoint > span {
   color: #a4d5ad;
   margin-right: 10px;
-  font-size: 9px;
+  font-size: 13px;
 }
 .sh-code-panel pre {
   font:
-    11px/1.95 ui-monospace,
+    13px/1.9 ui-monospace,
     SFMono-Regular,
     Consolas,
     monospace;
   margin: 0;
   padding: 21px 24px 27px;
-  height: 375px;
+  height: 350px;
   overflow: auto;
   color: #c7dfcd;
   scrollbar-color: #53695b transparent;
@@ -941,18 +630,18 @@ html:has(.sh-home) {
   padding: 12px 18px 12px 24px;
   border-top: 1px solid #ffffff12;
   color: #8eaa97;
-  font-size: 10px;
+  font-size: 13px;
   min-height: 70px;
 }
 .sh-copy {
   flex-shrink: 0;
   min-height: 44px;
-  min-width: 86px;
+  min-width: 100px;
   border: 1px solid #94b39a3b;
   border-radius: 10px;
   background: #c3dfc50a;
   padding: 8px 12px;
-  font-size: 11px !important;
+  font-size: 13px;
 }
 .sh-copy:hover {
   background: #c3dfc518;
@@ -961,9 +650,6 @@ html:has(.sh-home) {
   background: #111c15;
   padding-block: 82px;
   border-block: 1px solid #c8e2cf17;
-}
-.sh-start-section .sh-section-heading .sh-eyebrow {
-  color: #8fa995;
 }
 .sh-start-section .sh-section-heading h2 {
   font-size: 42px;
@@ -978,7 +664,7 @@ html:has(.sh-home) {
   margin-top: 38px;
 }
 .sh-step {
-  padding: 28px;
+  padding: 32px;
   border: 1px solid #bfdac424;
   border-radius: 20px;
   background: #ffffff03;
@@ -994,7 +680,7 @@ html:has(.sh-home) {
 }
 .sh-step-number {
   font:
-    11px ui-monospace,
+    14px ui-monospace,
     monospace;
   color: #8daa93;
 }
@@ -1011,20 +697,9 @@ html:has(.sh-home) {
 }
 .sh-step p {
   color: #96a89b;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.9;
-  max-width: 235px;
-}
-.sh-bottom-cta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin-top: 42px;
-}
-.sh-bottom-cta p {
-  color: #a9bdb0;
-  font-size: 16px;
+  max-width: 260px;
 }
 .sh-faq {
   display: grid;
@@ -1046,7 +721,7 @@ html:has(.sh-home) {
   align-items: center;
   padding: 22px 0;
   min-height: 66px;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   color: #c4d1c9;
 }
@@ -1072,14 +747,14 @@ html:has(.sh-home) {
   padding: 0 36px 20px 0;
 }
 .sh-faq details p {
-  font-size: 13px;
-  line-height: 1.95;
-  color: #9eafa4;
+  font-size: 15px;
+  line-height: 1.85;
+  color: #adbbb2;
 }
 .sh-faq .sh-text-link {
   margin-top: 9px;
   color: #bce8c7;
-  font-size: 12px;
+  font-size: 14px;
 }
 .sh-footer {
   border-top: 1px solid var(--sh-line);
@@ -1092,11 +767,6 @@ html:has(.sh-home) {
 .sh-footer .sh-brand {
   font-size: 20px;
 }
-.sh-footer p {
-  font-size: 10px;
-  color: #92a297;
-  margin-top: 8px;
-}
 .sh-footer nav {
   display: flex;
   align-items: center;
@@ -1104,21 +774,18 @@ html:has(.sh-home) {
   margin-left: auto;
 }
 .sh-footer nav a {
-  font-size: 11px;
+  font-size: 13px;
   gap: 6px;
 }
 .sh-copyright {
   color: #889e8f;
-  font-size: 10px;
+  font-size: 13px;
   margin-left: 16px;
 }
 
 @media (min-width: 1600px) {
   .sh-hero-grid {
     min-height: 760px;
-  }
-  .sh-mesh-stage {
-    height: 610px;
   }
   .sh-home h1 {
     font-size: 86px;
@@ -1140,24 +807,8 @@ html:has(.sh-home) {
   .sh-home h1 {
     font-size: 58px;
   }
-  .sh-hero-description {
-    font-size: 14px;
-  }
-  .sh-mesh-stage {
-    height: 450px;
-    width: calc(100% + 25px);
-  }
-  .sh-mesh-caption {
-    font-size: 7px;
-  }
-  .sh-mesh-label {
-    font-size: 8px;
-  }
   .sh-providers {
     gap: 25px;
-  }
-  .sh-providers-end {
-    display: none;
   }
   .sh-capability-copy {
     padding: 40px 30px;
@@ -1212,7 +863,7 @@ html:has(.sh-home) {
     min-height: 44px;
     padding: 6px 15px;
     gap: 15px;
-    font-size: 12px;
+    font-size: 14px;
   }
   .sh-nav-actions {
     gap: 4px;
@@ -1241,11 +892,6 @@ html:has(.sh-home) {
     padding: 0;
     text-align: center;
   }
-  .sh-hero .sh-eyebrow {
-    justify-content: center;
-    font-size: 8px;
-    letter-spacing: 1.8px;
-  }
   .sh-home h1 {
     font-size: clamp(46px, 10.5vw, 68px);
     margin-top: 24px;
@@ -1254,7 +900,7 @@ html:has(.sh-home) {
   }
   .sh-hero-description {
     margin: 21px auto 0 !important;
-    font-size: 13px;
+    font-size: 15px;
   }
   .sh-actions {
     justify-content: center;
@@ -1270,47 +916,11 @@ html:has(.sh-home) {
   .sh-text-link {
     font-size: 13px;
   }
-  .sh-hero-note {
-    justify-content: center;
-    margin-top: 23px;
-    font-size: 10px;
-  }
-  .sh-mesh-stage {
-    height: 385px;
-    width: 100%;
-    max-width: 500px;
-    margin: 24px auto 0 !important;
-  }
-  .sh-mesh-surface {
-    inset: -15px -15px 50px;
-  }
-  .sh-mesh-caption {
-    display: none;
-  }
-  .sh-mesh-label-top {
-    top: 20%;
-    right: 0;
-  }
-  .sh-mesh-label-bottom {
-    bottom: 25%;
-  }
-  .sh-mesh-stage figcaption {
-    font-size: 9px;
-  }
-  .sh-mesh-segment button {
-    min-height: 44px;
-  }
   .sh-providers {
     justify-content: center;
     flex-wrap: wrap;
     gap: 20px 26px;
     padding-block: 21px 29px;
-  }
-  .sh-providers-label {
-    width: 100%;
-    text-align: center;
-    margin: 0;
-    font-size: 10px;
   }
   .sh-provider {
     font-size: 14px;
@@ -1327,15 +937,6 @@ html:has(.sh-home) {
   .sh-home h2 {
     font-size: 38px;
   }
-  .sh-section-heading > p:last-child:not(.sh-eyebrow) {
-    font-size: 13px;
-    line-height: 1.8;
-    max-width: 290px;
-  }
-  .sh-eyebrow {
-    font-size: 8px;
-    letter-spacing: 1.5px;
-  }
   .sh-capability-tabs {
     width: 100%;
     gap: 3px;
@@ -1345,12 +946,9 @@ html:has(.sh-home) {
   .sh-capability-tabs button {
     flex: 1;
     padding-inline: 5px;
-    font-size: 12px;
+    font-size: 14px;
     justify-content: center;
     gap: 6px;
-  }
-  .sh-tab-number {
-    display: none;
   }
   .sh-capability-panel {
     grid-template-columns: 1fr;
@@ -1364,7 +962,7 @@ html:has(.sh-home) {
     font-size: 26px;
   }
   .sh-capability-copy > p {
-    font-size: 13px;
+    font-size: 15px;
   }
   .sh-capability-copy ul {
     margin-block: 18px;
@@ -1387,9 +985,6 @@ html:has(.sh-home) {
   .sh-chat-response {
     padding: 22px 18px;
   }
-  .sh-conversation .sh-example-label {
-    bottom: -12px;
-  }
   .sh-image-composition {
     height: 340px;
     max-width: 400px;
@@ -1398,16 +993,8 @@ html:has(.sh-home) {
   .sh-art-frame {
     height: 275px;
   }
-  .sh-model-composition {
-    max-width: 370px;
-    margin-inline: auto;
-    padding-bottom: 10px;
-  }
-  .sh-model-composition .sh-example-label {
-    bottom: -10px;
-  }
   .sh-capability-footnote {
-    font-size: 10px;
+    font-size: 13px;
     text-align: left;
   }
   .sh-developers {
@@ -1418,33 +1005,24 @@ html:has(.sh-home) {
   .sh-developer-intro h2 {
     font-size: 40px;
   }
-  .sh-developer-intro > p:not(.sh-eyebrow) {
-    font-size: 13px;
-  }
-  .sh-developer-detail {
-    margin-top: 18px;
-  }
   .sh-code-window {
     border-radius: 18px;
   }
   .sh-code-panel pre {
     height: 370px;
     padding: 18px;
-    font-size: 10px;
+    font-size: 13px;
   }
   .sh-code-endpoint {
     padding-inline: 18px;
-    font-size: 9px;
-  }
-  .sh-window-top {
-    padding-inline: 18px;
+    font-size: 13px;
   }
   .sh-code-tabs {
     gap: 11px;
     padding-inline: 14px;
   }
   .sh-code-tabs button {
-    font-size: 11px;
+    font-size: 13px;
   }
   .sh-code-footer {
     padding-inline: 17px;
@@ -1457,7 +1035,7 @@ html:has(.sh-home) {
     padding-block: 57px;
   }
   .sh-start-section .sh-section-heading h2 {
-    font-size: 32px;
+    font-size: 34px;
   }
   .sh-steps {
     grid-template-columns: 1fr;
@@ -1481,15 +1059,6 @@ html:has(.sh-home) {
   .sh-step p {
     max-width: none;
   }
-  .sh-bottom-cta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 18px;
-    margin-top: 30px;
-  }
-  .sh-bottom-cta p {
-    font-size: 14px;
-  }
   .sh-faq {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -1499,11 +1068,11 @@ html:has(.sh-home) {
     font-size: 28px;
   }
   .sh-faq summary {
-    font-size: 13px;
+    font-size: 15px;
     gap: 15px;
   }
   .sh-faq details p {
-    font-size: 12px;
+    font-size: 14px;
   }
   .sh-footer {
     padding-block: 28px;
@@ -1518,7 +1087,7 @@ html:has(.sh-home) {
   }
   .sh-copyright {
     margin-left: auto;
-    font-size: 9px;
+    font-size: 13px;
   }
 }
 @media (max-width: 370px) {
@@ -1531,11 +1100,8 @@ html:has(.sh-home) {
   .sh-home h1 {
     font-size: 43px;
   }
-  .sh-mesh-stage {
-    height: 340px;
-  }
   .sh-provider {
-    font-size: 12px;
+    font-size: 14px;
   }
   .sh-providers {
     gap: 17px;
@@ -1567,9 +1133,6 @@ html:has(.sh-home) {
   }
 }
 @media (prefers-contrast: more) {
-  .sh-home {
-    --sh-muted: #d0dfd5;
-  }
   .sh-header {
     background: #090f0d;
     backdrop-filter: none;
@@ -1579,15 +1142,7 @@ html:has(.sh-home) {
   .sh-code-window {
     border-color: #9fbaa7;
   }
-  .sh-home
-    :is(
-      .sh-hero-description,
-      .sh-hero-note,
-      .sh-mesh-label,
-      .sh-mesh-stage figcaption,
-      .sh-code-footer,
-      .sh-code-endpoint
-    ) {
+  .sh-home :is(.sh-hero-description, .sh-code-footer, .sh-code-endpoint) {
     color: #cbded1;
   }
 }
@@ -1599,12 +1154,26 @@ html:has(.sh-home) {
   .sh-home :is(button, a, summary) {
     forced-color-adjust: auto;
   }
-  .sh-capability-tabs button[aria-selected='true'],
-  .sh-mesh-segment button[aria-pressed='true'] {
+  .sh-capability-tabs button[aria-selected='true'] {
     outline: 2px solid Highlight;
   }
 }
 
+@keyframes sh-light-drift {
+  from {
+    transform: translate(-5%, -3%) scale(0.95);
+    opacity: 0.65;
+  }
+  to {
+    transform: translate(6%, 7%) scale(1.12);
+    opacity: 1;
+  }
+}
+@keyframes sh-cursor-pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
 @keyframes sh-panel-in {
   from {
     opacity: 0.5;
@@ -1616,6 +1185,12 @@ html:has(.sh-home) {
   }
 }
 @media (prefers-reduced-motion: no-preference) {
+  .sh-hero-glow {
+    animation: sh-light-drift 12s ease-in-out infinite alternate;
+  }
+  .sh-chat-cursor {
+    animation: sh-cursor-pulse 1.4s ease-in-out infinite;
+  }
   .sh-capability-panel {
     animation: sh-panel-in 260ms var(--sh-ease);
   }

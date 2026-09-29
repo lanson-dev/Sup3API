@@ -2,7 +2,7 @@
   <Sup3APIShell wide>
     <div class="ag-doc-layout">
       <aside class="ag-doc-nav" aria-label="文档目录">
-        <label class="ag-field"><span class="ag-eyebrow">DEVELOPER DOCS</span><input v-model="search" class="ag-input" type="search" placeholder="搜索文档…" aria-label="搜索文档" /></label>
+        <label class="ag-field"><input v-model="search" class="ag-input" type="search" placeholder="搜索文档…" aria-label="搜索文档" /></label>
         <div class="ag-doc-links"><template v-for="(item,index) in filtered" :key="item.id"><div v-if="index===0 || item.group!==filtered[index-1]?.group" class="ag-doc-group">{{ item.group }}</div><RouterLink :to="'/docs/'+item.id">{{ item.id==='overview' ? '概览' : item.title }}</RouterLink></template></div>
         <p v-if="!filtered.length" class="ag-help">没有匹配的文档。</p>
       </aside>

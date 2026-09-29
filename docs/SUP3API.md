@@ -11,12 +11,12 @@
 | `/sup3api.html`、`/agraphs.html` | 重定向到 `/home`，不维护第二套首页 |
 | `/connect` | `frontend/src/views/sup3api/ConnectView.vue` |
 | `/docs/:section?` | `DocsView.vue`；内容与示例在 `frontend/src/content/sup3api.ts` |
-| `/dashboard`、`/usage` | `ConsoleView.vue`；使用现有用户 API，独立客户界面 |
+| `/dashboard`、`/usage` | 复用 `views/user/DashboardView.vue`、`UsageView.vue` 完整统计功能，沿用 Sup3API 客户外壳 |
 | 登录、注册、找回密码等 | 复用认证逻辑，使用 Sup3API `AuthLayout` |
 | 其他用户页面 | Sup3API `AppLayout` 分支；管理员路由沿用原布局 |
 | `/docs/assets.openapi.json` | 从 `docs/sup3/openapi.json` 同步的可下载 3D Schema |
 
-全站图标使用 `frontend/public/sup3api-mark.svg` 的浅绿色三角网格标记。客户界面的站名与图标独立于管理员配置。原始上游图标保存在 `assets/upstream/sub2api-logo.svg`。
+全站图标使用 `frontend/public/sup3api-mark.svg` 的白底三角网格标记。客户界面的站名与图标独立于管理员配置。原始上游图标保存在 `assets/upstream/sub2api-logo.svg`。
 
 ## 输入协议
 

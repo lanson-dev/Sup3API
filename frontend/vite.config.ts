@@ -144,6 +144,11 @@ export default defineConfig(({ mode }) => {
               return 'vendor-stripe'
             }
 
+            // Load the 3D renderer only when its preview is mounted.
+            if (id.includes('/three/')) {
+              return 'vendor-three'
+            }
+
             // 其他小型第三方库合并
             return 'vendor-misc'
           }
