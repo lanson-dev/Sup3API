@@ -173,5 +173,7 @@ issues/
 
 # AGraphs customer API documentation and preserved upstream attribution.
 !docs/AGRAPHS.md
+!docs/SUP3API.md
+!docs/TESTING.md
 !docs/upstream/
 !docs/upstream/*.md

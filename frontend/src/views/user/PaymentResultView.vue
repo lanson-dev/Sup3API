@@ -1,5 +1,5 @@
 <template>
-  <AGraphsShell><div class="ag-legacy-content ag-fragment">
+  <Sup3APIShell><div class="ag-legacy-content ag-fragment">
     <div class="w-full max-w-md space-y-6">
       <!-- Loading -->
       <div v-if="loading" class="flex items-center justify-center py-20">
@@ -93,11 +93,11 @@
         </div>
       </template>
     </div>
-  </div></AGraphsShell>
+  </div></Sup3APIShell>
 </template>
 
 <script setup lang="ts">
-import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
+import Sup3APIShell from '@/components/sup3api/Sup3APIShell.vue'
 import { ref, computed, onBeforeUnmount, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'

@@ -13,6 +13,24 @@ import (
 	"testing"
 )
 
+func TestUnifiedInputFormatAliases(t *testing.T) {
+	for _, format := range []string{"", "sup3api", "agraphs"} {
+		t.Run(format, func(t *testing.T) {
+			body := `{"provider":"meshy","operation":"text_to_3d","input_format":"` + format + `","inputs":{"prompt":"a wooden chest"}}`
+			r, err := readRequest(httptest.NewRecorder(), httptest.NewRequest("POST", "/v1/assets/quotes", strings.NewReader(body)))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err = NewEngine(nil, t.TempDir(), NewProvider("meshy", "test")).Prepare(&r); err != nil {
+				t.Fatal(err)
+			}
+			if r.InputFormat != "" || r.Inputs.Prompt != "a wooden chest" {
+				t.Fatal("unified input format changed the request")
+			}
+		})
+	}
+}
+
 func TestNativeRequestsReachProviderContracts(t *testing.T) {
 	cases := []struct {
 		body, endpoint, field string

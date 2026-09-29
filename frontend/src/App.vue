@@ -35,7 +35,7 @@ function updateDocumentTitle() {
 watch(
   () => [appStore.siteLogo, route.path] as const,
   ([newLogo, path]) => {
-    updateFavicon(path.startsWith('/admin') && newLogo ? newLogo : '/agraphs-mark.svg')
+    updateFavicon(path.startsWith('/admin') && newLogo ? newLogo : '/sup3api-mark.svg')
   },
   { immediate: true }
 )

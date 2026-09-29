@@ -1,6 +1,6 @@
 <template>
-  <AGraphsShell wide>
-    <div class="ag-page-intro"><div class="ag-eyebrow">BUILD WITH AGRAPHS</div><h1>把生成能力，接入你的应用。</h1><p class="ag-lead">选择协议和输入，生成可运行的请求示例。文本、图像与三维模型，保留各自完整的输出。</p></div>
+  <Sup3APIShell wide>
+    <div class="ag-page-intro"><div class="ag-eyebrow">BUILD WITH SUP3API</div><h1>把生成能力，接入你的应用。</h1><p class="ag-lead">选择协议和输入，生成可运行的请求示例。文本、图像与三维模型，保留各自完整的输出。</p></div>
     <div class="ag-tabs" role="tablist" aria-label="API 协议"><button v-for="p in protocols" :key="p.id" role="tab" :aria-selected="protocol===p.id" @click="protocol=p.id">{{ p.label }}</button></div>
     <div class="ag-grid">
       <section class="ag-panel" aria-label="请求配置">
@@ -22,26 +22,26 @@
         <p class="ag-help">参考模型 ID 不代表此 Key 已开通。可在下方查询当前密钥的模型或能力。</p>
         <hr class="ag-divider" />
         <div class="ag-eyebrow">CONNECTION CHECK</div>
-        <label class="ag-field" style="margin-top:18px"><span>AGraphs API Key（仅用于本站诊断）</span><input v-model="apiKey" type="password" class="ag-input" autocomplete="off" placeholder="输入你的 AGraphs API Key" /></label>
+        <label class="ag-field" style="margin-top:18px"><span>Sup3API API Key（仅用于本站诊断）</span><input v-model="apiKey" type="password" class="ag-input" autocomplete="off" placeholder="输入你的 Sup3API API Key" /></label>
         <div class="ag-actions"><button class="ag-button ag-button-secondary" :disabled="busy || !apiKey.trim()" @click="diagnose(false)">{{ isAsset ? '查询资产能力' : '查询可用模型' }}</button><button v-if="isAsset" class="ag-button" :disabled="busy || !apiKey.trim() || !!formError" @click="diagnose(true)">校验与估价</button></div>
         <p class="ag-help">以上操作不创建生成任务。Key 仅驻留页面内存；请求发送至本站同源 API。</p>
         <p v-if="diagnosticError" class="ag-notice ag-error" role="alert">{{ diagnosticError }}</p><CodeBlock v-if="diagnostic" :code="diagnostic" label="实际接口返回" />
       </section>
       <section aria-label="接入代码与结果">
         <div class="ag-panel"><div class="ag-eyebrow">YOUR API ENDPOINT</div><p class="ag-mono" style="overflow-wrap:anywhere;margin:16px 0">{{ origin }}{{ selected.endpoint }}</p><div class="ag-actions"><RouterLink class="ag-link ag-small" to="/keys">创建密钥 ↗</RouterLink><RouterLink class="ag-link ag-small" :to="'/docs/'+docId">阅读接口文档 ↗</RouterLink></div></div>
-        <p class="ag-help" style="margin-top:18px">环境变量 AGRAPHS_BASE_URL={{ origin }}；AGRAPHS_API_KEY=你的服务端密钥。3D 创建另需 JOB_REQUEST_ID。</p>
+        <p class="ag-help" style="margin-top:18px">环境变量 SUP3API_BASE_URL={{ origin }}；SUP3API_API_KEY=你的服务端密钥。3D 创建另需 JOB_REQUEST_ID。</p>
         <div class="ag-tabs" style="margin:20px 0 0" role="tablist" aria-label="示例语言"><button v-for="lang in languages" :key="lang" role="tab" :aria-selected="language===lang" @click="language=lang">{{ lang }}</button></div>
         <CodeBlock :code="snippet" :label="language" />
         <div class="ag-panel"><div class="ag-eyebrow">RESPONSE CONTRACT</div><h3 style="margin-top:16px">{{ selected.output }}</h3><p class="ag-help">{{ isAsset ? '202 返回任务 ID。轮询到 succeeded 且 delivery_status=ready 后，使用同一 Key 下载全部 artifacts。每个阶段的原生结果在 steps[].provider_result。' : '保留返回的全部内容块、工具调用、结束原因与用量。模型及上游路线决定可用的输入模态和具体输出。' }}</p><RouterLink :to="'/docs/'+(isAsset ? 'results' : docId)" class="ag-link ag-small" style="display:inline-block;margin-top:15px">返回字段与示例 →</RouterLink></div>
       </section>
     </div>
-  </AGraphsShell>
+  </Sup3APIShell>
 </template>
 <script setup lang="ts">
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
-import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
-import CodeBlock from '@/components/agraphs/CodeBlock.vue'
-import { protocols, operations, assetModels, buildRequest, curlExample, sdkExample, type Protocol } from '@/content/agraphs'
+import Sup3APIShell from '@/components/sup3api/Sup3APIShell.vue'
+import CodeBlock from '@/components/sup3api/CodeBlock.vue'
+import { protocols, operations, assetModels, buildRequest, curlExample, sdkExample, type Protocol } from '@/content/sup3api'
 const protocol = ref<Protocol>('responses'), operation = ref('text_to_3d'), model = ref(protocols[0]!.model)
 const prompt = ref('A stylized wooden treasure chest, game-ready'), image = ref(''), source = ref(''), views = ref(['','','',''])
 const animation = ref('preset:biped:walk'), texture = ref(true), pbr = ref(true), native = ref(false)
@@ -62,7 +62,7 @@ const formError = computed(() => {
   if(isAsset.value && operation.value==='image_to_3d' && !image.value.trim()) return '请输入图片 URL 或选择图片。'
   if(isAsset.value && operation.value==='multi_image_to_3d' && (protocol.value==='tripo' ? !views.value[0] || views.value.filter(Boolean).length<2 : !views.value.some(Boolean))) return '请填写所需的多视图图片。Tripo 至少需要正面和另一个视角。'
   if(isAsset.value && !isGeneration.value && !source.value.trim()) return '请输入来源模型 URL 或任务 ID。'
-  if(isAsset.value && operation.value==='animate' && (!source.value.startsWith('job_') || !animation.value.trim())) return '动画需要 AGraphs rig 任务 ID 和动作。'
+  if(isAsset.value && operation.value==='animate' && (!source.value.startsWith('job_') || !animation.value.trim())) return '动画需要 Sup3API rig 任务 ID 和动作。'
   if(protocol.value==='meshy' && operation.value==='animate' && !animation.value.split(',').every(s=>/^\d+$/.test(s.trim()))) return 'Meshy 动作 ID 必须是非负整数。'
   return ''
 })

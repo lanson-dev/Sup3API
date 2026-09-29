@@ -1,5 +1,5 @@
 <template>
-  <AGraphsShell wide>
+  <Sup3APIShell wide>
     <!-- Header (same pattern as HomeView) -->
 
     <!-- Main Content -->
@@ -360,7 +360,7 @@
     </main>
 
     <!-- Footer (same pattern as HomeView) -->
-  </AGraphsShell>
+  </Sup3APIShell>
 </template>
 
 <script setup lang="ts">
@@ -368,7 +368,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores'
 import { FeatureFlags, resolveFeatureFlag } from '@/utils/featureFlags'
-import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
+import Sup3APIShell from '@/components/sup3api/Sup3APIShell.vue'
 import { buildGatewayUrl } from '@/api/client'
 import { formatDateLocalInput } from '@/utils/format'
 

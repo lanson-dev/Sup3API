@@ -13,7 +13,7 @@ import (
 // Native envelopes reuse the same validation, ownership, quotes and idempotency
 // as unified requests. They are a field adapter, not an unrestricted proxy.
 func normalizeInput(r Request) (Request, error) {
-	if r.InputFormat == "" || r.InputFormat == "agraphs" {
+	if r.InputFormat == "" || r.InputFormat == "sup3api" || r.InputFormat == "agraphs" {
 		if r.Payload != nil {
 			return r, invalid("payload requires input_format tripo or meshy")
 		}
@@ -99,7 +99,7 @@ func normalizeInput(r Request) (Request, error) {
 			fields["target_polycount"], fields["topology"], fields["pose_mode"] = &out.Parameters.TargetFaces, &out.Parameters.Topology, &out.Parameters.Pose
 		}
 		if gen || r.Operation == "retexture" {
-			pbr := false // Meshy's native default differs from AGraphs' unified default.
+			pbr := false // Meshy's native default differs from Sup3API's unified default.
 			out.Parameters.PBR = &pbr
 			fields["enable_pbr"], fields["texture_resolution"] = &out.Parameters.PBR, &out.Parameters.TextureResolution
 		}
@@ -168,7 +168,7 @@ func normalizeInput(r Request) (Request, error) {
 		}
 	}
 	if out.Inputs.JobID != "" && !strings.HasPrefix(out.Inputs.JobID, "job_") {
-		return out, invalid("task references must be AGraphs job IDs owned by this API key")
+		return out, invalid("task references must be Sup3API job IDs owned by this API key")
 	}
 	return out, nil
 }

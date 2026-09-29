@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "AGraphs Assets API",
+    "title": "Sup3API Assets API",
     "version": "1.1.0",
     "description": "Independent asynchronous 3D asset API. Billing uses provider-native credits at multiplier 1, not Sub2API USD wallet debits. Operator must allowlist users. Assets are isolated by owner AND API key. No third-party Studio OAuth or session credentials are used.\n\nProvider options (wrong-operation options are rejected):\nTripo generation: geometry_quality (standard/detailed), smart_low_poly, generate_parts, model_seed, auto_size; textured generation: texture_quality (standard/detailed/extreme; fast requires v3.5), texture_version (v3.5-20260815), texture_seed; text generation: image_seed, negative_prompt. Retexture: texture_quality (fast/standard/detailed/extreme). Rig: rig_type, spec (tripo/mixamo). Animate: animation_in_place.\nMeshy generation: geometry_resolution (standard/2k/4k; Ultra requires meshy-7.1), moderation. Text with texture: texture_prompt. Rig: height_meters.\n\nTripo image inputs are public HTTPS URLs. Meshy also supports base64 PNG/JPEG data URIs (10 MiB decoded/image, 16384 pixels per side; 16 MiB JSON request limit). Tripo multiview order is [front,left,back,right] with front and at least one other view. Meshy uses 1–4 URLs. Cross-provider job references and binary file uploads are not implemented. Explicit native field envelopes are supported for the documented subset. Per-step provider_result preserves upstream task JSON including expiring provider URLs; use authenticated artifact URLs for durable delivery.\n"
   },
@@ -888,6 +888,7 @@
           "input_format": {
             "type": "string",
             "enum": [
+              "sup3api",
               "agraphs"
             ]
           }

@@ -1,5 +1,5 @@
 <template>
-  <AGraphsShell wide>
+  <Sup3APIShell wide>
     <div class="ag-doc-layout">
       <aside class="ag-doc-nav" aria-label="文档目录">
         <label class="ag-field"><span class="ag-eyebrow">DEVELOPER DOCS</span><input v-model="search" class="ag-input" type="search" placeholder="搜索文档…" aria-label="搜索文档" /></label>
@@ -8,7 +8,7 @@
       </aside>
       <article class="ag-doc-article">
         <template v-if="page">
-          <div class="ag-eyebrow">{{ page.group }} / AGRAPHS API</div><h1>{{ page.title }}</h1><p class="ag-lead">{{ page.intro }}</p>
+          <div class="ag-eyebrow">{{ page.group }} / SUP3API API</div><h1>{{ page.title }}</h1><p class="ag-lead">{{ page.intro }}</p>
           <section v-for="(section,index) in page.sections" :id="'section-'+index" :key="section.title">
             <h2>{{ section.title }}</h2>
             <div v-if="section.endpoint" class="ag-endpoint"><span class="ag-method">{{ section.endpoint.split(' ')[0] }}</span><span>{{ section.endpoint.split(' ').slice(1).join(' ') }}</span></div>
@@ -23,14 +23,14 @@
         <template v-else><h1>文档未找到</h1><RouterLink class="ag-link" to="/docs/overview">返回文档概览</RouterLink></template>
       </article>
     </div>
-  </AGraphsShell>
+  </Sup3APIShell>
 </template>
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
-import CodeBlock from '@/components/agraphs/CodeBlock.vue'
-import { docs } from '@/content/agraphs'
+import Sup3APIShell from '@/components/sup3api/Sup3APIShell.vue'
+import CodeBlock from '@/components/sup3api/CodeBlock.vue'
+import { docs } from '@/content/sup3api'
 const route = useRoute(), search = ref('')
 const index = computed(() => docs.findIndex(d => d.id === (route.params.section || 'overview')))
 const page = computed(() => docs[index.value]), previous = computed(() => docs[index.value-1]), next = computed(() => docs[index.value+1])

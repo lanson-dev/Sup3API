@@ -1,7 +1,7 @@
 <template>
   <div class="ag-site">
     <header class="ag-header">
-      <RouterLink to="/home" class="ag-brand" aria-label="AGraphs 首页"><img src="/agraphs-mark.svg" alt="" />AGraphs</RouterLink>
+      <RouterLink to="/home" class="ag-brand" aria-label="Sup3API 首页"><img src="/sup3api-mark.svg" alt="" />Sup3API</RouterLink>
       <nav class="ag-nav" aria-label="主导航">
         <RouterLink to="/connect">API 接入</RouterLink>
         <RouterLink to="/docs">API 文档</RouterLink>
@@ -16,14 +16,14 @@
       <button class="ag-logout" @click="logout">退出</button>
     </nav>
     <main :class="['ag-main', { 'ag-main-wide': wide }]"><slot /></main>
-    <footer class="ag-footer"><span>© {{ new Date().getFullYear() }} AGraphs</span><span>TEXT / IMAGE / MESH</span><RouterLink to="/docs/sources">技术与开源说明 ↗</RouterLink></footer>
+    <footer class="ag-footer"><span>© {{ new Date().getFullYear() }} Sup3API</span><span>TEXT / IMAGE / MESH</span><RouterLink to="/docs/sources">技术与开源说明 ↗</RouterLink></footer>
   </div>
 </template>
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
-import '@/styles/agraphs.css'
+import '@/styles/sup3api.css'
 defineProps<{ console?: boolean; wide?: boolean }>()
 const auth = useAuthStore(), app = useAppStore(), router = useRouter()
 async function logout() { await auth.logout(); await router.push('/home') }

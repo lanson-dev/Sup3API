@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { buildRequest, curlExample, sdkExample, docs, type BuildInput } from '../agraphs'
+import { buildRequest, curlExample, sdkExample, docs, type BuildInput } from '../sup3api'
 
 const base: BuildInput = { protocol:'responses', model:'test-model', prompt:'Describe this image', image:'https://example.com/a.png', operation:'image_to_3d', images:[], source:'job_owned', texture:true, pbr:true, animation:'0,1', native:false }
 
-describe('AGraphs protocol examples', () => {
+describe('Sup3API protocol examples', () => {
   it('keeps each provider image content block in its own protocol', () => {
     expect(buildRequest(base)).toMatchObject({ input:[{ content:[{type:'input_image',image_url:base.image},{type:'input_text'}] }] })
     expect(buildRequest({...base,protocol:'chat'})).toMatchObject({ messages:[{content:[{type:'image_url',image_url:{url:base.image}},{type:'text'}]}] })
@@ -24,7 +24,7 @@ describe('AGraphs protocol examples', () => {
     const body=buildRequest({...base,prompt:'A "box"\nwith a \'handle\' and $HOME'})
     const curl=curlExample('/v1/assets/jobs',body)
     expect(curl).toContain('Idempotency-Key: $JOB_REQUEST_ID')
-    expect(curl).toContain("<<'AGRAPHS_JSON'")
+    expect(curl).toContain("<<'SUP3API_JSON'")
     expect(curl).toContain(JSON.stringify(body,null,2))
     expect(sdkExample('/v1/messages',body,'javascript')).toContain('anthropic-version')
     expect(sdkExample('/v1/responses',body,'python')).toContain('json=json.loads(')

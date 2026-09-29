@@ -1,5 +1,5 @@
 <template>
-  <AGraphsShell><div class="ag-legacy-content ag-fragment">
+  <Sup3APIShell><div class="ag-legacy-content ag-fragment">
     <div class="mx-auto max-w-2xl">
       <div class="card p-6">
         <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
@@ -35,11 +35,11 @@
         </div>
       </div>
     </div>
-  </div></AGraphsShell>
+  </div></Sup3APIShell>
 </template>
 
 <script setup lang="ts">
-import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
+import Sup3APIShell from '@/components/sup3api/Sup3APIShell.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'

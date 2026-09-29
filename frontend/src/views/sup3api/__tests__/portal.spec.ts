@@ -11,10 +11,10 @@ vi.mock('@/stores/auth',()=>({useAuthStore:()=>({user:{balance:12},isAuthenticat
 vi.mock('@/api/keys',()=>({keysAPI:{list:api.list,create:api.create,toggleStatus:api.toggle}}))
 vi.mock('@/api/groups',()=>({userGroupsAPI:{getAvailable:api.groups}}))
 vi.mock('@/api/usage',()=>({usageAPI:{getDashboardStats:api.stats,list:api.usage}}))
-const global = { stubs:{AGraphsShell:{template:'<div><slot /></div>'},RouterLink:{template:'<a><slot /></a>'}} }
+const global = { stubs:{Sup3APIShell:{template:'<div><slot /></div>'},RouterLink:{template:'<a><slot /></a>'}} }
 beforeEach(()=>{vi.clearAllMocks();route.path='/keys'})
 
-describe('AGraphs customer portal',()=>{
+describe('Sup3API customer portal',()=>{
   it('renders masked real account keys and requires explicit creation',async()=>{
     api.list.mockResolvedValue({items:[{id:7,name:'game-service',key:'ag-private-secret-for-test-only',status:'active',quota_used:0,quota:10,expires_at:null}],total:1})
     api.groups.mockResolvedValue([{id:3,name:'GPT',platform:'openai'}])

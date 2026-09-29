@@ -5,18 +5,18 @@
   </AppLayout>
 
   <!-- 独立形态:自带导航条(logo/站名 + 登录/回后台) -->
-  <AGraphsShell v-else wide>
+  <Sup3APIShell v-else wide>
     <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <ModelPlazaContent :response="data" :loading="loading" :error="loadFailed" />
     </main>
-  </AGraphsShell>
+  </Sup3APIShell>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
-import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
+import Sup3APIShell from '@/components/sup3api/Sup3APIShell.vue'
 import ModelPlazaContent from '@/components/modelPlaza/ModelPlazaContent.vue'
 import { getModelPlaza, type ModelPlazaResponse } from '@/api/modelPlaza'
 import { useAppStore } from '@/stores/app'

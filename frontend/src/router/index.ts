@@ -29,17 +29,17 @@ const routes: RouteRecordRaw[] = [
     }
   },
 
-  { path: '/connect', name: 'AGraphsConnect', component: () => import('@/views/agraphs/ConnectView.vue'), meta: { requiresAuth: false, title: 'API 接入', brandName: 'AGraphs' } },
-  { path: '/docs/:section?', name: 'AGraphsDocs', component: () => import('@/views/agraphs/DocsView.vue'), meta: { requiresAuth: false, title: 'API 文档', brandName: 'AGraphs' } },
+  { path: '/connect', name: 'Sup3APIConnect', component: () => import('@/views/sup3api/ConnectView.vue'), meta: { requiresAuth: false, title: 'API 接入', brandName: 'Sup3API' } },
+  { path: '/docs/:section?', name: 'Sup3APIDocs', component: () => import('@/views/sup3api/DocsView.vue'), meta: { requiresAuth: false, title: 'API 文档', brandName: 'Sup3API' } },
   // ==================== Public Routes ====================
   {
     path: '/home',
     name: 'Home',
-    component: () => import('@/views/AGraphsHomeView.vue'),
+    component: () => import('@/views/Sup3APIHomeView.vue'),
     meta: {
       requiresAuth: false,
-      title: '从想象，到三维',
-      brandName: 'AGraphs'
+      title: '一个入口，连接多模态 AI',
+      brandName: 'Sup3API'
     }
   },
   {
@@ -197,7 +197,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('@/views/agraphs/ConsoleView.vue'),
+    component: () => import('@/views/sup3api/ConsoleView.vue'),
     meta: {
       requiresAuth: true,
       requiresAdmin: false,
@@ -209,7 +209,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/keys',
     name: 'Keys',
-    component: () => import('@/views/agraphs/ConsoleView.vue'),
+    component: () => import('@/views/sup3api/ConsoleView.vue'),
     meta: {
       requiresAuth: true,
       requiresAdmin: false,
@@ -234,7 +234,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/usage',
     name: 'Usage',
-    component: () => import('@/views/agraphs/ConsoleView.vue'),
+    component: () => import('@/views/sup3api/ConsoleView.vue'),
     meta: {
       requiresAuth: true,
       requiresAdmin: false,
@@ -732,10 +732,10 @@ const routes: RouteRecordRaw[] = [
 /**
  * Create router instance
  */
-// Customer presentation belongs to AGraphs; administrative routes retain host branding.
+// Customer presentation belongs to Sup3API; administrative routes retain host branding.
 for (const route of routes) {
   if (!route.path.startsWith('/admin') && route.path !== '/setup') {
-    route.meta = { ...route.meta, brandName: 'AGraphs' }
+    route.meta = { ...route.meta, brandName: 'Sup3API' }
   }
 }
 

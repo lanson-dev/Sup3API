@@ -1,5 +1,5 @@
 <template>
-  <AGraphsShell v-if="!isAdminRoute" console wide><div class="ag-legacy-content"><slot /></div></AGraphsShell>
+  <Sup3APIShell v-if="!isAdminRoute" console wide><div class="ag-legacy-content"><slot /></div></Sup3APIShell>
   <div v-else class="min-h-screen bg-gray-50 dark:bg-dark-950">
     <!-- Background Decoration -->
     <div class="pointer-events-none fixed inset-0 bg-mesh-gradient"></div>
@@ -27,7 +27,7 @@
 import '@/styles/onboarding.css'
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
+import Sup3APIShell from '@/components/sup3api/Sup3APIShell.vue'
 import { useAppStore } from '@/stores'
 import { useAuthStore } from '@/stores/auth'
 import { useOnboardingTour } from '@/composables/useOnboardingTour'

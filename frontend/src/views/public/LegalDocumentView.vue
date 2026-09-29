@@ -1,5 +1,5 @@
 <template>
-  <AGraphsShell>
+  <Sup3APIShell>
 
     <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:py-10">
       <div v-if="loading" class="flex min-h-[320px] items-center justify-center">
@@ -62,7 +62,7 @@
         </div>
       </article>
     </main>
-  </AGraphsShell>
+  </Sup3APIShell>
 </template>
 
 <script setup lang="ts">
@@ -73,7 +73,7 @@ import DOMPurify from 'dompurify'
 import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'
 import { getLocale } from '@/i18n'
-import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
+import Sup3APIShell from '@/components/sup3api/Sup3APIShell.vue'
 import { useAppStore } from '@/stores/app'
 import type { LoginAgreementDocument } from '@/types'
 import zhAdminCompliance from '../../../../docs/legal/admin-compliance.zh.md?raw'

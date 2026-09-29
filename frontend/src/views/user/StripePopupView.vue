@@ -1,5 +1,5 @@
 <template>
-  <AGraphsShell><div class="ag-legacy-content ag-fragment">
+  <Sup3APIShell><div class="ag-legacy-content ag-fragment">
     <div
       class="w-full max-w-md space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-700 dark:bg-slate-900"
     >
@@ -49,11 +49,11 @@
         <span class="ml-3 text-sm text-gray-500 dark:text-slate-400">{{ hint }}</span>
       </div>
     </div>
-  </div></AGraphsShell>
+  </div></Sup3APIShell>
 </template>
 
 <script setup lang="ts">
-import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
+import Sup3APIShell from '@/components/sup3api/Sup3APIShell.vue'
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'

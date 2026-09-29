@@ -1,5 +1,5 @@
 <template>
-  <AGraphsShell console wide>
+  <Sup3APIShell console wide>
     <div class="ag-page-intro"><div class="ag-eyebrow">YOUR WORKSPACE</div><h1>{{ title }}</h1><p class="ag-lead">{{ subtitle }}</p></div>
     <p v-if="error" class="ag-notice ag-error" role="alert">{{ error }} <button class="ag-button ag-button-small ag-button-secondary" @click="load">重试</button></p>
     <p v-if="message" class="ag-notice" role="status">{{ message }}</p>
@@ -21,12 +21,12 @@
       <div v-if="usage.length" class="ag-table-wrap"><table class="ag-table"><thead><tr><th>时间</th><th>模型</th><th>输入 / 输出 Token</th><th>实际费用</th><th>耗时</th></tr></thead><tbody><tr v-for="row in usage" :key="row.id"><td>{{ new Date(row.created_at).toLocaleString() }}</td><td class="ag-mono">{{ row.model }}</td><td>{{ row.input_tokens }} / {{ row.output_tokens }}</td><td>${{ row.actual_cost.toFixed(6) }}</td><td>{{ row.duration_ms == null ? '—' : (row.duration_ms/1000).toFixed(2)+' s' }}</td></tr></tbody></table></div><div v-else-if="!error" class="ag-empty" style="margin-top:22px">暂无 LLM 调用记录。3D 用量请读取各任务的 cost 与 steps。</div>
     </template>
     <div v-if="route.path!=='/dashboard' && total>20" class="ag-actions" style="justify-content:flex-end;margin-top:25px"><button class="ag-button ag-button-secondary ag-button-small" :disabled="page<=1||loading" @click="page--;load()">上一页</button><span class="ag-small">{{ page }} / {{ Math.ceil(total/20) }}</span><button class="ag-button ag-button-secondary ag-button-small" :disabled="page*20>=total||loading" @click="page++;load()">下一页</button></div>
-  </AGraphsShell>
+  </Sup3APIShell>
 </template>
 <script setup lang="ts">
 import { computed, ref, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
+import Sup3APIShell from '@/components/sup3api/Sup3APIShell.vue'
 import { useAuthStore } from '@/stores/auth'
 import { keysAPI } from '@/api/keys'
 import { usageAPI, type UserDashboardStats } from '@/api/usage'
