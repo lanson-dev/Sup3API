@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <TablePageLayout>
+    <TablePageLayout class="keys-page-table">
       <template #filters>
         <div class="flex flex-col gap-3">
           <div class="flex flex-wrap items-center gap-3">
@@ -48,7 +48,9 @@
       </template>
 
       <template #actions>
-        <div class="flex justify-end gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <h1 class="key-page-title">{{ t('keys.title') }}</h1>
+          <div class="flex items-center gap-3">
           <button
             @click="loadApiKeys"
             :disabled="loading"
@@ -93,6 +95,7 @@
             <Icon name="plus" size="md" class="mr-2" />
             {{ t('keys.createKey') }}
           </button>
+          </div>
         </div>
       </template>
 
@@ -195,8 +198,9 @@
             </div>
           </template>
 
-          <template #cell-current_concurrency="{ value }">
-            <span
+          <template #cell-current_concurrency="{ value, row }">
+            <span v-if="isAssetPlatform(row.group?.platform)" class="text-gray-400">—</span>
+            <span v-else
               :class="[
                 'inline-flex min-w-8 items-center justify-center rounded px-2 py-1 text-sm font-semibold tabular-nums',
                 (value ?? 0) > 0
@@ -209,7 +213,8 @@
           </template>
 
           <template #cell-usage="{ row }">
-            <div class="text-sm">
+            <span v-if="isAssetPlatform(row.group?.platform)" class="text-gray-400">—</span>
+            <div v-else class="text-sm">
               <div class="flex items-center gap-1.5">
                 <span class="text-gray-500 dark:text-gray-400">{{ t('keys.today') }}:</span>
                 <span class="font-medium text-gray-900 dark:text-white">
@@ -251,7 +256,8 @@
           </template>
 
           <template #cell-rate_limit="{ row }">
-            <div v-if="row.rate_limit_5h > 0 || row.rate_limit_1d > 0 || row.rate_limit_7d > 0" class="space-y-1.5 min-w-[140px]">
+            <span v-if="isAssetPlatform(row.group?.platform)" class="text-gray-400">—</span>
+            <div v-else-if="row.rate_limit_5h > 0 || row.rate_limit_1d > 0 || row.rate_limit_7d > 0" class="space-y-1.5 min-w-[140px]">
               <!-- 5h window -->
               <div v-if="row.rate_limit_5h > 0">
                 <div class="flex items-center justify-between text-xs">
@@ -402,7 +408,7 @@
               </button>
               <!-- Import to CC Switch Button -->
               <button
-                v-if="!publicSettings?.hide_ccs_import_button"
+                v-if="!isAssetPlatform(row.group?.platform) && !publicSettings?.hide_ccs_import_button"
                 @click="importToCcswitch(row)"
                 class="flex flex-col items-center gap-0.5 rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400"
               >
@@ -487,7 +493,7 @@
 
         <fieldset v-if="!showEditModal" data-tour="key-form-provider">
           <legend class="input-label">{{ t('keys.providerLabel') }}</legend>
-          <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
             <label
               v-for="provider in createProviderOptions"
               :key="provider.value"
@@ -586,6 +592,9 @@
             <label class="input-label mb-0">{{ t('keys.customKeyLabel') }}</label>
             <button
               type="button"
+              role="switch"
+              :aria-label="t('keys.customKeyLabel')"
+              :aria-checked="formData.use_custom_key"
               @click="formData.use_custom_key = !formData.use_custom_key"
               :class="[
                 'relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
@@ -628,6 +637,9 @@
             <label class="input-label mb-0">{{ t('keys.ipRestriction') }}</label>
             <button
               type="button"
+              role="switch"
+              :aria-label="t('keys.ipRestriction')"
+              :aria-checked="formData.enable_ip_restriction"
               @click="formData.enable_ip_restriction = !formData.enable_ip_restriction"
               :class="[
                 'relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
@@ -669,29 +681,8 @@
         </div>
 
         <!-- Quota Limit Section -->
-        <div class="space-y-3">
+        <div v-if="!isAssetGroup" class="space-y-3">
           <label class="input-label">{{ t('keys.quotaLimit') }}</label>
-          <!-- Switch commented out - always show input, 0 = unlimited
-          <div class="flex items-center justify-between">
-            <label class="input-label mb-0">{{ t('keys.quotaLimit') }}</label>
-            <button
-              type="button"
-              @click="formData.enable_quota = !formData.enable_quota"
-              :class="[
-                'relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
-                formData.enable_quota ? 'bg-primary-600' : 'bg-gray-200 dark:bg-dark-600'
-              ]"
-            >
-              <span
-                :class="[
-                  'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-                  formData.enable_quota ? 'translate-x-4' : 'translate-x-0'
-                ]"
-              />
-            </button>
-          </div>
-          -->
-
           <div class="space-y-4">
             <div>
               <div class="relative">
@@ -735,11 +726,14 @@
         </div>
 
         <!-- Rate Limit Section -->
-        <div class="space-y-3">
+        <div v-if="!isAssetGroup" class="space-y-3">
           <div class="flex items-center justify-between">
             <label class="input-label mb-0">{{ t('keys.rateLimitSection') }}</label>
             <button
               type="button"
+              role="switch"
+              :aria-label="t('keys.rateLimitSection')"
+              :aria-checked="formData.enable_rate_limit"
               @click="formData.enable_rate_limit = !formData.enable_rate_limit"
               :class="[
                 'relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
@@ -914,6 +908,9 @@
             <label class="input-label mb-0">{{ t('keys.expiration') }}</label>
             <button
               type="button"
+              role="switch"
+              :aria-label="t('keys.expiration')"
+              :aria-checked="formData.enable_expiration"
               @click="formData.enable_expiration = !formData.enable_expiration"
               :class="[
                 'relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
@@ -1228,6 +1225,7 @@ import type { BatchApiKeyUsageStats } from '@/api/usage'
 import { formatDateTime } from '@/utils/format'
 import { maskApiKey } from '@/utils/maskApiKey'
 import PlatformIcon from '@/components/common/PlatformIcon.vue'
+import { isAssetPlatform } from '@/constants/platforms'
 import { platformBadgeLightClass } from '@/utils/platformColors'
 import { KEY_GROUP_PROVIDERS, KEY_GROUP_PROVIDER_ICONS, getKeyGroupProvider, type KeyGroupProvider } from '@/utils/keyGroupProviders'
 import {
@@ -1527,6 +1525,14 @@ const groupOptions = computed(() =>
 )
 
 const createProvider = ref<KeyGroupProvider>('anthropic')
+const isAssetGroup = computed(() => {
+  const group = groups.value.find((group) => group.id === formData.value.group_id)
+  if (group) return isAssetPlatform(group.platform)
+  return showEditModal.value
+    ? isAssetPlatform(selectedKey.value?.group?.platform)
+    : isAssetPlatform(createProvider.value)
+})
+
 const createProviderOptions = computed(() => KEY_GROUP_PROVIDERS.map((value) => ({
   value,
   label: t(`keys.providers.${value}`),
@@ -1822,7 +1828,7 @@ const handleSubmit = async () => {
   const ipBlacklist = formData.value.enable_ip_restriction ? parseIPList(formData.value.ip_blacklist) : []
 
   // Calculate quota value (null/empty/0 = unlimited, stored as 0)
-  const quota = formData.value.quota && formData.value.quota > 0 ? formData.value.quota : 0
+  const quota = !isAssetGroup.value && formData.value.quota && formData.value.quota > 0 ? formData.value.quota : 0
 
   // Calculate expiration
   let expiresInDays: number | undefined
@@ -1844,7 +1850,7 @@ const handleSubmit = async () => {
   }
 
   // Calculate rate limit values (send 0 when toggle is off)
-  const rateLimitData = formData.value.enable_rate_limit ? {
+  const rateLimitData = !isAssetGroup.value && formData.value.enable_rate_limit ? {
     rate_limit_5h: formData.value.rate_limit_5h && formData.value.rate_limit_5h > 0 ? formData.value.rate_limit_5h : 0,
     rate_limit_1d: formData.value.rate_limit_1d && formData.value.rate_limit_1d > 0 ? formData.value.rate_limit_1d : 0,
     rate_limit_7d: formData.value.rate_limit_7d && formData.value.rate_limit_7d > 0 ? formData.value.rate_limit_7d : 0,
@@ -1863,6 +1869,13 @@ const handleSubmit = async () => {
         rate_limit_5h: rateLimitData.rate_limit_5h,
         rate_limit_1d: rateLimitData.rate_limit_1d,
         rate_limit_7d: rateLimitData.rate_limit_7d,
+      }
+      // Hidden LLM spending controls must not overwrite stored limits on edit.
+      if (isAssetGroup.value) {
+        delete updates.quota
+        delete updates.rate_limit_5h
+        delete updates.rate_limit_1d
+        delete updates.rate_limit_7d
       }
       if (shouldSubmitEditStatus(selectedKey.value, formData.value.status)) {
         updates.status = formData.value.status
@@ -2092,3 +2105,18 @@ onUnmounted(() => {
   if (resetTimer) clearInterval(resetTimer)
 })
 </script>
+
+<style scoped>
+.key-page-title {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.3;
+}
+.keys-page-table {
+  height: auto;
+}
+.keys-page-table :deep(.table-scroll-container) {
+  min-height: 260px;
+  max-height: 65vh;
+}
+</style>

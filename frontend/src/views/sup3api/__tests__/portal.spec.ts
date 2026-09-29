@@ -15,20 +15,14 @@ const global = { stubs:{Sup3APIShell:{template:'<div><slot /></div>'},RouterLink
 beforeEach(()=>{vi.clearAllMocks();route.path='/keys'})
 
 describe('Sup3API customer portal',()=>{
-  it('renders masked real account keys and requires explicit creation',async()=>{
-    api.list.mockResolvedValue({items:[{id:7,name:'game-service',key:'ag-private-secret-for-test-only',status:'active',quota_used:0,quota:10,expires_at:null}],total:1})
-    api.groups.mockResolvedValue([{id:3,name:'GPT',platform:'openai'}])
-    api.create.mockResolvedValue({key:'ag-new-private-key-for-test'})
+  it('loads real dashboard statistics without fetching or creating keys',async()=>{
+    route.path='/dashboard'
+    api.stats.mockResolvedValue({active_api_keys:3,today_requests:12})
     const wrapper=mount(ConsoleView,{global});await flushPromises()
-    expect(wrapper.text()).toContain('game-service')
-    expect(wrapper.text()).not.toContain('ag-private-secret-for-test-only')
+    expect(wrapper.text()).toContain('3')
+    expect(api.stats).toHaveBeenCalledOnce()
+    expect(api.list).not.toHaveBeenCalled()
     expect(api.create).not.toHaveBeenCalled()
-    await wrapper.findAll('button').find(b=>b.text().includes('创建密钥'))!.trigger('click')
-    await wrapper.find('input[placeholder="例如：game-asset-service"]').setValue('asset-pipeline')
-    await wrapper.find('select').setValue('3')
-    await wrapper.find('form').trigger('submit');await flushPromises()
-    expect(api.create).toHaveBeenCalledWith('asset-pipeline',3,undefined,undefined,undefined,0,undefined)
-    expect(wrapper.text()).not.toContain('ag-new-private-key-for-test')
     wrapper.unmount()
   })
   it('only sends explicit diagnostics to same-origin endpoints, never inserts keys into snippets',async()=>{

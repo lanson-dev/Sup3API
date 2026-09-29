@@ -32,7 +32,7 @@ SUP3_DATA_DIR=/app/data/sup3-assets
 ```
 
 `SUP3_ALLOWED_USER_IDS` is mandatory: only these host users can spend the
-operator's provider credits. Generate a normal Sub2API API key for that user.
+operator's provider credits. Generate a normal Sup3API API key for that user.
 Keys must be enabled and unexpired for every asset request. LLM USD quota exhaustion
 does not consume or disable the separate provider-credit allowance. Job reads are also restricted
 to the API key that created them; revoking a key blocks access.
@@ -61,7 +61,7 @@ Its private launch/configuration files are in `.local/` and are not part of the 
 
 ## Unified API
 
-All endpoints use `Authorization: Bearer <Sub2API API key>`.
+All endpoints use `Authorization: Bearer <Sup3API API key>`.
 
 ```sh
 curl "$BASE_URL/v1/assets/jobs" \

@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" fill="none"><title>Sup3API</title><g transform="translate(4 4)"><rect width="64" height="64" rx="17" fill="#18243b"/><path d="m32 10 19 11-19 11-19-11 19-11Z" fill="#cdddff"/><path d="m13 21 19 11v11L13 32V21Z" fill="#7298ff"/><path d="m32 32 19-11v11L32 43V32Z" fill="#335cff"/><path d="m13 34 19 11 19-11v10L32 55 13 44V34Z" fill="#cdddff"/><path d="m22 21 10-6 10 6-10 6-10-6Z" fill="#18243b"/></g><text x="85" y="49" fill="#18243b" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="40" font-weight="650" letter-spacing="-1.7">Sup3API</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" fill="none" role="img" aria-labelledby="title">
+  <title id="title">Sup3API</title>
+  <g transform="translate(4 4)">
+  <rect width="64" height="64" rx="17" fill="#e6edda"/>
+  <g stroke="#202b22" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 49 32 13l20 36H12Z" stroke-width="2.6"/>
+    <path d="M32 13v24M12 49l20-12 20 12" stroke-width="2"/>
+    <circle cx="32" cy="37" r="4.5" fill="#bfdd79" stroke-width="2"/>
+  </g>
+  </g>
+  <text x="85" y="49" fill="#202b22" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="40" font-weight="650" letter-spacing="-1.7">Sup3API</text>
+</svg>

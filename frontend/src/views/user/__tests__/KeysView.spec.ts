@@ -548,7 +548,7 @@ describe('user KeysView column settings', () => {
   })
 
   describe('create provider selection', () => {
-    const platforms = ['anthropic', 'openai', 'kimi', 'zhipu', 'deepseek', 'minimax', 'gemini', 'grok', 'antigravity', 'composite', 'opencode_go']
+    const platforms = ['anthropic', 'openai', 'kimi', 'zhipu', 'deepseek', 'minimax', 'gemini', 'grok', 'antigravity', 'composite', 'opencode_go', 'tripo', 'meshy']
     const availableGroups = platforms.map((platform, index) => ({
       id: index + 1,
       // Deliberately ambiguous names: classification must follow the platform.
@@ -572,7 +572,7 @@ describe('user KeysView column settings', () => {
 
     it('classifies all configured platforms and retains the complete table filter', async () => {
       const wrapper = await openCreate()
-      expect(wrapper.findAll('input[name="key-provider"]')).toHaveLength(4)
+      expect(wrapper.findAll('input[name="key-provider"]')).toHaveLength(6)
       expect(optionIds(wrapper)).toEqual([1])
       await chooseProvider(wrapper, 'openai')
       expect(optionIds(wrapper)).toEqual([2])
@@ -580,7 +580,11 @@ describe('user KeysView column settings', () => {
       expect(optionIds(wrapper)).toEqual([3, 4, 5, 6])
       await chooseProvider(wrapper, 'other')
       expect(optionIds(wrapper)).toEqual([7, 8, 9, 10, 11])
-      expect(wrapper.findAllComponents({ name: 'Select' })[0].props('options')).toHaveLength(13)
+      await chooseProvider(wrapper, 'tripo')
+      expect(optionIds(wrapper)).toEqual([12])
+      await chooseProvider(wrapper, 'meshy')
+      expect(optionIds(wrapper)).toEqual([13])
+      expect(wrapper.findAllComponents({ name: 'Select' })[0].props('options')).toHaveLength(15)
     })
 
     it('clears the previous group on provider change and submits only the newly selected group', async () => {
@@ -599,6 +603,45 @@ describe('user KeysView column settings', () => {
       await flushPromises()
       expect(keysAPI.create).toHaveBeenCalledOnce()
       expect(vi.mocked(keysAPI.create).mock.calls[0].slice(0, 2)).toEqual(['My key', 5])
+    })
+
+    it.each(['tripo', 'meshy'])('creates a %s key without stale LLM spending limits', async (platform) => {
+      const wrapper = await openCreate()
+      await wrapper.get('[data-tour="key-form-name"]').setValue('Asset key')
+      await groupSelect(wrapper).vm.$emit('update:modelValue', 1)
+      await wrapper.get('input[placeholder="keys.quotaAmountPlaceholder"]').setValue(25)
+      await wrapper.get('[aria-label="keys.rateLimitSection"]').trigger('click')
+      await wrapper.findAll('input[placeholder="0"]')[0].setValue(10)
+      await chooseProvider(wrapper, platform)
+      const groupId = platform === 'tripo' ? 12 : 13
+      await groupSelect(wrapper).vm.$emit('update:modelValue', groupId)
+      await nextTick()
+      expect(wrapper.find('input[placeholder="keys.quotaAmountPlaceholder"]').exists()).toBe(false)
+      expect(wrapper.text()).not.toContain('keys.rateLimitSection')
+      await wrapper.get('[aria-label="keys.ipRestriction"]').trigger('click')
+      await wrapper.get('textarea[placeholder="keys.ipWhitelistPlaceholder"]').setValue('127.0.0.1')
+      await wrapper.get('[aria-label="keys.expiration"]').trigger('click')
+      await wrapper.get('input[type="datetime-local"]').setValue('2099-01-01T00:00')
+      vi.mocked(keysAPI.create).mockResolvedValue({ ...createApiKey(), group_id: groupId })
+      await wrapper.get('#key-form').trigger('submit')
+      await flushPromises()
+      expect(keysAPI.create).toHaveBeenCalledWith('Asset key', groupId, undefined, ['127.0.0.1'], [], 0, expect.any(Number),
+        { rate_limit_5h: 0, rate_limit_1d: 0, rate_limit_7d: 0 })
+    })
+
+    it('preserves hidden spending limits when editing an asset key', async () => {
+      const key = { ...createApiKey(), group_id: 13, group: availableGroups[12], quota: 25, rate_limit_5h: 10 }
+      listKeys.mockResolvedValue({ items: [key], total: 1, page: 1, page_size: 20 })
+      const wrapper = await mountView()
+      expect(wrapper.get('[data-test="current-concurrency"]').text()).toBe('—')
+      expect(wrapper.text()).not.toContain('keys.importToCcSwitch')
+      await getButtonByText(wrapper, 'common.edit').trigger('click')
+      await wrapper.get('#key-form').trigger('submit')
+      await flushPromises()
+      const updates = updateKey.mock.calls[0][1]
+      expect(updates.group_id).toBe(13)
+      expect(updates).not.toHaveProperty('quota')
+      expect(updates).not.toHaveProperty('rate_limit_5h')
     })
 
     it('defaults to a provider with available groups and disables empty categories', async () => {
@@ -638,7 +681,7 @@ describe('user KeysView column settings', () => {
       await wrapper.get('[data-test="close-dialog"]').trigger('click')
       await getButtonByText(wrapper, 'common.edit').trigger('click')
       expect(wrapper.find('[data-tour="key-form-provider"]').exists()).toBe(false)
-      expect(optionIds(wrapper)).toHaveLength(11)
+      expect(optionIds(wrapper)).toHaveLength(13)
     })
   })
 })

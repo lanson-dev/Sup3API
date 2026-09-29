@@ -209,7 +209,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/keys',
     name: 'Keys',
-    component: () => import('@/views/sup3api/ConsoleView.vue'),
+    component: () => import('@/views/user/KeysView.vue'),
     meta: {
       requiresAuth: true,
       requiresAdmin: false,
