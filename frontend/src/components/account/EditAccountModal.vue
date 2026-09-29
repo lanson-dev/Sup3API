@@ -210,7 +210,7 @@
             v-model="editApiKey"
             type="password"
             class="input font-mono"
-            autocomplete="new-password"
+            autocomplete="off" spellcheck="false" autocapitalize="off"
             data-1p-ignore
             data-lpignore="true"
             data-bwignore="true"
@@ -884,7 +884,7 @@
           <label class="input-label">{{ t('admin.accounts.upstream.apiKey') }}</label>
           <input
             v-model="editApiKey"
-            type="password"
+            type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off"
             class="input font-mono"
             placeholder="sk-..."
           />
@@ -1124,7 +1124,7 @@
             <label class="input-label">{{ t('admin.accounts.bedrockSecretAccessKey') }}</label>
             <input
               v-model="editBedrockSecretAccessKey"
-              type="password"
+              type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off"
               class="input font-mono"
               :placeholder="t('admin.accounts.bedrockSecretKeyLeaveEmpty')"
             />
@@ -1134,7 +1134,7 @@
             <label class="input-label">{{ t('admin.accounts.bedrockSessionToken') }}</label>
             <input
               v-model="editBedrockSessionToken"
-              type="password"
+              type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off"
               class="input font-mono"
               :placeholder="t('admin.accounts.bedrockSecretKeyLeaveEmpty')"
             />
@@ -1147,7 +1147,7 @@
           <label class="input-label">{{ t('admin.accounts.bedrockApiKeyInput') }}</label>
           <input
             v-model="editBedrockApiKeyValue"
-            type="password"
+            type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off"
             class="input font-mono"
             :placeholder="t('admin.accounts.bedrockApiKeyLeaveEmpty')"
           />

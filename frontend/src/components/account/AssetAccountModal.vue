@@ -6,7 +6,7 @@
       </label>
       <label class="block"><span class="input-label">账号名称</span><input v-model.trim="name" class="input" required maxlength="100" /></label>
       <label class="block"><span class="input-label">上游 API Key</span>
-        <input v-model.trim="apiKey" class="input" type="password" autocomplete="new-password" :required="!account" :placeholder="account ? '留空保留当前凭据' : '填写供应商开放平台的 API Key'" />
+        <input v-model.trim="apiKey" class="input" type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off" :required="!account" :placeholder="account ? '留空保留当前凭据' : '填写供应商开放平台的 API Key'" />
       </label>
       <label class="block"><span class="input-label">优先级（数值越小越优先）</span><input v-model.number="priority" class="input" type="number" min="0" required /></label>
       <label v-if="account" class="block"><span class="input-label">状态</span>

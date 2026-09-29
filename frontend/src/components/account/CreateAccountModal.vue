@@ -94,7 +94,7 @@
       <template v-if="isAssetAccount">
         <label class="block">
           <span class="input-label">上游 API Key</span>
-          <input v-model.trim="apiKeyValue" type="password" autocomplete="new-password" class="input" required :placeholder="`填写 ${form.platform === 'tripo' ? 'Tripo' : 'Meshy'} 开放平台的 API Key`" />
+          <input v-model.trim="apiKeyValue" type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off" class="input" required :placeholder="`填写 ${form.platform === 'tripo' ? 'Tripo' : 'Meshy'} 开放平台的 API Key`" />
         </label>
         <label class="block">
           <span class="input-label">{{ t('admin.accounts.priority') }}</span>
@@ -1000,7 +1000,7 @@
           <label class="input-label">{{ t('admin.accounts.upstream.apiKey') }}</label>
           <input
             v-model="upstreamApiKey"
-            type="password"
+            type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off"
             required
             class="input font-mono"
             placeholder="sk-..."
@@ -1285,7 +1285,7 @@
           <label class="input-label">{{ t('admin.accounts.apiKeyRequired') }}</label>
           <input
             v-model="apiKeyValue"
-            type="password"
+            type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off"
             required
             class="input font-mono"
             :placeholder="apiKeyValuePlaceholder"
@@ -1762,7 +1762,7 @@
             <label class="input-label">{{ t('admin.accounts.bedrockSecretAccessKey') }}</label>
             <input
               v-model="bedrockSecretAccessKey"
-              type="password"
+              type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off"
               required
               class="input font-mono"
             />
@@ -1771,7 +1771,7 @@
             <label class="input-label">{{ t('admin.accounts.bedrockSessionToken') }}</label>
             <input
               v-model="bedrockSessionToken"
-              type="password"
+              type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off"
               class="input font-mono"
             />
             <p class="input-hint">{{ t('admin.accounts.bedrockSessionTokenHint') }}</p>
@@ -1783,7 +1783,7 @@
           <label class="input-label">{{ t('admin.accounts.bedrockApiKeyInput') }}</label>
           <input
             v-model="bedrockApiKeyValue"
-            type="password"
+            type="password" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore spellcheck="false" autocapitalize="off"
             required
             class="input font-mono"
           />
