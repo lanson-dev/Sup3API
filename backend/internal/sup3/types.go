@@ -21,6 +21,7 @@ type Inputs struct {
 }
 
 type Parameters struct {
+	Formats           []string `json:"formats,omitempty"`
 	Texture           *bool    `json:"texture,omitempty"`
 	PBR               *bool    `json:"pbr,omitempty"`
 	TextureResolution string   `json:"texture_resolution,omitempty"`
@@ -32,6 +33,8 @@ type Parameters struct {
 }
 
 type Request struct {
+	InputFormat     string                     `json:"input_format,omitempty"`
+	Payload         map[string]json.RawMessage `json:"payload,omitempty"`
 	Provider        string                     `json:"provider"`
 	Model           string                     `json:"model,omitempty"`
 	Operation       string                     `json:"operation"`
@@ -55,6 +58,7 @@ type Price struct {
 }
 
 type Capability struct {
+	InputFormats      []string            `json:"input_formats"`
 	Provider          string              `json:"provider"`
 	Models            []string            `json:"models"`
 	ModelsByOperation map[string][]string `json:"models_by_operation"`
@@ -87,11 +91,12 @@ type Component struct {
 }
 
 type Step struct {
-	Name       string   `json:"name"`
-	UpstreamID string   `json:"upstream_id,omitempty"`
-	Endpoint   string   `json:"-"`
-	Status     string   `json:"status"`
-	Credits    *float64 `json:"credits,omitempty"`
+	ProviderResult map[string]any `json:"provider_result,omitempty"`
+	Name           string         `json:"name"`
+	UpstreamID     string         `json:"upstream_id,omitempty"`
+	Endpoint       string         `json:"-"`
+	Status         string         `json:"status"`
+	Credits        *float64       `json:"credits,omitempty"`
 }
 
 type APIError struct {
@@ -135,11 +140,12 @@ func (j *Job) Terminal() bool {
 }
 
 type Observation struct {
-	Status    string
-	Progress  int
-	Credits   *float64
-	Artifacts []Artifact
-	Error     *APIError
+	ProviderResult map[string]any
+	Status         string
+	Progress       int
+	Credits        *float64
+	Artifacts      []Artifact
+	Error          *APIError
 }
 
 type Provider interface {

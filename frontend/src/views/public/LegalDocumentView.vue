@@ -1,29 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 text-gray-900 dark:bg-dark-950 dark:text-white">
-    <header class="border-b border-gray-200 bg-white/95 dark:border-dark-800 dark:bg-dark-900/95">
-      <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <RouterLink to="/home" class="flex min-w-0 items-center gap-3">
-          <template v-if="settings">
-            <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 dark:bg-dark-800 dark:ring-dark-700">
-              <img :src="siteLogo || '/logo.svg'" alt="Logo" class="h-full w-full object-contain" />
-            </span>
-            <span class="truncate text-base font-semibold text-gray-950 dark:text-white">
-              {{ siteName }}
-            </span>
-          </template>
-          <template v-else>
-            <span class="h-10 w-10 flex-shrink-0 animate-pulse rounded-xl bg-gray-200 dark:bg-dark-700" aria-hidden="true"></span>
-            <span class="h-5 w-28 animate-pulse rounded bg-gray-200 dark:bg-dark-700" aria-hidden="true"></span>
-          </template>
-        </RouterLink>
-        <RouterLink
-          to="/login"
-          class="inline-flex flex-shrink-0 items-center justify-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-primary-600/20 transition hover:bg-primary-700"
-        >
-          {{ t('home.login') }}
-        </RouterLink>
-      </div>
-    </header>
+  <AGraphsShell>
 
     <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:py-10">
       <div v-if="loading" class="flex min-h-[320px] items-center justify-center">
@@ -86,7 +62,7 @@
         </div>
       </article>
     </main>
-  </div>
+  </AGraphsShell>
 </template>
 
 <script setup lang="ts">
@@ -97,7 +73,7 @@ import DOMPurify from 'dompurify'
 import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'
 import { getLocale } from '@/i18n'
-import { sanitizeUrl } from '@/utils/url'
+import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
 import { useAppStore } from '@/stores/app'
 import type { LoginAgreementDocument } from '@/types'
 import zhAdminCompliance from '../../../../docs/legal/admin-compliance.zh.md?raw'
@@ -120,11 +96,6 @@ marked.setOptions({
 const documentId = computed(() => String(route.params.documentId || ''))
 const isAdminComplianceDocument = computed(() => documentId.value === 'admin-compliance')
 const documents = computed(() => settings.value?.login_agreement_documents ?? [])
-const siteName = computed(() => settings.value?.site_name || 'Sub2API')
-const siteLogo = computed(() => sanitizeUrl(settings.value?.site_logo || '', {
-  allowRelative: true,
-  allowDataUrl: true,
-}))
 const updatedAt = computed(() =>
   isAdminComplianceDocument.value ? '' : settings.value?.login_agreement_updated_at || ''
 )

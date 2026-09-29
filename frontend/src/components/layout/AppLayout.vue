@@ -1,5 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-dark-950">
+  <AGraphsShell v-if="!isAdminRoute" console wide><div class="ag-legacy-content"><slot /></div></AGraphsShell>
+  <div v-else class="min-h-screen bg-gray-50 dark:bg-dark-950">
     <!-- Background Decoration -->
     <div class="pointer-events-none fixed inset-0 bg-mesh-gradient"></div>
 
@@ -25,6 +26,8 @@
 <script setup lang="ts">
 import '@/styles/onboarding.css'
 import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
 import { useAppStore } from '@/stores'
 import { useAuthStore } from '@/stores/auth'
 import { useOnboardingTour } from '@/composables/useOnboardingTour'
@@ -33,19 +36,21 @@ import AppSidebar from './AppSidebar.vue'
 import AppHeader from './AppHeader.vue'
 
 const appStore = useAppStore()
+const route = useRoute()
+const isAdminRoute = computed(() => route.path.startsWith('/admin'))
 const authStore = useAuthStore()
 const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
 const isAdmin = computed(() => authStore.user?.role === 'admin')
 
 const { replayTour } = useOnboardingTour({
   storageKey: isAdmin.value ? 'admin_guide' : 'user_guide',
-  autoStart: true
+  autoStart: isAdminRoute.value
 })
 
 const onboardingStore = useOnboardingStore()
 
 onMounted(() => {
-  onboardingStore.setReplayCallback(replayTour)
+  if (isAdminRoute.value) onboardingStore.setReplayCallback(replayTour)
 })
 
 defineExpose({ replayTour })

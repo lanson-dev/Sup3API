@@ -1,8 +1,9 @@
-# Sup3API
+# AGraphs asset module (Sup3API)
 
 An additive 3D asset API extension to [Sub2API](https://github.com/Wei-Shaw/sub2api).
-The upstream Go module, LLM APIs, UI and license are preserved. This fork adds an
-API module; it does not put game/editor workflows into the gateway.
+The upstream Go module, LLM APIs, administrator UI and license are preserved.
+The customer portal is independently branded AGraphs. This fork adds an API
+module; it does not put game/editor workflows into the gateway. See [portal docs](docs/AGRAPHS.md).
 
 ## What works
 
@@ -102,8 +103,11 @@ Animation requires a successful `rig` job ID. Examples:
 {"provider":"tripo","operation":"animate","inputs":{"job_id":"job_..."},"parameters":{"animations":["preset:biped:walk"]}}
 ```
 
-Inputs in this version are public HTTPS URLs; file uploads, inline data URIs and
-cross-provider job references are not yet supported. Provider-specific controls
+Tripo image/model inputs use public HTTPS URLs. Meshy image inputs additionally
+accept validated PNG/JPEG Base64 data URIs (10 MiB decoded/image, 16 MiB JSON body).
+Binary uploads and cross-provider job references are not supported.
+Native field envelopes and full per-step provider results are documented in
+[AGraphs API](docs/AGRAPHS.md). Provider-specific controls
 belong in validated `provider_options`; unsupported combinations fail instead of
 being silently ignored. Tripo `max_faces` is a bound, Meshy `target_faces` a target.
 Do not interchange them. Tripo rig v1 uses `preset:biped:*`; v2.5 uses its own preset

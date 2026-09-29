@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-slate-50 p-4 dark:bg-slate-950">
+  <AGraphsShell><div class="ag-legacy-content ag-fragment">
     <div
       class="w-full max-w-md space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-700 dark:bg-slate-900"
     >
@@ -49,10 +49,11 @@
         <span class="ml-3 text-sm text-gray-500 dark:text-slate-400">{{ hint }}</span>
       </div>
     </div>
-  </div>
+  </div></AGraphsShell>
 </template>
 
 <script setup lang="ts">
+import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'

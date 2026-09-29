@@ -29,14 +29,17 @@ const routes: RouteRecordRaw[] = [
     }
   },
 
+  { path: '/connect', name: 'AGraphsConnect', component: () => import('@/views/agraphs/ConnectView.vue'), meta: { requiresAuth: false, title: 'API 接入', brandName: 'AGraphs' } },
+  { path: '/docs/:section?', name: 'AGraphsDocs', component: () => import('@/views/agraphs/DocsView.vue'), meta: { requiresAuth: false, title: 'API 文档', brandName: 'AGraphs' } },
   // ==================== Public Routes ====================
   {
     path: '/home',
     name: 'Home',
-    component: () => import('@/views/HomeView.vue'),
+    component: () => import('@/views/AGraphsHomeView.vue'),
     meta: {
       requiresAuth: false,
-      title: 'Home'
+      title: '从想象，到三维',
+      brandName: 'AGraphs'
     }
   },
   {
@@ -194,7 +197,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('@/views/user/DashboardView.vue'),
+    component: () => import('@/views/agraphs/ConsoleView.vue'),
     meta: {
       requiresAuth: true,
       requiresAdmin: false,
@@ -206,7 +209,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/keys',
     name: 'Keys',
-    component: () => import('@/views/user/KeysView.vue'),
+    component: () => import('@/views/agraphs/ConsoleView.vue'),
     meta: {
       requiresAuth: true,
       requiresAdmin: false,
@@ -231,7 +234,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/usage',
     name: 'Usage',
-    component: () => import('@/views/user/UsageView.vue'),
+    component: () => import('@/views/agraphs/ConsoleView.vue'),
     meta: {
       requiresAuth: true,
       requiresAdmin: false,
@@ -729,6 +732,13 @@ const routes: RouteRecordRaw[] = [
 /**
  * Create router instance
  */
+// Customer presentation belongs to AGraphs; administrative routes retain host branding.
+for (const route of routes) {
+  if (!route.path.startsWith('/admin') && route.path !== '/setup') {
+    route.meta = { ...route.meta, brandName: 'AGraphs' }
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,

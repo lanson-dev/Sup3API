@@ -6,6 +6,18 @@ import "strings"
 func validateSemantics(r Request) error {
 	gen := strings.HasSuffix(r.Operation, "to_3d")
 	tex := gen || r.Operation == "retexture"
+	if len(r.Parameters.Formats) > 0 {
+		if r.Provider != "meshy" || !tex {
+			return invalid("formats is supported for Meshy generation and retexture only")
+		}
+		seen := map[string]bool{}
+		for _, f := range r.Parameters.Formats {
+			if (f != "glb" && f != "fbx" && f != "obj" && f != "stl" && f != "usdz" && f != "3mf") || seen[f] {
+				return invalid("formats must contain distinct glb, fbx, obj, stl, usdz or 3mf values")
+			}
+			seen[f] = true
+		}
+	}
 	if !gen && (r.Parameters.TargetFaces != 0 || r.Parameters.MaxFaces != 0 || r.Parameters.Topology != "" || r.Parameters.Pose != "") {
 		return invalid("geometry parameters require a generation operation")
 	}

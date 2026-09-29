@@ -42,7 +42,11 @@ func (p *RemoteProvider) Capability() Capability {
 	} else {
 		byOperation["multi_image_to_3d"] = []string{"meshy-7.1", "meshy-6", "meshy-6-lite"}
 	}
-	return Capability{Provider: p.ID, Models: models, ModelsByOperation: byOperation, Operations: []string{"text_to_3d", "image_to_3d", "multi_image_to_3d", "retexture", "rig", "animate"}, Authentication: "api_key", Formats: []string{"glb", "fbx"}, Available: p.Key != "", Notes: notes, InputSchema: map[string]any{"type": "object", "properties": map[string]any{"prompt": map[string]any{"type": "string"}, "images": map[string]any{"type": "array", "maxItems": 4, "items": map[string]any{"type": "string"}}, "model_url": map[string]any{"type": "string", "format": "uri"}, "job_id": map[string]any{"type": "string"}}}}
+	formats := []string{"glb", "fbx"}
+	if p.ID == "meshy" {
+		formats = []string{"glb", "fbx", "obj", "stl", "usdz", "3mf"}
+	}
+	return Capability{InputFormats: []string{"agraphs", p.ID}, Provider: p.ID, Models: models, ModelsByOperation: byOperation, Operations: []string{"text_to_3d", "image_to_3d", "multi_image_to_3d", "retexture", "rig", "animate"}, Authentication: "api_key", Formats: formats, Available: p.Key != "", Notes: notes, InputSchema: map[string]any{"type": "object", "properties": map[string]any{"prompt": map[string]any{"type": "string"}, "images": map[string]any{"type": "array", "maxItems": 4, "items": map[string]any{"type": "string"}}, "model_url": map[string]any{"type": "string", "format": "uri"}, "job_id": map[string]any{"type": "string"}}}}
 }
 
 func (p *RemoteProvider) call(ctx context.Context, method, endpoint string, body any) (map[string]any, error) {
@@ -250,7 +254,7 @@ func (p *RemoteProvider) Poll(ctx context.Context, step Step) (Observation, erro
 	if err != nil {
 		return Observation{}, err
 	}
-	obs := Observation{Status: normalizedStatus(str(data["status"]))}
+	obs := Observation{Status: normalizedStatus(str(data["status"])), ProviderResult: data}
 	if progress, ok := data["progress"].(float64); ok {
 		obs.Progress = int(progress)
 	}
@@ -375,6 +379,7 @@ func collectArtifacts(provider string, data map[string]any) []Artifact {
 			}
 		}
 		add("preview", "", str(data["thumbnail_url"]), nil)
+		add("preview", "", str(data["alpha_thumbnail_url"]), map[string]any{"transparent": true})
 	} else {
 		output := object(data["output"])
 		keys := []string{}

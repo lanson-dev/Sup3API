@@ -26,17 +26,17 @@ func replyError(w http.ResponseWriter, err error) {
 }
 func readRequest(w http.ResponseWriter, r *http.Request) (Request, error) {
 	var req Request
-	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	r.Body = http.MaxBytesReader(w, r.Body, 16<<20)
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&req); err != nil {
-		return req, invalid("request must be valid JSON matching the asset schema (maximum 1 MiB)")
+		return req, invalid("request must be valid JSON matching the asset schema (maximum 16 MiB)")
 	}
 	var trailing any
 	if d.Decode(&trailing) != io.EOF {
 		return req, invalid("request must contain one JSON object")
 	}
-	return req, nil
+	return normalizeInput(req)
 }
 
 // ServeHTTP is identity-agnostic; upstream auth passes the verified owner/key IDs.

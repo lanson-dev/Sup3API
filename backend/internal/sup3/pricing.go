@@ -262,6 +262,10 @@ func (p *RemoteProvider) payload(r Request, stage, previous string) (string, map
 		return endpoint, body, nil
 	}
 	endpoint := ""
+	formats := r.Parameters.Formats
+	if len(formats) == 0 {
+		formats = []string{"glb", "fbx"}
+	}
 	switch r.Operation {
 	case "text_to_3d":
 		endpoint = "/openapi/v2/text-to-3d"
@@ -270,7 +274,7 @@ func (p *RemoteProvider) payload(r Request, stage, previous string) (string, map
 			body["preview_task_id"] = previous
 			body["enable_pbr"] = r.PBR()
 			body["texture_resolution"] = r.Parameters.TextureResolution
-			body["target_formats"] = []string{"glb", "fbx"}
+			body["target_formats"] = formats
 			if prompt := option(r, "texture_prompt", ""); prompt != "" {
 				body["texture_prompt"] = prompt
 			}
@@ -287,7 +291,7 @@ func (p *RemoteProvider) payload(r Request, stage, previous string) (string, map
 	case "retexture":
 		endpoint = "/openapi/v1/retexture"
 		body["ai_model"] = r.Model
-		body["target_formats"] = []string{"glb", "fbx"}
+		body["target_formats"] = formats
 		if r.Inputs.UpstreamID != "" {
 			body["input_task_id"] = input
 		} else {
@@ -317,7 +321,7 @@ func (p *RemoteProvider) payload(r Request, stage, previous string) (string, map
 	}
 	if strings.HasSuffix(r.Operation, "to_3d") {
 		body["ai_model"] = r.Model
-		body["target_formats"] = []string{"glb", "fbx"}
+		body["target_formats"] = formats
 		if r.Model == "meshy-t2" {
 			body["model_type"] = "smart-topology"
 		}

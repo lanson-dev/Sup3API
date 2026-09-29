@@ -75,5 +75,6 @@ export function resolveRouteDocumentTitle(
   const menuTitle = menuItem?.label.trim()
   const { titleKey } = resolveRouteMetaKeys(route, options)
 
-  return resolveDocumentTitle(menuTitle || route.meta.title, siteName, menuTitle ? undefined : titleKey)
+  const brandName = typeof route.meta.brandName === 'string' ? route.meta.brandName : siteName
+  return resolveDocumentTitle(menuTitle || route.meta.title, brandName, menuTitle ? undefined : titleKey)
 }

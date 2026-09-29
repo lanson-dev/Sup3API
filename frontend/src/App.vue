@@ -33,11 +33,9 @@ function updateDocumentTitle() {
 
 // Watch for site settings changes and update favicon/title
 watch(
-  () => appStore.siteLogo,
-  (newLogo) => {
-    if (newLogo) {
-      updateFavicon(newLogo)
-    }
+  () => [appStore.siteLogo, route.path] as const,
+  ([newLogo, path]) => {
+    updateFavicon(path.startsWith('/admin') && newLogo ? newLogo : '/agraphs-mark.svg')
   },
   { immediate: true }
 )

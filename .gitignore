@@ -170,3 +170,8 @@ issues/
 # Sup3API extension documentation.
 !docs/sup3/
 !docs/sup3/**
+
+# AGraphs customer API documentation and preserved upstream attribution.
+!docs/AGRAPHS.md
+!docs/upstream/
+!docs/upstream/*.md

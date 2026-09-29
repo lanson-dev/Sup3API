@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 px-4 py-10 dark:bg-dark-900">
+  <AGraphsShell><div class="ag-legacy-content ag-fragment">
     <div class="mx-auto max-w-2xl">
       <div class="card p-6">
         <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
@@ -35,10 +35,11 @@
         </div>
       </div>
     </div>
-  </div>
+  </div></AGraphsShell>
 </template>
 
 <script setup lang="ts">
+import AGraphsShell from '@/components/agraphs/AGraphsShell.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'

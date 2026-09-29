@@ -31,11 +31,16 @@ func (e *Engine) Prepare(r *Request) (Price, error) {
 	if !ok {
 		return Price{}, invalid("unknown provider")
 	}
-	for _, u := range append(append([]string{}, r.Inputs.Images...), r.Inputs.ModelURL) {
+	for _, u := range r.Inputs.Images {
 		if u != "" {
-			if err := validRemoteURL(u); err != nil {
+			if err := validateImageInput(r.Provider, u); err != nil {
 				return Price{}, err
 			}
+		}
+	}
+	if r.Inputs.ModelURL != "" {
+		if err := validRemoteURL(r.Inputs.ModelURL); err != nil {
+			return Price{}, err
 		}
 	}
 	return p.Prepare(r)
@@ -163,6 +168,7 @@ func (e *Engine) advance(ctx context.Context, j *Job, token string) error {
 	}
 	j.Error = obs.Error
 	step.Status = obs.Status
+	step.ProviderResult = obs.ProviderResult
 	step.Credits = obs.Credits
 	j.Progress = obs.Progress
 	j.Status = obs.Status
@@ -271,6 +277,7 @@ func (e *Engine) Mutate(ctx context.Context, id string, owner, key int64, action
 		}
 		j.Artifacts = obs.Artifacts
 		j.Components = map[string]Component{}
+		j.Steps[len(j.Steps)-1].ProviderResult = obs.ProviderResult
 		j.DeliveryStatus = "pending"
 		j.Error = nil
 	case "cancel":
