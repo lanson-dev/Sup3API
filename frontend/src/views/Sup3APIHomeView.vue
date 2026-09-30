@@ -71,7 +71,6 @@
 
     <main id="home-content" tabindex="-1">
       <section class="sh-hero" aria-labelledby="home-title">
-        <div class="sh-hero-glow" aria-hidden="true"></div>
         <div class="sh-hero-grid sh-container">
           <div class="sh-hero-copy">
             <h1 id="home-title">让想象，<br /><span>多一个维度。</span></h1>

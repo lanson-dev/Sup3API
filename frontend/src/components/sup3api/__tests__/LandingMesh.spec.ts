@@ -112,6 +112,19 @@ it('stops hidden scenes, resumes visible scenes and releases GPU resources', asy
   expect(disconnectResize).toHaveBeenCalledOnce()
   expect(disconnectIntersection).toHaveBeenCalledOnce()
 })
+it('removes node targets and dismisses the tooltip when particles become the background', async () => {
+  const view = await open()
+  await view.get('[aria-label="图像生成"]').trigger('focus')
+  const project = createScene.mock.calls[0][1]
+  project([])
+  await flushPromises()
+  expect(view.findAll('button')).toHaveLength(0)
+  expect(view.find('[role="tooltip"]').exists()).toBe(false)
+  expect(scene.setNode).toHaveBeenLastCalledWith(null)
+  project([{ x: 50, y: 20, depth: .9 }])
+  await flushPromises()
+  expect(view.get('[aria-label="更多能力"]').exists()).toBe(true)
+})
 it('falls back when WebGL cannot initialize or its context is lost', async () => {
   createScene.mockImplementationOnce(() => {
     throw new Error('No WebGL')

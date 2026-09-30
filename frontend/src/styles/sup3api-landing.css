@@ -4,7 +4,7 @@ html:has(.sh-home) {
 .sh-home {
   --sh-bg: #090f0d;
   --sh-ink: #f0f4ef;
-  --sh-mint: #d1e9ab;
+  --sh-mint: #e0e8dc;
   --sh-line: #ffffff20;
   --sh-ease: cubic-bezier(0.22, 1, 0.36, 1);
   background: var(--sh-bg);
@@ -167,23 +167,6 @@ html:has(.sh-home) {
 }
 .sh-hero {
   position: relative;
-  overflow: clip;
-  background: radial-gradient(ellipse at 74% 43%, #283c2855, transparent 55%);
-}
-.sh-hero-glow {
-  position: absolute;
-  top: 60px;
-  right: -120px;
-  width: 850px;
-  height: 720px;
-  background: radial-gradient(
-    ellipse,
-    #b7d98726,
-    #568e7717 40%,
-    transparent 68%
-  );
-  filter: blur(30px);
-  pointer-events: none;
 }
 .sh-hero-grid {
   position: relative;
@@ -201,15 +184,11 @@ html:has(.sh-home) {
   margin-top: 0;
   font-size: clamp(54px, 5.6vw, 82px);
   line-height: 1.18;
-  font-weight: 600;
-  letter-spacing: -0.055em;
+  font-weight: 500;
+  letter-spacing: -0.045em;
 }
 .sh-home h1 span {
   color: var(--sh-mint);
-  background: linear-gradient(105deg, #e5f1d0 0%, #bbd79a 60%, #82b39b 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 .sh-hero-description {
   margin-top: 28px !important;
@@ -301,6 +280,12 @@ html:has(.sh-home) {
   color: #17281c;
   padding-block: 120px 90px;
   color-scheme: light;
+}
+.sh-capabilities > .sh-container,
+.sh-start-section > .sh-container,
+.sh-developers, .sh-faq, .sh-footer, .sh-providers {
+  position: relative;
+  z-index: 2;
 }
 .sh-home section[id] {
   scroll-margin-top: 100px;
@@ -1031,16 +1016,6 @@ html:has(.sh-home) {
   }
 }
 
-@keyframes sh-light-drift {
-  from {
-    transform: translate(-5%, -3%) scale(0.95);
-    opacity: 0.65;
-  }
-  to {
-    transform: translate(6%, 7%) scale(1.12);
-    opacity: 1;
-  }
-}
 @keyframes sh-cursor-pulse {
   50% {
     opacity: 0.25;
@@ -1057,9 +1032,6 @@ html:has(.sh-home) {
   }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .sh-hero-glow {
-    animation: sh-light-drift 12s ease-in-out infinite alternate;
-  }
   .sh-chat-cursor {
     animation: sh-cursor-pulse 1.4s ease-in-out infinite;
   }
