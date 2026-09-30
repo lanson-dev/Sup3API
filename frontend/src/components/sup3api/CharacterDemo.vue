@@ -60,27 +60,52 @@
         </button>
       </div>
       <div class="character-textures">
-        <figure
+        <button
           v-for="texture in materials[selected]?.textures"
           :key="texture.label"
+          :aria-label="`查看${texture.label}贴图`"
+          @click="openTexture(texture)"
         >
           <img
             :src="texture.image"
             :alt="`${texture.label}贴图`"
-            width="64"
-            height="64"
+            width="88"
+            height="88"
           />
-          <figcaption>{{ texture.label }}</figcaption>
-        </figure>
+          <span>{{ texture.label }}</span>
+        </button>
         <span v-if="!materials[selected]?.textures.length"
           >此材质使用纯色参数</span
         >
       </div>
-      <p class="character-parameters">
+      <p
+        v-if="!materials[selected]?.textures.some(t => t.label === '粗糙度' || t.label === '金属度')"
+        class="character-parameters"
+      >
         粗糙度 {{ materials[selected]?.roughness.toFixed(2) }} · 金属度
         {{ materials[selected]?.metalness.toFixed(2) }}
       </p>
     </div>
+    <dialog
+      ref="textureDialog"
+      class="texture-dialog"
+      :aria-label="`${expandedTexture?.label}贴图`"
+      @click="closeBackdrop"
+    >
+      <header>
+        <span>{{ expandedTexture?.label }}</span>
+        <button aria-label="关闭贴图" @click="textureDialog?.close()">
+          <Icon name="x" size="lg" aria-hidden="true" />
+        </button>
+      </header>
+      <img
+        v-if="expandedTexture"
+        :src="expandedTexture.image"
+        :alt="`${expandedTexture.label}贴图`"
+        width="512"
+        height="512"
+      />
+    </dialog>
     <figcaption class="character-credit">
       <span
         class="character-provider"
@@ -99,7 +124,7 @@
   </figure>
 </template>
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import Icon from '@/components/icons/Icon.vue'
 import PlatformIcon from '@/components/common/PlatformIcon.vue'
 import type {
@@ -125,6 +150,21 @@ const mode = ref<PreviewMode>('model'),
   error = ref(''),
   joints = ref(0)
 const materials = ref<MaterialInfo[]>([])
+const textureDialog = ref<HTMLDialogElement>()
+const expandedTexture = ref<MaterialInfo['textures'][number]>()
+async function openTexture(texture: MaterialInfo['textures'][number]) {
+  expandedTexture.value = texture
+  await nextTick()
+  textureDialog.value?.showModal()
+}
+function closeBackdrop(event: MouseEvent) {
+  if (event.target !== textureDialog.value) return
+  const bounds = textureDialog.value!.getBoundingClientRect()
+  if (
+    event.clientX < bounds.left || event.clientX > bounds.right ||
+    event.clientY < bounds.top || event.clientY > bounds.bottom
+  ) textureDialog.value?.close()
+}
 const visibleModes = computed(() =>
   modes.filter((item) => item.id !== 'skeleton' || joints.value > 0),
 )
@@ -193,6 +233,7 @@ onBeforeUnmount(() => {
   margin: 0;
   padding: 24px;
   color: #304d40;
+  background: radial-gradient(ellipse at 50% 30%, #fffdf5 0%, #f0f3ed 48%, #e3ebe2 100%);
 }
 .character-modes {
   display: flex;
@@ -229,7 +270,7 @@ a:focus-visible {
 }
 .character-viewport {
   position: relative;
-  height: 370px;
+  height: 400px;
 }
 canvas {
   width: 100%;
@@ -277,11 +318,11 @@ canvas:active {
   height: 22px;
 }
 .character-materials {
-  padding: 14px;
+  padding: 16px;
   margin-bottom: 10px;
   border: 1px solid #d9e0d9;
   border-radius: 14px;
-  background: #ffffffa6;
+  background: #ffffffb8;
 }
 .character-material-select {
   display: flex;
@@ -295,19 +336,50 @@ canvas:active {
   font-size: 12px;
 }
 .character-textures {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
   padding-top: 12px;
-  flex-wrap: wrap;
 }
-.character-textures figure {
-  margin: 0;
+.character-textures button {
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid #d9e0d9;
+  border-radius: 10px;
+  background: #fff;
   text-align: center;
-  font-size: 11px;
+  font-size: 12px;
+  transition: border-color .2s, transform .2s;
+}
+.character-textures button:hover {
+  border-color: #739781;
+  transform: translateY(-2px);
 }
 .character-textures img {
   border-radius: 6px;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.texture-dialog {
+  padding: 20px;
+  width: min(552px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  margin: auto;
+  border: 1px solid #d9e0d9;
+  border-radius: 20px;
+  background: #f7f8f3;
+  color: #304d40;
+  box-shadow: 0 30px 100px #08180f40;
+}
+.texture-dialog::backdrop { background: #09191099; backdrop-filter: blur(8px); }
+.texture-dialog header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.texture-dialog header button { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #e5ece3; }
+.texture-dialog > img { width: 100%; height: auto; border-radius: 10px; }
+@media (prefers-reduced-motion: reduce) {
+  .character-textures button { transition: none; }
 }
 .character-parameters {
   margin: 10px 0 0;

@@ -6,16 +6,21 @@ import {
   Mesh,
   MeshStandardMaterial,
   PerspectiveCamera,
+  PlaneGeometry,
+  PMREMGenerator,
   Scene,
+  ShadowMaterial,
   SkeletonHelper,
   SkinnedMesh,
   Texture,
   Vector3,
+  VSMShadowMap,
   WebGLRenderer,
 } from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 
 export type PreviewMode = 'model' | 'skeleton' | 'materials'
 export type MaterialInfo = {
@@ -30,7 +35,17 @@ export function createCharacterPreview(canvas: HTMLCanvasElement) {
   const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
   renderer.toneMapping = ACESFilmicToneMapping
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = VSMShadowMap
+  renderer.shadowMap.autoUpdate = false
   const scene = new Scene()
+  const studio = new RoomEnvironment()
+  const pmrem = new PMREMGenerator(renderer)
+  const environment = pmrem.fromScene(studio, 0.04)
+  scene.environment = environment.texture
+  scene.environmentIntensity = 0.3
+  studio.dispose()
+  pmrem.dispose()
   const camera = new PerspectiveCamera(36, 1, 0.01, 100)
   const controls = new OrbitControls(camera, canvas)
   controls.enableDamping = true
@@ -39,13 +54,29 @@ export function createCharacterPreview(canvas: HTMLCanvasElement) {
   controls.minDistance = 2.8
   controls.maxDistance = 7
   canvas.style.touchAction = 'pan-y'
-  scene.add(new HemisphereLight('#ffffff', '#6e776e', 2.2))
-  const key = new DirectionalLight('#fff5e6', 2.4)
-  key.position.set(-3, 4, 5)
+  scene.add(new HemisphereLight('#ffffff', '#7b827c', 1.5))
+  const key = new DirectionalLight('#fff5e6', 2)
+  key.position.set(-2, 8, 4)
+  key.castShadow = true
+  key.shadow.mapSize.set(512, 512)
+  Object.assign(key.shadow.camera, {
+    left: -2, right: 2, top: 2, bottom: -2, near: 0.1, far: 15,
+  })
+  key.shadow.normalBias = 0.025
+  key.shadow.radius = 12
+  key.shadow.blurSamples = 8
   scene.add(key)
-  const fill = new DirectionalLight('#e1efe9', 1)
+  const fill = new DirectionalLight('#e1efe9', 0.8)
   fill.position.set(3, 2, -3)
   scene.add(fill)
+  const ground = new Mesh(
+    new PlaneGeometry(20, 20),
+    new ShadowMaterial({ opacity: 0.12 }),
+  )
+  ground.rotation.x = -Math.PI / 2
+  ground.position.y = -1.01
+  ground.receiveShadow = true
+  scene.add(ground)
   const meshes: Mesh[] = []
   const materials: MeshStandardMaterial[] = []
   const original = new Map<
@@ -95,6 +126,7 @@ export function createCharacterPreview(canvas: HTMLCanvasElement) {
       const root = gltf.scene
       root.traverse((object) => {
         if (!(object instanceof Mesh)) return
+        object.castShadow = true
         meshes.push(object)
         for (const material of Array.isArray(object.material)
           ? object.material
@@ -135,7 +167,8 @@ export function createCharacterPreview(canvas: HTMLCanvasElement) {
       }
       skeleton.renderOrder = 2
       scene.add(skeleton)
-      camera.position.set(0.25, 0.1, 4.2)
+      camera.position.set(0.15, 0.18, 3.7)
+      renderer.shadowMap.needsUpdate = true
       controls.target.set(0, 0, 0)
       const bones = new Set(
         meshes.flatMap((mesh) =>
@@ -156,17 +189,29 @@ export function createCharacterPreview(canvas: HTMLCanvasElement) {
         ),
         textures: (
           [
-            ['颜色', material.map],
-            ['法线', material.normalMap],
-            ['粗糙度', material.roughnessMap],
-            ['金属度', material.metalnessMap],
+            ['颜色', material.map, -1],
+            ['法线', material.normalMap, -1],
+            ['粗糙度', material.roughnessMap, 1],
+            ['金属度', material.metalnessMap, 2],
+            ['遮蔽', material.aoMap, 0],
+            ['自发光', material.emissiveMap, -1],
           ] as const
-        ).flatMap(([label, texture]) => {
+        ).flatMap(([label, texture, channel]) => {
           if (!texture?.image) return []
           const thumbnail = document.createElement('canvas')
-          thumbnail.width = thumbnail.height = 128
-          thumbnail.getContext('2d')!.drawImage(texture.image, 0, 0, 128, 128)
-          return [{ label, image: thumbnail.toDataURL('image/webp') }]
+          thumbnail.width = thumbnail.height = 512
+          const context = thumbnail.getContext('2d')!
+          context.drawImage(texture.image, 0, 0, 512, 512)
+          // glTF packs roughness in G, metalness in B and occlusion in R.
+          if (channel >= 0) {
+            const pixels = context.getImageData(0, 0, 512, 512)
+            for (let i = 0; i < pixels.data.length; i += 4) {
+              const value = pixels.data[i + channel]
+              pixels.data[i] = pixels.data[i + 1] = pixels.data[i + 2] = value
+            }
+            context.putImageData(pixels, 0, 0)
+          }
+          return [{ label, image: thumbnail.toDataURL('image/png') }]
         }),
       }))
       wake()
@@ -174,6 +219,7 @@ export function createCharacterPreview(canvas: HTMLCanvasElement) {
     },
     setMode(mode: PreviewMode, selected = 0) {
       if (skeleton) skeleton.visible = mode === 'skeleton'
+      ground.visible = mode !== 'skeleton'
       for (const [index, material] of materials.entries()) {
         const dimmed =
           mode === 'skeleton' || (mode === 'materials' && index !== selected)
@@ -214,6 +260,10 @@ export function createCharacterPreview(canvas: HTMLCanvasElement) {
       cancelAnimationFrame(frame)
       controls.dispose()
       releaseModel()
+      ground.geometry.dispose()
+      ground.material.dispose()
+      key.shadow.dispose()
+      environment.dispose()
       renderer.dispose()
     },
   }

@@ -85,7 +85,7 @@ it('keeps the actual asset download available when preview loading fails', async
   )
   expect(
     wrapper
-      .findAll('button')
+      .findAll('.character-modes button')
       .every((button) => button.attributes('disabled') !== undefined),
   ).toBe(true)
   expect(viewer.dispose).toHaveBeenCalledOnce()
@@ -118,4 +118,25 @@ it('waits until visible to load and hides skeleton tools for scene props', async
   await flushPromises()
   expect(viewer.load).toHaveBeenCalledWith('/wings.glb', 0)
   expect(wrapper.find('[aria-label="骨骼"]').exists()).toBe(false)
+})
+
+it('opens actual PBR maps and does not show texture multipliers as surface values', async () => {
+  viewer.load.mockResolvedValue({ joints: 65, materials: [{
+    name: '材质 1', meshes: ['网格 1'], roughness: 1, metalness: 1,
+    textures: ['颜色', '法线', '粗糙度', '金属度'].map(label => ({ label, image: `data:image/png;base64,${label}` })),
+  }] })
+  wrapper = mount(CharacterDemo, { props: { modelUrl: '/pbr.glb', rotation: 0, name: '角色' } })
+  intersect([{ isIntersecting: true }])
+  await flushPromises()
+  await wrapper.get('[aria-label="材质"]').trigger('click')
+  expect(wrapper.find('.character-parameters').exists()).toBe(false)
+  const dialog = wrapper.get('dialog').element as HTMLDialogElement
+  dialog.showModal = vi.fn()
+  dialog.close = vi.fn()
+  await wrapper.get('[aria-label="查看法线贴图"]').trigger('click')
+  await flushPromises()
+  expect(dialog.showModal).toHaveBeenCalledOnce()
+  expect(wrapper.get('dialog img').attributes('src')).toBe('data:image/png;base64,法线')
+  await wrapper.get('[aria-label="关闭贴图"]').trigger('click')
+  expect(dialog.close).toHaveBeenCalledOnce()
 })
