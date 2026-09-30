@@ -137,9 +137,8 @@ onBeforeUnmount(() => {
   min-width: 0;
   display: grid;
   place-items: center;
-  cursor: grab;
+  cursor: default;
 }
-.sh-mesh-stage:active { cursor: grabbing; }
 .sh-mesh-surface {
   position: fixed;
   inset: 0;
