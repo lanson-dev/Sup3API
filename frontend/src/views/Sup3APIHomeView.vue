@@ -76,7 +76,7 @@
           <div class="sh-hero-copy">
             <h1 id="home-title">让想象，<br /><span>多一个维度。</span></h1>
             <p class="sh-hero-description">
-              从文字、图像，到三维世界。<br />连接领先的生成模型，让灵感成为应用的一部分。
+              从文字、图像，到三维世界。<br />一个入口，连接你的应用与生成模型。
             </p>
             <div class="sh-actions">
               <RouterLink to="/connect" class="sh-button sh-button-mint"

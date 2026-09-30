@@ -4,7 +4,7 @@ html:has(.sh-home) {
 .sh-home {
   --sh-bg: #090f0d;
   --sh-ink: #f0f4ef;
-  --sh-mint: #c0f4c7;
+  --sh-mint: #d1e9ab;
   --sh-line: #ffffff20;
   --sh-ease: cubic-bezier(0.22, 1, 0.36, 1);
   background: var(--sh-bg);
@@ -168,7 +168,7 @@ html:has(.sh-home) {
 .sh-hero {
   position: relative;
   overflow: clip;
-  background: radial-gradient(ellipse at 74% 43%, #15322955, transparent 52%);
+  background: radial-gradient(ellipse at 74% 43%, #283c2855, transparent 55%);
 }
 .sh-hero-glow {
   position: absolute;
@@ -178,8 +178,8 @@ html:has(.sh-home) {
   height: 720px;
   background: radial-gradient(
     ellipse,
-    #80e7c338,
-    #5b8ca71a 40%,
+    #b7d98726,
+    #568e7717 40%,
     transparent 68%
   );
   filter: blur(30px);
@@ -206,7 +206,7 @@ html:has(.sh-home) {
 }
 .sh-home h1 span {
   color: var(--sh-mint);
-  background: linear-gradient(105deg, #e2f9d6 0%, #a4dfb7 60%, #64b69f 100%);
+  background: linear-gradient(105deg, #e5f1d0 0%, #bbd79a 60%, #82b39b 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

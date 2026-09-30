@@ -6,6 +6,7 @@ const scene = vi.hoisted(() => ({
   setActive: vi.fn(),
   resize: vi.fn(),
   setPlaying: vi.fn(),
+  setNode: vi.fn(),
   dispose: vi.fn(),
 }))
 const createScene = vi.hoisted(() => vi.fn())
@@ -19,7 +20,13 @@ let wrapper: VueWrapper | undefined
 beforeEach(() => {
   vi.clearAllMocks()
   reduced = false
-  createScene.mockReturnValue(scene)
+  createScene.mockImplementation((_: HTMLCanvasElement, project: (points: unknown[]) => void) => {
+    project([
+      { x: 50, y: 20, depth: 0.9 }, { x: 25, y: 70, depth: 0.9 },
+      { x: 75, y: 70, depth: 0.9 }, { x: 50, y: 55, depth: 0.95 },
+    ])
+    return scene
+  })
   vi.stubGlobal('matchMedia', () => ({
     get matches() {
       return reduced
@@ -54,21 +61,40 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 async function open() {
-  wrapper = mount(LandingMesh)
+  wrapper = mount(LandingMesh, { global: { stubs: { transition: true } } })
   await flushPromises()
   return wrapper
 }
 
-it('auto-rotates without control buttons and respects reduced motion', async () => {
+it('auto-rotates with only capability hotspots and respects reduced motion', async () => {
   const view = await open()
   expect(scene.setPlaying).toHaveBeenLastCalledWith(true)
-  expect(view.findAll('button')).toHaveLength(0)
+  expect(view.findAll('button')).toHaveLength(4)
+  expect(view.find('.sh-mesh-controls').exists()).toBe(false)
+  expect(view.find('[role="tooltip"]').exists()).toBe(false)
   reduced = true
   motion({ matches: true })
   expect(scene.setPlaying).toHaveBeenLastCalledWith(false)
   reduced = false
   motion({ matches: false })
   expect(scene.setPlaying).toHaveBeenLastCalledWith(true)
+})
+
+it('reveals node capabilities only on hover or focus and clears flow on dismissal', async () => {
+  const view = await open()
+  const more = view.get('[aria-label="更多能力"]')
+  await more.trigger('pointerenter', { pointerType: 'mouse' })
+  expect(view.get('[role="tooltip"]').text()).toContain('骨骼 · 动画 · 重拓扑')
+  expect(scene.setNode).toHaveBeenLastCalledWith(0)
+  await more.trigger('pointerleave')
+  expect(view.find('[role="tooltip"]').exists()).toBe(false)
+  expect(scene.setNode).toHaveBeenLastCalledWith(null)
+  await view.get('[aria-label="图像生成"]').trigger('focus')
+  expect(scene.setNode).toHaveBeenLastCalledWith(2)
+  expect(view.get('[role="tooltip"]').text()).toContain('图像生成')
+  await view.get('figure').trigger('keydown', { key: 'Escape' })
+  expect(scene.setNode).toHaveBeenLastCalledWith(null)
+  expect(view.find('[role="tooltip"]').exists()).toBe(false)
 })
 it('stops hidden scenes, resumes visible scenes and releases GPU resources', async () => {
   await open()
