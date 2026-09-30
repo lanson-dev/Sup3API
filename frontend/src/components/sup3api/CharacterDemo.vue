@@ -232,17 +232,17 @@ onBeforeUnmount(() => {
   width: 100%;
   margin: 0;
   padding: 24px;
-  color: #304d40;
-  background: radial-gradient(ellipse at 50% 30%, #fffdf5 0%, #f0f3ed 48%, #e3ebe2 100%);
+  color: #d9e6dd;
+  background: radial-gradient(ellipse at 50% 35%, #28392e 0%, #1b2921 48%, #131e18 100%);
 }
 .character-modes {
   display: flex;
   gap: 4px;
   width: fit-content;
   padding: 4px;
-  border: 1px solid #d9e0d9;
+  border: 1px solid #ffffff20;
   border-radius: 24px;
-  background: #ffffffa6;
+  background: #111a16cc;
   margin-inline: auto;
 }
 .character-modes button {
@@ -255,7 +255,7 @@ onBeforeUnmount(() => {
   font-size: 13px;
 }
 button[aria-pressed='true'] {
-  background: #244c3b;
+  background: #365340;
   color: #fff;
 }
 button:disabled {
@@ -265,7 +265,7 @@ button:disabled {
 button:focus-visible,
 canvas:focus-visible,
 a:focus-visible {
-  outline: 2px solid #477b5c;
+  outline: 2px solid #98c5a5;
   outline-offset: 3px;
 }
 .character-viewport {
@@ -305,13 +305,13 @@ canvas:active {
   height: 44px;
   display: grid;
   place-items: center;
-  border: 1px solid #d9e0d9;
+  border: 1px solid #ffffff20;
   border-radius: 50%;
-  background: #ffffff90;
+  background: #ffffff08;
   transition: background 0.2s;
 }
 .character-credit a:hover {
-  background: #fff;
+  background: #263b2f;
 }
 .character-modes svg {
   width: 22px;
@@ -320,9 +320,9 @@ canvas:active {
 .character-materials {
   padding: 16px;
   margin-bottom: 10px;
-  border: 1px solid #d9e0d9;
+  border: 1px solid #ffffff20;
   border-radius: 14px;
-  background: #ffffffb8;
+  background: #111a16dd;
 }
 .character-material-select {
   display: flex;
@@ -344,15 +344,15 @@ canvas:active {
 .character-textures button {
   min-width: 0;
   padding: 6px;
-  border: 1px solid #d9e0d9;
+  border: 1px solid #ffffff20;
   border-radius: 10px;
-  background: #fff;
+  background: #263b2f;
   text-align: center;
   font-size: 12px;
   transition: border-color .2s, transform .2s;
 }
 .character-textures button:hover {
-  border-color: #739781;
+  border-color: #98c5a5;
   transform: translateY(-2px);
 }
 .character-textures img {
@@ -368,15 +368,15 @@ canvas:active {
   max-height: calc(100dvh - 32px);
   overflow: auto;
   margin: auto;
-  border: 1px solid #d9e0d9;
+  border: 1px solid #ffffff20;
   border-radius: 20px;
-  background: #f7f8f3;
-  color: #304d40;
+  background: #16221b;
+  color: #d9e6dd;
   box-shadow: 0 30px 100px #08180f40;
 }
 .texture-dialog::backdrop { background: #09191099; backdrop-filter: blur(8px); }
 .texture-dialog header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.texture-dialog header button { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #e5ece3; }
+.texture-dialog header button { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #293b30; }
 .texture-dialog > img { width: 100%; height: auto; border-radius: 10px; }
 @media (prefers-reduced-motion: reduce) {
   .character-textures button { transition: none; }
@@ -384,7 +384,7 @@ canvas:active {
 .character-parameters {
   margin: 10px 0 0;
   font-size: 12px;
-  color: #617368;
+  color: #aabeb0;
 }
 @media (max-width: 480px) {
   .character-demo {

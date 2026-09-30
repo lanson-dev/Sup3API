@@ -5,7 +5,7 @@
       ref="canvas"
       class="sh-mesh-surface"
       role="img"
-      aria-label="粒子汇聚成三棱锥与核心，向下滚动时展开为点阵"
+      aria-label="可拖动旋转的粒子三棱锥与核心，向下滚动时展开为点阵"
       @webglcontextlost.prevent="onContextLost"
     />
     <template v-if="supported">
@@ -137,8 +137,9 @@ onBeforeUnmount(() => {
   min-width: 0;
   display: grid;
   place-items: center;
-  cursor: default;
+  cursor: grab;
 }
+.sh-mesh-stage:active { cursor: grabbing; }
 .sh-mesh-surface {
   position: fixed;
   inset: 0;

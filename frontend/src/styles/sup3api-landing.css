@@ -276,10 +276,10 @@ html:has(.sh-home) {
 }
 
 .sh-capabilities {
-  background: #f3f5f1;
-  color: #17281c;
+  background: var(--sh-bg);
+  color: var(--sh-ink);
   padding-block: 120px 90px;
-  color-scheme: light;
+  color-scheme: dark;
 }
 .sh-capabilities > .sh-container,
 .sh-start-section > .sh-container,
@@ -297,21 +297,21 @@ html:has(.sh-home) {
   letter-spacing: -0.055em;
 }
 .sh-section-heading > p {
-  color: #5e7062;
+  color: #aab8ae;
   font-size: 16px;
   line-height: 1.85;
   margin-top: 24px;
 }
 .sh-section-heading h2 span {
-  color: #7b8b7e;
+  color: #98ad9e;
 }
 .sh-capability-tabs {
   display: flex;
   gap: 6px;
   padding: 5px;
   width: fit-content;
-  background: #e3e8df;
-  border: 1px solid #dce2d7;
+  background: #121c17;
+  border: 1px solid #ffffff20;
   border-radius: 99px;
   margin-top: 38px;
 }
@@ -323,7 +323,7 @@ html:has(.sh-home) {
   padding: 9px 22px;
   border: 0;
   background: transparent;
-  color: #55645a;
+  color: #aab8ae;
   border-radius: 99px;
   font-size: 13px;
   transition:
@@ -332,9 +332,9 @@ html:has(.sh-home) {
     box-shadow 180ms;
 }
 .sh-capability-tabs button[aria-selected='true'] {
-  background: #fff;
-  color: #182d20;
-  box-shadow: 0 2px 8px #2a3a2210;
+  background: #293b30;
+  color: #edf3ed;
+  box-shadow: 0 2px 8px #00000020;
 }
 .sh-capability-panel {
   display: grid;
@@ -342,9 +342,9 @@ html:has(.sh-home) {
   margin-top: 26px;
   min-height: 490px;
   border-radius: 28px;
-  background: #fff;
+  background: #111a16;
   overflow: clip;
-  border: 1px solid #e0e6dd;
+  border: 1px solid #ffffff18;
 }
 .sh-capability-copy {
   padding: 64px 52px;
@@ -359,7 +359,7 @@ html:has(.sh-home) {
 }
 .sh-capability-copy > p {
   font-size: 16px;
-  color: #59675c;
+  color: #aab8ae;
   line-height: 1.95;
   margin-top: 16px;
   max-width: 365px;
@@ -371,34 +371,34 @@ html:has(.sh-home) {
   margin: 28px 0;
   list-style: none;
   font-size: 14px;
-  color: #4f6254;
+  color: #b3c2b8;
 }
 .sh-capability-copy li {
   display: flex;
   gap: 10px;
 }
 .sh-capability-copy li span {
-  color: #537d5c;
+  color: #a9c8b3;
 }
 .sh-capability-copy .sh-text-link {
   font-size: 13px;
-  color: #28593d;
+  color: #c1dbc8;
 }
 .sh-capability-art {
   position: relative;
   min-width: 0;
   overflow: hidden;
-  background: radial-gradient(ellipse at center, #e1ecdc, #edf2e9 60%, #f4f6f0);
+  background: radial-gradient(ellipse at center, #1b2b22, #142019 60%, #111a16);
   display: grid;
   align-items: center;
   padding: 40px;
 }
 .sh-capability-mesh .sh-capability-art {
   padding: 0;
-  background: #edf0ec;
+  background: #131e18;
 }
 .sh-capability-image .sh-capability-art {
-  background: #ecece9;
+  background: #131e18;
   padding: 20px;
 }
 .sh-image-demo {
@@ -416,7 +416,7 @@ html:has(.sh-home) {
   box-shadow: 0 15px 40px #263d3014;
 }
 .sh-image-demo figcaption {
-  color: #5c7061;
+  color: #aab8ae;
   font-size: 12px;
 }
 
@@ -1058,7 +1058,7 @@ html:has(.sh-home) {
   display: flex;
   gap: 6px;
   padding: 4px;
-  border: 1px solid #dce3d9;
+  border: 1px solid #ffffff20;
   border-radius: 28px;
 }
 .sh-demo-picker button {
@@ -1069,15 +1069,15 @@ html:has(.sh-home) {
   min-height: 44px;
   border-radius: 24px;
   font-size: 13px;
-  color: #57685b;
+  color: #aab8ae;
   transition:
     background 0.2s,
     box-shadow 0.2s;
 }
 .sh-demo-picker button[aria-pressed='true'] {
-  background: #fff;
-  color: #193e2b;
-  box-shadow: 0 2px 8px #203b2210;
+  background: #293b30;
+  color: #edf3ed;
+  box-shadow: 0 2px 8px #00000020;
 }
 .sh-demo-picker img {
   width: 36px;
@@ -1090,17 +1090,17 @@ html:has(.sh-home) {
 }
 .sh-prompt-demo h4 {
   font-size: 22px;
-  color: #244536;
+  color: #e2ece5;
   margin: 0 0 20px;
 }
 .sh-prompt-demo > p {
   font-size: 16px;
   line-height: 1.9;
-  color: #456050;
+  color: #b2c3b8;
 }
 .sh-full-prompt {
   margin: 22px 0 28px;
-  color: #456050;
+  color: #b2c3b8;
   font-size: 13px;
 }
 .sh-full-prompt summary {
@@ -1125,7 +1125,7 @@ html:has(.sh-home) {
   flex-wrap: wrap;
   gap: 16px;
   font-size: 13px;
-  color: #355640;
+  color: #c1d5c8;
 }
 @media (max-width: 480px) {
   .sh-demo-toolbar {
